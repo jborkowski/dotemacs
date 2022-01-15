@@ -1,0 +1,16 @@
+.local/
+auto-save/
+backup/
+straight/
+eln-cache/
+auto-save-list/
+elpa/
+eshell/
+etc/
+var/
+.last-package-update-day
+history
+recentf
+\*~
+\#*\#
+.\#*

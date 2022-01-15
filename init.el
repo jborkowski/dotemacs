@@ -29,7 +29,7 @@
   :if (memq window-system '(mac ns x))
   :hook (after-init . exec-path-from-shell-initialize)))
 
-(defun nate/org-babel-tangle-config ()
+(defun bore/org-babel-tangle-config ()
   "Automatically tangle Emacs.org config when saving a file."
   (when (string-equal (file-name-directory (buffer-file-name))
                       (expand-file-name user-emacs-directory))
@@ -37,7 +37,7 @@
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
 
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'nate/org-babel-tangle-config)))
+(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'bore/org-babel-tangle-config)))
 
 ;; Some Garbage Collection Magic Hack
 (use-package gcmh
@@ -76,37 +76,39 @@
 
 (use-package ligature
   :straight (ligature :host github
-                      :repo "mickeynp/ligature.el")
+		      :repo "mickeynp/ligature.el")
   :config
   ;; Enable all Recursive ligatures in programming modes
   (ligature-set-ligatures 'prog-mode '("==" "===" "!=" "!==" "=/=" "!!" "??"
-                                       "%%" "&&" "&&&" "||" "|||" "=>" "->" "<-"
-                                       "##" "###" "####" "//" "f\"" "f'" "${"
-                                       "?." "?:" "/*" "*/" "///" "'''" "\"\"\""
-                                       "```" "<!--" "-->" ">-" "-<" "::" ">>"
-                                       ">>>" "<<" "<<<" "://" "++" "+++" "--"
-                                       "---" "**" "***" "+=" "-=" "*=" "/=" "=~"
-                                       "<*" "<*>" "<|" "|>" "<|>" "<$>" "<=>"
-                                       "<>" "<+>" ">>-" "-<<" "__" "-[ ]" "-[x]"
-                                       "\\b" "\\n" "\\r" "\\t" "\\v" "|=" "!~"
-                                       "<<~" "<<=" ">>=" "=<<"))
+				       "%%" "&&" "&&&" "||" "|||" "=>" "->" "<-"
+				       "##" "###" "####" "//" "f\"" "f'" "${"
+				       "?." "?:" "/*" "*/" "///" "'''" "\"\"\""
+				       "```" "<!--" "-->" ">-" "-<" "::" ">>"
+				       ">>>" "<<" "<<<" "://" "++" "+++" "--"
+				       "---" "**" "***" "+=" "-=" "*=" "/=" "=~"
+				       "<*" "<*>" "<|" "|>" "<|>" "<$>" "<=>"
+				       "<>" "<+>" ">>-" "-<<" "__" "-[ ]" "-[x]"
+				       "\\b" "\\n" "\\r" "\\t" "\\v" "|=" "!~"
+				       "<<~" "<<=" ">>=" "=<<"))
   ;; Enables ligature checks globally in all buffers. You can also do it
   ;; per mode with `ligature-mode'.
   (global-ligature-mode t))
 
-;; Set the font face based on platform
-(defun nate/setup-font-faces ()
+(defun bore/with-font-faces ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
       (set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'regular))
       (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'regular))
       (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'light))))
 
-(add-hook 'after-init-hook 'nate/setup-font-faces)
-(add-hook 'server-after-make-frame-hook 'nate/setup-font-faces)
+(add-hook 'after-init-hook 'bore/with-font-faces)
+(add-hook 'server-after-make-frame-hook 'bore/with-font-faces)
 
 ;; Make those lambdas pretty again
 (global-prettify-symbols-mode t)
+
+;; For the first time remember to run M-x all-the-icons-install-fonts
+(use-package all-the-icons)
 
 ;; Happy people don't count numbers, they also have a small performance boost to Emacs
 (setq display-line-numbers-type nil)
@@ -171,9 +173,33 @@ This is a variadic `cl-pushnew'."
 (use-package undo-tree)
 (global-undo-tree-mode 1)
 
-;; enable global evil
+(use-package general
+  :config
+  (general-create-definer bore/leader-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
+
+  (bore/leader-keys
+    "t"  '(:ignore t :which-key "theme")
+    "tt" '(consult-theme :which-key "choose theme")))
+
+(defvar evil-want-C-g-bindings t)
+(defvar evil-want-C-i-jump nil)  ; we do this ourselves
+(defvar evil-want-C-u-scroll t)  ; moved the universal arg to <leader> u
+(defvar evil-want-C-u-delete t)
+(defvar evil-want-C-w-scroll t)
+(defvar evil-want-C-w-delete t)
+(defvar evil-want-Y-yank-to-eol t)
+(defvar evil-want-abbrev-expand-on-insert-exit nil)
+(defvar evil-respect-visual-line-mode nil)
+  ;; enable global evil
   (use-package evil
     :straight t
+    :init
+    (setq evil-want-integration t)
+    (setq evil-want-keybinding nil)
+					  ;:hooko (evil-mode . )
     :preface
     (setq evil-ex-search-vim-style-regexp t
 	  evil-ex-visual-char-range t  ; column range for ex commands
@@ -196,20 +222,22 @@ This is a variadic `cl-pushnew'."
 	  evil-undo-system 'undo-tree );; or 'undo-redo
 
     :config
+    (evil-mode 1)
     (evil-select-search-module 'evil-search-module 'evil-search)
+
     ;; stop copying each visual state move to the clipboard:
     ;; https://github.com/emacs-evil/evil/issues/336
     ;; grokked from:
     ;; http://stackoverflow.com/questions/15873346/elisp-rename-macro
     (advice-add #'evil-visual-update-x-selection :override #'ignore)
-
+    (advice-add #'help-with-tutorial :after (lambda (&rest _) (evil-emacs-state +1)))
     (defun +evil-default-cursor-fn ()
       (evil-set-cursor-color (get 'cursor 'evil-normal-color)))
     (defun +evil-emacs-cursor-fn ()
       (evil-set-cursor-color (get 'cursor 'evil-emacs-color)))
     ;; Ensure `evil-shift-width' always matches `tab-width'; evil does not police
     ;; this itself, so we must.
-;;    (setq-hook! 'after-change-major-mode-hook evil-shift-width tab-width)
+    ;;    (setq-hook! 'after-change-major-mode-hook evil-shift-width tab-width)
 
 
     )
@@ -294,23 +322,16 @@ This is a variadic `cl-pushnew'."
   (use-package exato
     :commands evil-outer-xml-attr evil-inner-xml-attr)
 
-(setq ;; evil-collection-company-use-tng company
-	;; must be set before evil/evil-collection is loaded
-	evil-want-keybinding nil)
-  (use-package evil-collection
-    :after evil
-    :straight t
-    :config
-    (evil-collection-init)
+(use-package evil-collection
+  :after evil
+  :straight t
+  :config
+  (evil-collection-init) )
 
-
-)
-
-;; A few more useful configurations...
 (use-package emacs
       :straight nil
       :bind
-      (("C-x K"   . nate/kill-buffer)
+      (("C-x K"   . bore/kill-buffer)
        ("C-z"     . repeat)
        ("C-c q q" . kill-emacs))
       :init
@@ -320,7 +341,7 @@ This is a variadic `cl-pushnew'."
 	(cons (concat "[CRM] " (car args)) (cdr args)))
       (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-    ;; TAB cycle if there are only few candidates
+      ;; TAB cycle if there are only few candidates
       (setq completion-cycle-threshold 3)
 
       ;; Do not allow the cursor in the minibuffer prompt
@@ -343,7 +364,7 @@ This is a variadic `cl-pushnew'."
       ;; `completion-at-point' is often bound to M-TAB.
       (setq tab-always-indent 'complete))
 
-(defun nate/kill-buffer (&optional arg)
+(defun bore/kill-buffer (&optional arg)
   "Kill buffer which is currently visible (ARG)."
   (interactive "P")
   (if arg
@@ -435,10 +456,10 @@ This is a variadic `cl-pushnew'."
   (electric-indent-mode 1)
   (electric-pair-mode 1))
 
-(setq scroll-conservatively 101                    ;; value greater than 100 gets rid of half page jumping
-      mouse-wheel-scroll-amount '(3 ((shift) . 3)) ;; how many lines at a time
-      mouse-wheel-progressive-speed t              ;; accelerate scrolling
-      mouse-wheel-follow-mouse 't)                 ;; scroll window under mouse
+(setq scroll-conservatively 101                    ; value greater than 100 gets rid of half page jumping
+      mouse-wheel-scroll-amount '(3 ((shift) . 3)) ; how many lines at a time
+      mouse-wheel-progressive-speed t              ; accelerate scrolling
+      mouse-wheel-follow-mouse 't)                 ; scroll window under mouse
 
 (use-package isearch
   :straight nil
@@ -499,40 +520,41 @@ This is a variadic `cl-pushnew'."
   :config
   (minions-mode 1))
 
-;; What was it? Which key was it? But what prefix started all of this...
-  (use-package which-key
-      :straight t
-	  :defer t
-	      :init (which-key-mode)
-		  :config
-		      (setq which-key-idle-delay 0.5))
+(use-package which-key
+  :straight t
+  :defer t
+  :init (which-key-mode)
+  :config
+  (setq which-key-idle-delay 0.5))
 
-  ;; I dont know everything, I just know what I know
-    (use-package helpful
-	:straight t
-	    :commands helpful-callable helpful-variable helpful-command helpful-key
-		:bind
-		    ([remap describe-function] . helpful-function)
-			([remap describe-command]  . helpful-command)
-			    ([remap describe-variable] . helpful-variable)
-				([remap describe-key]      . helpful-key))
+(use-package helpful
+  :straight t
+  :commands helpful-callable helpful-variable helpful-command helpful-key
+  :bind
+  ([remap describe-function] . helpful-function)
+  ([remap describe-command]  . helpful-command)
+  ([remap describe-variable] . helpful-variable)
+  ([remap describe-key]      . helpful-key))
 
 (use-package dired
     :straight nil
-	:commands dired dired-jump
-	    :config
-		(setq dired-kill-when-opening-new-dired-buffer t
-		          delete-by-moving-to-trash t
-			            dired-dwim-target t
-					      dired-recursive-copies 'always
-						        dired-recursive-deletes 'always))
+    :commands dired dired-jump
+    :config
+    (setq dired-kill-when-opening-new-dired-buffer t
+	  delete-by-moving-to-trash t
+	  dired-dwim-target t
+	  dired-recursive-copies 'always
+	  dired-recursive-deletes 'always))
 
-  (use-package consult-dir
-      :straight t
-	  :bind (("C-x C-d" . consult-dir)
-	             :map vertico-map
-			        ("C-x C-d" . consult-dir)
-				           ("C-x C-j" . consult-dir-jump-file)))
+(use-package consult-dir
+  :straight t
+  :bind (("C-x C-d" . consult-dir)
+	 :map vertico-map
+	 ("C-x C-d" . consult-dir)
+	 ("C-x C-j" . consult-dir-jump-file)))
+
+(use-package org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
 ;; Enable vertigo
 (use-package vertico
@@ -593,7 +615,7 @@ This is a variadic `cl-pushnew'."
 	       :config
 	       (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
 
-(use-package consult
+( use-package consult
   :straight t
   :defer t
   :bind (;; C-x bindings (ctl-x-map)
@@ -646,7 +668,7 @@ This is a variadic `cl-pushnew'."
 
   :config
   (consult-customize
-   consult-themes
+   consult-theme
    :preview-key '(:debounce 0.5 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
@@ -666,10 +688,6 @@ This is a variadic `cl-pushnew'."
 	    (car (project-roots project))))))
 
 (setq xterm-set-window-title t)
-		 (setq visible-cursor nil)
-		  ;; Enable the mouse in terminal Emacs
-		  (add-hook 'tty-setup-hook #'xterm-mouse-mode)
-	 (defun minibuffer-bg ()
-	      (set (make-local-variable 'face-remapping-alist)
-		   '((default :background "#0000ff"))))
-;;	     (add-hook 'minibuffer-setup-hook 'minibuffer-bg)
+(setq visible-cursor nil)
+;; Enable the mouse in terminal Emacs
+(add-hook 'tty-setup-hook #'xterm-mouse-mode)

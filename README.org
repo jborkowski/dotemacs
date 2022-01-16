@@ -235,33 +235,6 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 #+end_src
 
-* Term
-#+begin_src emacs-lisp
-   (use-package eshell
-      :straight nil
-      :commands eshell
-      :bind ("C-c o E" . eshell)
-      :config
-      (setq eshell-kill-processes-on-exit t
-	    eshell-highlight-prompt t
-	    eshell-hist-ignoredups t
-	    eshell-prompt-regexp "^.* λ "))
-
-    (use-package eshell-syntax-highlighting
-      :straight t
-      :after eshell-mode
-      :config
-      (eshell-syntax-highlighting-global-mode +1))
-
-    (use-package eshell-toggle
-      :straight t
-      :commands eshell-toggle
-      :bind ("C-c o e" . eshell-toggle)
-      :custom
-      (eshell-toggle-size-fraction 4)
-      (eshell-toggle-run-command nil))
-
-#+end_src
 * Emacs
 ** pushnew!
 
@@ -304,172 +277,295 @@ This is a variadic `cl-pushnew'."
   (use-package undo-tree)
   (global-undo-tree-mode 1)
 #+end_src
-** Key Bindings
- #+begin_src emacs-lisp
-(use-package general
-  :config
-  (general-create-definer bore/leader-keys
-    :keymaps '(normal insert visual emacs)
-    :prefix "SPC"
-    :global-prefix "C-SPC")
-
-  (bore/leader-keys
-    "t"  '(:ignore t :which-key "theme")
-    "tt" '(consult-theme :which-key "choose theme")))
-
-
-#+end_src
-** Evil
+** Evil mode
+*** Evil
 #+begin_src emacs-lisp
-    (defvar evil-want-C-g-bindings t)
-  (defvar evil-want-C-i-jump nil)  ; we do this ourselves
-  (defvar evil-want-C-u-scroll t)  ; moved the universal arg to <leader> u
-  (defvar evil-want-C-u-delete t)
-  (defvar evil-want-C-w-scroll t)
-  (defvar evil-want-C-w-delete t)
-  (defvar evil-want-Y-yank-to-eol t)
-  (defvar evil-want-abbrev-expand-on-insert-exit nil)
-  (defvar evil-respect-visual-line-mode nil)
-    ;; enable global evil
-    (use-package evil
-      :straight t
-      :init
-      (setq evil-want-integration t)
-      (setq evil-want-keybinding nil)
-					    ;:hooko (evil-mode . )
-      :preface
-      (setq evil-ex-search-vim-style-regexp t
-	    evil-ex-visual-char-range t  ; column range for ex commands
-	    evil-mode-line-format 'nil
-	    ;; more vim-like behavior
-	    evil-symbol-word-search t
-	    ;; if the current state is obvious from the cursor's color/shape, then
-	    ;; we won't need superfluous indicators to do it instead.
-	    evil-default-cursor '+evil-default-cursor-fn
-	    evil-normal-state-cursor 'box
-	    evil-emacs-state-cursor  '(box +evil-emacs-cursor-fn)
-	    evil-insert-state-cursor 'bar
-	    evil-visual-state-cursor 'hollow
-	    ;; Only do highlighting in selected window so that Emacs has less work
-	    ;; to do highlighting them all.
-	    evil-ex-interactive-search-highlight 'selected-window
-	    ;; It's infuriating that innocuous "beginning of line" or "end of line"
-	    ;; errors will abort macros, so suppress them:
-	    evil-kbd-macro-suppress-motion-error t
-	    evil-undo-system 'undo-tree );; or 'undo-redo
 
-      :config
-      (evil-mode 1)
-      (evil-select-search-module 'evil-search-module 'evil-search)
+(defvar evil-want-C-g-bindings t)
+(defvar evil-want-C-i-jump nil)  ; we do this ourselves
+(defvar evil-want-C-u-scroll t)  ; moved the universal arg to <leader> u
+(defvar evil-want-C-u-delete t)
+(defvar evil-want-C-w-scroll t)
+(defvar evil-want-C-w-delete t)
+(defvar evil-want-Y-yank-to-eol t)
+(defvar evil-want-abbrev-expand-on-insert-exit nil)
+(defvar evil-respect-visual-line-mode nil)
 
-      ;; stop copying each visual state move to the clipboard:
-      ;; https://github.com/emacs-evil/evil/issues/336
-      ;; grokked from:
-      ;; http://stackoverflow.com/questions/15873346/elisp-rename-macro
-      (advice-add #'evil-visual-update-x-selection :override #'ignore)
-      (advice-add #'help-with-tutorial :after (lambda (&rest _) (evil-emacs-state +1)))
-      (defun +evil-default-cursor-fn ()
-	(evil-set-cursor-color (get 'cursor 'evil-normal-color)))
-      (defun +evil-emacs-cursor-fn ()
-	(evil-set-cursor-color (get 'cursor 'evil-emacs-color)))
-      ;; Ensure `evil-shift-width' always matches `tab-width'; evil does not police
-      ;; this itself, so we must.
-      ;;    (setq-hook! 'after-change-major-mode-hook evil-shift-width tab-width)
+;; enable global evil
+(use-package evil
+  :straight t
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  :preface
+  (setq evil-ex-search-vim-style-regexp t
+        evil-ex-visual-char-range t  ; column range for ex commands
+        evil-mode-line-format 'nil
+
+        ;; more vim-like behavior
+        evil-symbol-word-search t
+        ;; if the current state is obvious from the cursor's color/shape, then
+        ;; we won't need superfluous indicators to do it instead.
+        evil-default-cursor '+evil-default-cursor-fn
+        evil-normal-state-cursor 'box
+        evil-emacs-state-cursor  '(box +evil-emacs-cursor-fn)
+        evil-insert-state-cursor 'bar
+        evil-visual-state-cursor 'hollow
+
+        ;; Only do highlighting in selected window so that Emacs has less work
+        ;; to do highlighting them all.
+        evil-ex-interactive-search-highlight 'selected-window
+
+        ;; It's infuriating that innocuous "beginning of line" or "end of line"
+        ;; errors will abort macros, so suppress them:
+        evil-kbd-macro-suppress-motion-error t
+        evil-undo-system 'undo-tree );; or 'undo-redo
+
+  :config
+  (evil-mode 1)
+  (evil-select-search-module 'evil-search-module 'evil-search)
+  
+  ;; stop copying each visual state move to the clipboard:
+  ;; https://github.com/emacs-evil/evil/issues/336
+  ;; grokked from:
+  ;; http://stackoverflow.com/questions/15873346/elisp-rename-macro
+  (advice-add #'evil-visual-update-x-selection :override #'ignore)
+  (advice-add #'help-with-tutorial :after (lambda (&rest _) (evil-emacs-state +1)))
+  (defun +evil-default-cursor-fn ()
+    (evil-set-cursor-color (get 'cursor 'evil-normal-color)))
+  (defun +evil-emacs-cursor-fn ()
+    (evil-set-cursor-color (get 'cursor 'evil-emacs-color)))
 
 
       )
+#+end_src
 
-    (use-package evil-nerd-commenter
-      :commands (evilnc-comment-operator
-		 evilnc-inner-comment
-		 evilnc-outer-commenter)
-      :config ([remap comment-line] #'evilnc-comment-or-uncomment-lines))
+*** Evil commenter
+#+begin_src emacs-lisp
 
+(use-package evil-nerd-commenter
+  :commands (evilnc-comment-operator
+             evilnc-inner-comment
+             evilnc-outer-commenter)
+  :config    ([remap comment-line] #'evilnc-comment-or-uncomment-lines))
 
-    (use-package evil-snipe
-      :commands evil-snipe-local-mode evil-snipe-override-local-mode
-      :init
-      (setq evil-snipe-smart-case t
-	    evil-snipe-scope 'line
-	    evil-snipe-repeat-scope 'visible
-	    evil-snipe-char-fold t)
-      :config
-      (pushnew! evil-snipe-disabled-modes 'Info-mode 'calc-mode 'treemacs-mode 'dired-mode))
+#+end_src
+*** Evil snipe
+#+begin_src emacs-lisp
 
-    (use-package evil-surround
-      :commands (global-evil-surround-mode
-		 evil-surround-edit
-		 evil-Surround-edit
-		 evil-surround-region)
-      :config (global-evil-surround-mode 1))
-
-    (use-package evil-textobj-anyblock
-      :defer t
-      :config
-      (setq evil-textobj-anyblock-blocks
-	    '(("(" . ")")
-	      ("{" . "}")
-	      ("\\[" . "\\]")
-	      ("<" . ">"))))
-
-    (use-package evil-easymotion
-      :commands evilem-create evilem-default-keybindings
-      :config
-      ;; Use evil-search backend, instead of isearch
-      (evilem-make-motion evilem-motion-search-next #'evil-ex-search-next
-			  :bind ((evil-ex-search-highlight-all nil)))
-      (evilem-make-motion evilem-motion-search-previous #'evil-ex-search-previous
-			  :bind ((evil-ex-search-highlight-all nil)))
-      (evilem-make-motion evilem-motion-search-word-forward #'evil-ex-search-word-forward
-			  :bind ((evil-ex-search-highlight-all nil)))
-      (evilem-make-motion evilem-motion-search-word-backward #'evil-ex-search-word-backward
-			  :bind ((evil-ex-search-highlight-all nil)))
-
-      ;; Rebind scope of w/W/e/E/ge/gE evil-easymotion motions to the visible
-      ;; buffer, rather than just the current line.
-      (put 'visible 'bounds-of-thing-at-point (lambda () (cons (window-start) (window-end))))
-      (evilem-make-motion evilem-motion-forward-word-begin #'evil-forward-word-begin :scope 'visible)
-      (evilem-make-motion evilem-motion-forward-WORD-begin #'evil-forward-WORD-begin :scope 'visible)
-      (evilem-make-motion evilem-motion-forward-word-end #'evil-forward-word-end :scope 'visible)
-      (evilem-make-motion evilem-motion-forward-WORD-end #'evil-forward-WORD-end :scope 'visible)
-      (evilem-make-motion evilem-motion-backward-word-begin #'evil-backward-word-begin :scope 'visible)
-      (evilem-make-motion evielem-motion-backward-WORD-begin #'evil-backward-WORD-begin :scope 'visible)
-      (evilem-make-motion evilem-motion-backward-word-end #'evil-backward-word-end :scope 'visible)
-      (evilem-make-motion evilem-motion-backward-WORD-end #'evil-backward-WORD-end :scope 'visible))
-
-    (use-package evil-traces
-      :after evil-ex
-      :config
-      (pushnew! evil-traces-argument-type-alist
-		'(+evil:align . evil-traces-global)
-		'(+evil:align-right . evil-traces-global))
-      (evil-traces-mode))
-
-
-    ;; Allows you to use the selection for * and #
-    (use-package evil-visualstar
-      :commands (evil-visualstar/begin-search
-		 evil-visualstar/begin-search-forward
-		 evil-visualstar/begin-search-backward)
-      :init
-      (evil-define-key* 'visual 'global
-	"*" #'evil-visualstar/begin-search-forward
-	"#" #'evil-visualstar/begin-search-backward))
-
-    (use-package exato
-      :commands evil-outer-xml-attr evil-inner-xml-attr)
+(use-package evil-snipe
+  :commands evil-snipe-local-mode evil-snipe-override-local-mode
+  :init
+  (setq evil-snipe-smart-case t
+        evil-snipe-scope 'line
+        evil-snipe-repeat-scope 'visible
+        evil-snipe-char-fold t)
+  :config
+  (pushnew! evil-snipe-disabled-modes 'Info-mode 'calc-mode 'treemacs-mode 'dired-mode))
 
 #+end_src
 
-#+RESULTS:
+*** Evil surround
+#+begin_src emacs-lisp
 
-** Evil collections
+(use-package evil-surround
+  :commands (global-evil-surround-mode
+             evil-surround-edit
+             evil-Surround-edit
+             evil-surround-region)
+  :config (global-evil-surround-mode 1))
+
+#+end_src
+*** Evil textobj anyblock
+#+begin_src emacs-lisp
+
+(use-package evil-textobj-anyblock
+  :defer t
+  :config
+  (setq evil-textobj-anyblock-blocks
+        '(("(" . ")")
+          ("{" . "}")
+          ("\\[" . "\\]")
+          ("<" . ">"))))
+
+#+end_src
+*** Evil easymotion
+#+begin_src emacs-lisp
+(use-package evil-easymotion
+  :commands evilem-create evilem-default-keybindings
+  :config
+  ;; Use evil-search backend, instead of isearch
+  (evilem-make-motion evilem-motion-search-next #'evil-ex-search-next
+                      :bind ((evil-ex-search-highlight-all nil)))
+  (evilem-make-motion evilem-motion-search-previous #'evil-ex-search-previous
+                      :bind ((evil-ex-search-highlight-all nil)))
+  (evilem-make-motion evilem-motion-search-word-forward #'evil-ex-search-word-forward
+                      :bind ((evil-ex-search-highlight-all nil)))
+  (evilem-make-motion evilem-motion-search-word-backward #'evil-ex-search-word-backward
+                      :bind ((evil-ex-search-highlight-all nil)))
+
+  ;; Rebind scope of w/W/e/E/ge/gE evil-easymotion motions to the visible
+  ;; buffer, rather than just the current line.
+  (put 'visible 'bounds-of-thing-at-point (lambda () (cons (window-start) (window-end))))
+  (evilem-make-motion evilem-motion-forward-word-begin #'evil-forward-word-begin :scope 'visible)
+  (evilem-make-motion evilem-motion-forward-WORD-begin #'evil-forward-WORD-begin :scope 'visible)
+  (evilem-make-motion evilem-motion-forward-word-end #'evil-forward-word-end :scope 'visible)
+  (evilem-make-motion evilem-motion-forward-WORD-end #'evil-forward-WORD-end :scope 'visible)
+  (evilem-make-motion evilem-motion-backward-word-begin #'evil-backward-word-begin :scope 'visible)
+  (evilem-make-motion evielem-motion-backward-WORD-begin #'evil-backward-WORD-begin :scope 'visible)
+  (evilem-make-motion evilem-motion-backward-word-end #'evil-backward-word-end :scope 'visible)
+  (evilem-make-motion evilem-motion-backward-WORD-end #'evil-backward-WORD-end :scope 'visible))
+
+#+end_src
+*** Evil traces, visualstar, exato
+#+begin_src emacs-lisp
+
+(use-package evil-traces
+  :after evil-ex
+  :config
+  (pushnew! evil-traces-argument-type-alist
+            '(+evil:align . evil-traces-global)
+            '(+evil:align-right . evil-traces-global))
+  (evil-traces-mode))
+
+
+;; Allows you to use the selection for * and #
+(use-package evil-visualstar
+  :commands (evil-visualstar/begin-search
+             evil-visualstar/begin-search-forward
+             evil-visualstar/begin-search-backward)
+  :init
+  (evil-define-key* 'visual 'global
+        "*" #'evil-visualstar/begin-search-forward
+        "#" #'evil-visualstar/begin-search-backward))
+
+
+(use-package exato
+  :commands evil-outer-xml-attr evil-inner-xml-attr)
+
+#+end_src
+
+*** Evil collections
 #+begin_src emacs-lisp
     (use-package evil-collection
       :after evil
       :straight t
       :config
       (evil-collection-init) )
+#+end_src
+*** Keybindings
+#+begin_src emacs-lisp
+
+;; Make ESC quit prompts
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+;; Since C-u is taken by evil, rebind it
+(global-set-key (kbd "C-M-u") 'universal-argument)
+
+(use-package general
+  :config
+  (general-evil-setup t)
+
+  (general-create-definer bore/leader-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
+
+  (bore/leader-keys
+    "SPC" '(project-find-file :which-key "find file in project")
+    "RET" '(consult-bookmark :which-key "bookmark")
+    "." '(find-file :which-key "find file")
+    "u" '(universal-argument :which-key "universal argument")
+    "x" '((lambda () (interactive) (switch-to-buffer "*scratch*")) :which-key "open scratch")
+    "X" '(org-capture :which-key "org-capture")
+     ;; Notes
+    "n" '(:ignore t :which-key "notes")
+    "na" '(org-agenda :which-key "org-agenda")
+    "nl" '(org-store-link :which-key "org-store-link")
+    "nt" '(org-todo-list :which-key "todo list")
+    "nn" '(org-capture :which-key "org-capture")
+    "nd" '(org-roam-dailies-capture-today :which-key "Capture daily")
+    ;; Roam
+    "nr" '(:ignore t :which-key "roam")
+    "nrf" '(org-roam-node-find :which-key "find node")
+    "nri" '(org-roam-node-insert :which-key "insert node")
+    "nrn" '(org-roam-capture :which-key "capture to node")
+    "nrr" '(org-roam-buffer-toggle :which-key "toggle roam buffer")
+    ;; Open
+    "o" '(:ignore t :which-key "open")
+    "ot" '(vterm-other-window :which-key "open terminal")
+    "oe" '(eshell-toggle :which-key "open eshell")
+    "ob" '(eww :which-key "open browser")
+    "om" '(mu4e :which-key "open mu4e")
+    "of" '(elfeed :which-key "open elfeed")
+    "oi" '(nate/erc :which-key "open ERC")
+    "oa" '(org-agenda :which-key "open agenda")
+    "oA" '(org-agenda-list :which-key "Agenda")
+    ;; Search
+    "s" '(:ignore t :which-key "search")
+    "sb" '(consult-line :which-key "search buffer")
+    "sr" '(consult-ripgrep :which-key "search for regexp")
+    "si" '(consult-imenu :which-key "jump to symbol")
+    ;; Magit
+    "g" '(magit-status :which-key "magit")
+    ;; Buffer
+    "b" '(:ignore t :which-key "buffer")
+    "bb" '(consult-buffer :which-key "switch buffer")
+    "bk" '(kill-current-buffer :which-key "kill buffer")
+    "bi" '(ibuffer :which-key "ibuffer")
+    "bn" '(next-buffer :which-key "next buffer")
+    "bp" '(previous-buffer :which-key "previous buffer")
+    ;; Window
+    "w" '(:ignore t :which-key "window")
+    "wc" '(evil-window-delete :which-key "close window")
+    "wn" '(evil-window-new :which-key "new window")
+    "ws" '(evil-window-split :which-key "horizontal split window")
+    "wv" '(evil-window-vsplit :which-key "vertical split window")
+    "wh" '(evil-window-left :which-key "window left")
+    "wj" '(evil-window-down :which-key "window down")
+    "wk" '(evil-window-up :which-key "window up")
+    "wl" '(evil-window-right :which-key "window right")
+    "ww" '(evil-window-next :which-key "goto next window")
+    ;; Toggle
+    "t" '(:ignore t :which-key "toggle")
+    "to" '(olivetti-mode :which-key "toggle olivetti mode")
+    "tf" '(flymake-mode :which-key "toggle flymake")
+    "tl" '(eglot :which-key "toggle eglot")
+    "tt" '(modus-themes-toggle :which-key "toggle modus themes")
+    ;; Project
+    "p" '(:ignore t :which-key "project")
+    "pp" '(project-switch-project :which-key "switch project")
+    "pd" '(project-forget-project :which-key "delete known project")
+    "pb" '(project-switch-to-buffer :which-key "switch buffer in project")
+    "pf" '(project-find-file :which-key "find file in project")
+    "p." '(project-find-dir :which-key "find directory in project")
+    "pk" '(project-kill-buffers :which-key "kill project buffers")
+    ;; File
+    "f" '(:ignore t :which-key "file")
+    "fp" '((lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/README.org"))) :which-key "edit config")
+    "ff" '(find-file :which-key "find file")
+    "fs" '(save-buffer :which-key "save file")
+    "fS" '(write-file :which-key "save file as")
+    "fr" '(consult-recent-file :which-key "recent file")
+    ;; Help
+    "h" '(:ignore t :which-key "help")
+    "hi" '(info :which-key "show info")
+    "hk" '(describe-key :which-key "describe key")
+    "hf" '(describe-function :which-key "describe function")
+    "hv" '(describe-variable :which-key "describe variable")
+    "hx" '(describe-command :which-key "describe command")
+    "hm" '(describe-mode :which-key "describe mode")
+    "hp" '(describe-package :which-key "describe package")))
+#+end_src
+*** Evil org
+#+begin_src emacs-lisp
+(use-package evil-org
+  :after org
+  :ensure t
+  :hook (org-mode . evil-org-mode)
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
 #+end_src
 ** Buffers
 
@@ -756,6 +852,75 @@ This is a variadic `cl-pushnew'."
        ([remap describe-key]      . helpful-key))
 
        #+end_src
+** Highlight TODO in code
+#+begin_src emacs-lisp
+(use-package hl-todo
+  :straight t
+  :hook (prog-mode . hl-todo-mode))
+#+end_src
+** Multiple cursors
+#+begin_src emacs-lisp
+(use-package iedit
+  :straight t
+  :commands iedit-mode iedit-rectangle-mode
+  :bind ("C-;" . iedit-mode))
+
+(use-package evil-multiedit
+  :defer t)
+
+(use-package multiple-cursors
+  :straight t
+  :bind (("C-<" . mc/mark-previous-like-this)
+         ("C->" . mc/mark-next-like-this)
+         ("C-c C-<" . mc/mark-all-like-this)
+         ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
+
+;; add evil-mc
+#+end_src
+* Tools
+** Emacs Web Wowser
+#+begin_src emacs-lisp
+(use-package browse-url
+  :straight nil
+  :config
+  (setq browse-url-secondary-browser-function 'eww-browse-url
+        browse-url-browser-function 'browse-url-default-browser))
+
+(use-package shr
+  :straight nil
+  :config
+  (setq shr-use-colors nil             ; t is bad for accessibility
+        shr-use-fonts nil              ; t is not for me
+        shr-max-image-proportion 0.6
+        shr-image-animate nil          ; No GIFs, thank you!
+        shr-width nil
+        shr-discard-aria-hidden t
+        shr-cookie-policy nil))
+
+(use-package url-cookie
+  :straight nil
+  :config (setq url-cookie-untrusted-urls '(".*")))
+
+(use-package eww
+  :straight nil
+  :bind ("C-c o b" . eww)
+  :config
+  (setq eww-restore-desktop t
+        eww-desktop-remove-duplicates t
+        eww-header-line-format nil
+        eww-search-prefix "https://www.google.com/search/?q="
+        eww-download-directory (expand-file-name "~/Downloads")
+        eww-suggest-uris
+        '(eww-links-at-point
+          thing-at-point-url-at-point)
+        eww-history-limit 150
+        eww-use-external-browser-for-content-type
+        "\\`\\(video/\\|audio\\)"
+        eww-browse-url-new-window-is-tab nil
+        eww-form-checkbox-selected-symbol "[X]"
+        eww-form-checkbox-symbol "[ ]"
+        eww-retrieve-command nil))
+#+end_src
 ** Dired
 
 #+begin_src emacs-lisp
@@ -777,13 +942,122 @@ This is a variadic `cl-pushnew'."
 	   ("C-x C-j" . consult-dir-jump-file)))
 
 #+end_src
-** Org mode
-*** Org bullets
+** Project
 #+begin_src emacs-lisp
-  (use-package org-bullets)
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+(use-package project
+  :straight t)
 #+end_src
+** Git
+#+begin_src emacs-lisp
+(use-package magit
+  :straight t
+  :commands magit-file-delete
+  :init
+  (setq magit-auto-revert-mode nil)             ; `global-auto-revert-mode'
+  :config
+  (setq transient-default-level 5
+        magit-diff-refine-hunk t                ; show granular diffs in selected hunk
+        magit-save-repository-buffers nil       ; don't autosave repo buffers
+        magit-revision-insert-related-refs nil) ; don't display parent/related refs in commit buffers
+  :custom
+  (magit-section-visibility-indicator nil)
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
+(use-package magit-todos
+  :after magit
+  :config
+  (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?") ; make colon optional
+  (define-key magit-todos-section-map "j" nil))
+
+
+(use-package ediff
+  :straight nil
+  :config
+  (setq ediff-merge-split-window-function 'split-window-horizontally
+        ediff-split-window-function 'split-window-horizontally
+        ediff-window-setup-function 'ediff-setup-windows-plain))
+
+(use-package diff-hl
+  :straight t
+  :config
+  (setq diff-hl-draw-borders nil)
+  (global-diff-hl-mode 1))
+#+end_src
+** Terminal
+#+begin_src emacs-lisp
+   (use-package eshell
+      :straight nil
+      :commands eshell
+      :bind ("C-c o E" . eshell)
+      :config
+      (setq eshell-kill-processes-on-exit t
+	    eshell-highlight-prompt t
+	    eshell-hist-ignoredups t
+	    eshell-prompt-regexp "^.* λ "))
+
+    (use-package eshell-syntax-highlighting
+      :straight t
+      :after eshell-mode
+      :config
+      (eshell-syntax-highlighting-global-mode +1))
+
+    (use-package eshell-toggle
+      :straight t
+      :commands eshell-toggle
+      :bind ("C-c o e" . eshell-toggle)
+      :custom
+      (eshell-toggle-size-fraction 4)
+      (eshell-toggle-run-command nil))
+
+#+end_src
+** Rainbow mode
+#+begin_src emacs-lisp
+(use-package rainbow-mode
+  :straight t
+  :commands rainbow-mode)
+#+end_src
+** Olivetti
+#+begin_src emacs-lisp
+(use-package olivetti
+  :straight t
+  :commands olivetti-mode
+  :config
+  (setq olivetti-body-width 100))
+#+end_src
+** OS TTY
+#+begin_src emacs-lisp
+
+(setq xterm-set-window-title t)
+(setq visible-cursor nil)
+;; Enable the mouse in terminal Emacs
+(add-hook 'tty-setup-hook #'xterm-mouse-mode)
+#+end_src
+** Embark
+#+begin_src emacs-lisp
+
+  (use-package embark
+    :straight t
+    :bind
+    (("C-." . embark-act)
+     ("C-h B" . embark-bindings))
+    :init
+    (setq prefix-help-command #'embark-prefix-help-command)
+    :config
+    ;; Hide the mode line of the Embark live/completions buffers
+    (add-to-list 'display-buffer-alist
+                 '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                   nil
+                   (window-parameters (mode-line-format . none)))))
+
+  (use-package embark-consult
+    :straight t
+    :after (embark consult)
+    :demand t ; only necessary if you have the hook below
+    ;; auto-updating embark collect buffer
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
+
+#+end_src
 * Completion framework
 ** Vertico
 
@@ -944,10 +1218,431 @@ This is a variadic `cl-pushnew'."
 
 #+end_src
 
-* OS TTY
+* Development
+** Direnv
+
 #+begin_src emacs-lisp
-  (setq xterm-set-window-title t)
-  (setq visible-cursor nil)
-  ;; Enable the mouse in terminal Emacs
-  (add-hook 'tty-setup-hook #'xterm-mouse-mode)
+
+  (use-package envrc
+    :straight t
+    :config
+    (envrc-global-mode))
+
+#+end_src
+
+** Tramp
+
+#+begin_src emacs-lisp
+
+  (use-package tramp
+    :straight nil
+    :config
+    (setq tramp-default-method "ssh"))
+
+#+end_src
+
+** Language Server Protocol
+
+#+begin_src emacs-lisp
+
+  ;; Going closer to the sun.. I mean Emacs
+  (use-package eglot
+    :straight t
+    :commands eglot eglot-ensure
+    :hook (haskell-mode . eglot-ensure)
+    :bind (:map eglot-mode-map
+                ("C-c c j" . consult-eglot-symbols)
+                ("C-c c x" . consult-flymake)
+                ("C-c c a" . eglot-code-actions)
+                ("C-c c r" . eglot-rename)
+                ("C-c c f" . eglot-format)
+                ("C-c c d" . eldoc))
+    :config
+    (setq eglot-sync-connect 1
+          eglot-connect-timeout 10
+          eglot-autoshutdown t
+          eglot-send-changes-idle-time 0.5
+          eglot-confirm-server-initiated-edits nil
+          eldoc-echo-area-display-truncation-message nil
+          eldoc-echo-area-use-multiline-p 3)
+    (add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server" "--lsp"))))
+
+  (use-package consult-eglot
+    :straight t
+    :after eglot)
+
+#+end_src
+
+** Dumb-jump
+
+#+begin_src emacs-lisp
+
+  (use-package dumb-jump
+    :straight t
+    :defer t)
+    (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+
+#+end_src
+
+** Completions
+
+*** Corfu
+
+#+begin_src emacs-lisp
+
+  (use-package corfu
+    ;; Optional customizations
+    :straight t
+    :custom
+    (corfu-cycle t)                ; enable cycling for `corfu-next/previous'
+    (corfu-auto t)                 ; enable auto completion
+    (corfu-auto-delay 0.5)         ; I need help, quick!
+    (corfu-auto-prefix 2)          ; give me some space (2 characters wide)
+    (corfu-quit-no-match t)        ; automatically quit if there is no match
+    (corfu-echo-documentation nil) ; do not show documentation in the echo area
+    :init
+    (corfu-global-mode))
+
+#+end_src
+
+*** Cape
+
+#+begin_src emacs-lisp
+
+  (use-package cape
+    :straight t
+    :after corfu
+    :init
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-keyword))
+
+#+end_src
+
+*** Hippie-expand
+
+#+begin_src emacs-lisp
+
+  ;; Use the overpowered expand of the hippies
+  (use-package hippie-exp
+    :straight nil
+    :bind ("M-/" . hippie-expand)
+    :config
+    (setq hippie-expand-try-functions-list
+          '(try-expand-dabbrev-visible
+            try-expand-dabbrev
+            try-expand-dabbrev-all-buffers
+            try-expand-dabbrev-from-kill
+            try-complete-file-name-partially
+            try-complete-file-name
+            try-expand-all-abbrevs
+            try-expand-list
+            try-expand-line)))
+
+#+end_src
+
+** Flymake
+
+#+begin_src emacs-lisp
+
+  ;; Have some mercy on me
+  (use-package flymake
+    :straight nil
+    :hook (prog-mode . flymake-mode)
+    :bind (("M-n" . flymake-goto-next-error)
+           ("M-p"  . flymake-goto-prev-error))
+    :config
+    (setq flymake-suppress-zero-counters t)
+    (setq flymake-mode-line-counter-format
+          '(" " flymake-mode-line-error-counter
+            flymake-mode-line-warning-counter
+            flymake-mode-line-note-counter "")))
+
+#+end_src
+
+* Langs
+
+** Bash
+#+begin_src emacs-lisp
+(use-package flymake-shellcheck
+  :straight t
+  :commands flymake-shellcheck-load
+  :init
+  (add-hook 'sh-mode-hook 'flymake-shellcheck-load))
+#+end_src
+
+** Nix
+
+#+begin_src emacs-lisp
+(use-package nix-mode
+  :straight t
+  :mode "\\.nix\\'")
+#+end_src
+
+** JSON
+
+#+begin_src emacs-lisp
+(use-package json-mode
+  :straight t
+  :mode "\\.json\\'")
+#+end_src
+** HTML
+
+#+begin_src emacs-lisp
+
+(use-package web-mode
+  :straight t
+  :mode "\\.html?\\'"
+  :config
+  (setq web-mode-markup-indent-offset 2
+        web-mode-css-indent-offset 2
+        web-mode-code-indent-offset 2
+        web-mode-enable-auto-pairing nil
+        web-mode-enable-auto-closing t
+        web-mode-enable-current-element-highlight t
+        web-mode-enable-current-column-highlight t))
+
+#+end_src
+
+** Haskell
+
+#+begin_src emacs-lisp
+
+  (use-package haskell-mode
+    :straight t
+    :mode (("\\.hs\\'"    . haskell-mode)
+           ("\\.cabal\\'" . haskell-cabal-mode))
+    :hook (haskell-mode . interactive-haskell-mode)
+    :bind (:map haskell-mode-map
+                ("C-c C-o" . hoogle)
+                ("C-c C-h" . hs-lint))
+    :custom
+    (haskell-interactive-popup-errors nil)
+    (haskell-process-log t)
+    (haskell-process-type 'cabal-new-repl)
+    (haskell-process-load-or-reload-prompt t)
+    (haskell-process-auto-import-loaded-modules t)
+    (haskell-process-suggest-remove-import-lines t))
+
+  (use-package hindent
+    :straight t
+    :hook (haskell-mode . hindent-mode))
+
+#+end_src
+
+** Toml
+
+#+begin_src emacs-lisp
+
+(use-package toml-mode
+  :straight t
+  :mode "\\.toml\\'")
+
+#+end_src
+
+** Yaml
+
+#+begin_src emacs-lisp
+
+(use-package yaml-mode
+  :straight t
+  :mode "\\.ya?ml\\'")
+
+#+end_src
+
+** Dhall
+
+#+begin_src emacs-lisp
+
+(use-package dhall-mode
+  :defer t
+  :config
+  (set-repl-handler! 'dhall-mode #'dhall-repl-show)
+  (setq dhall-format-at-save t)
+  )
+#+end_src
+
+** Lua
+
+#+begin_src emacs-lisp
+
+(use-package lua-mode
+  :straight t
+  :mode "\\.lua\\'")
+
+#+end_src
+
+** Markdown
+
+#+begin_src emacs-lisp
+
+(use-package markdown-mode
+  :straight t
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'"       . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :commands (markdown-mode gfm-mode)
+  :config
+  (setq markdown-fontify-code-blocks-natively t))
+
+#+end_src
+
+** Org mode
+*** Org
+#+begin_src emacs-lisp
+(use-package org
+  :straight t
+  :commands org-capture org-agenda
+  :init
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (org-indent-mode)
+              (variable-pitch-mode 1)
+              (visual-line-mode 1)
+              (local-unset-key (kbd "C-'"))))
+
+  :config
+  (setq org-directory "~/org/"
+        org-src-fontify-natively t
+        org-src-tab-acts-natively t
+        org-fontify-done-headline t
+        org-fontify-quote-and-verse-blocks t
+        org-fontify-whole-heading-line t
+        org-hide-emphasis-markers t
+        org-hide-leading-stars t
+        org-capture-bookmark nil
+
+        org-indirect-buffer-display 'current-window
+        org-eldoc-breadcrumb-separator " → "
+        org-enforce-todo-dependencies t
+        org-entities-user
+        '(("flat"  "\\flat" nil "" "" "266D" "♭")
+          ("sharp" "\\sharp" nil "" "" "266F" "♯"))
+        org-image-actual-width nil
+        org-imenu-depth 6
+        org-priority-faces
+        '((?A . error)
+          (?B . warning)
+          (?C . success))
+        org-startup-indented t
+        org-tags-column 0
+        org-use-sub-superscripts '{}
+        org-structure-template-alist
+        '(("s" . "src")
+          ("e" . "src emacs-lisp")
+          ("h" . "src haskell")
+          ("E" . "example")
+          ("q" . "quote")
+          ("c" . "comment")))
+        )
+  (setq org-refile-targets
+        '((nil :maxlevel . 3)
+          (org-agenda-files :maxlevel . 3))
+        ;; Without this, completers like ivy/helm are only given the first level of
+        ;; each outline candidates. i.e. all the candidates under the "Tasks" heading
+        ;; are just "Tasks/". This is unhelpful. We want the full path to each refile
+        ;; target! e.g. FILE/Tasks/heading/subheading
+        org-refile-use-outline-path 'file
+        org-outline-path-complete-in-steps nil)
+  (setq org-todo-keywords
+        '((sequence
+           "TODO(t)"  ; A task that needs doing & is ready to do
+           "STRT(s)"  ; A task that is in progress
+           "WAIT(w)"  ; Something external is holding up this task
+           "HOLD(h)"  ; This task is paused/on hold because of me
+           "IDEA(i)"  ; An unconfirmed and unapproved task or notion
+           "|"
+           "DONE(d)"  ; Task successfully completed
+           "KILL(k)") ; Task was cancelled, aborted or is no longer applicable
+          (sequence
+           "[ ](T)"   ; A task that needs doing
+           "[-](S)"   ; Task is in progress
+           "[?](W)"   ; Task is being held up or paused
+           "|"
+           "[X](D)")  ; Task was completed
+          (sequence
+           "|"
+           "OKAY(o)"
+           "YES(y)"
+           "NO(n)"))
+        org-todo-keyword-faces
+        '(("[-]"  . +org-todo-active)
+          ("STRT" . +org-todo-active)
+          ("[?]"  . +org-todo-onhold)
+          ("WAIT" . +org-todo-onhold)
+          ("HOLD" . +org-todo-onhold)
+          ("NO"   . +org-todo-cancel)
+          ("KILL" . +org-todo-cancel))
+                )
+#+end_src
+*** Org agenda
+#+begin_src emacs-lisp
+(use-package org-agenda
+  :straight nil
+  :bind
+  (("C-c a" . org-agenda)
+   ("C-c x" . org-capture))
+  :config
+  (setq-default org-agenda-files (list org-directory)
+                org-agenda-compact-blocks nil
+                org-agenda-window-setup 'current-window
+                org-agenda-skip-unavailable-files t
+                org-agenda-span 10
+                calendar-week-start-day 1
+                org-agenda-start-on-weekday nil
+                org-agenda-start-day "-3d"
+                org-agenda-deadline-faces
+                '((1.001 . error)
+                  (1.0 . org-warning)
+                  (0.5 . org-upcoming-deadline)
+                  (0.0 . org-upcoming-distant-deadline))
+                org-agenda-inhibit-startup t))
+#+end_src
+*** Org capture
+#+begin_src emacs-lisp
+(setq org-capture-templates
+      '(("t" "Todo"v entry (file+headline "~/org/inbox.org" "Tasks")
+         "* TODO %? \n%U" :empty-lines 1)
+        ("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
+         "** %? \n %^T\n%U" :empty-lines 1))
+      )
+
+#+end_src
+*** Org roam
+#+begin_src emacs-lisp
+(when *is-a-linux*
+  (use-package org-roam
+    :straight t
+    :init
+    (setq org-roam-v2-ack t)
+    :custom
+    (org-roam-directory "~/roam") ;; move my roam files to ~/org/roam
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+           ("C-c n f" . org-roam-node-find)
+           ("C-c n i" . org-roam-node-insert)
+           ("C-c n g" . org-roam-graph)
+           :map org-mode-map
+           ("C-M-i"    . completion-at-point)
+           :map org-roam-dailies-map
+           ("Y" . org-roam-dailies-capture-yesterday)
+           ("T" . org-roam-dailies-capture-tomorrow))
+    :bind-keymap
+    ("C-c n d" . org-roam-dailies-map)
+    :config
+    (require 'org-roam-dailies) ; ensure the keymap is available
+    (org-roam-db-autosync-mode)))
+#+end_src
+*** Org superstar
+#+begin_src emacs-lisp
+  (use-package org-superstar)
+  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+#+end_src
+
+
+* The End
+
+#+begin_src emacs-lisp
+
+  ;;; init.el ends here
+
 #+end_src

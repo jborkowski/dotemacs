@@ -197,13 +197,12 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 ** Fonts
 
 #+begin_src emacs-lisp
-
   (defun bore/with-font-faces ()
     "Setup all Emacs font faces."
     (when (display-graphic-p)
-	(set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'regular))
-	(set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'regular))
-	(set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'light))))
+      (set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'regular))
+        (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'regular))
+        (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'light))))
 
   (add-hook 'after-init-hook 'bore/with-font-faces)
   (add-hook 'server-after-make-frame-hook 'bore/with-font-faces)
@@ -324,7 +323,7 @@ This is a variadic `cl-pushnew'."
   :config
   (evil-mode 1)
   (evil-select-search-module 'evil-search-module 'evil-search)
-  
+
   ;; stop copying each visual state move to the clipboard:
   ;; https://github.com/emacs-evil/evil/issues/336
   ;; grokked from:
@@ -496,9 +495,6 @@ This is a variadic `cl-pushnew'."
     "ot" '(vterm-other-window :which-key "open terminal")
     "oe" '(eshell-toggle :which-key "open eshell")
     "ob" '(eww :which-key "open browser")
-    "om" '(mu4e :which-key "open mu4e")
-    "of" '(elfeed :which-key "open elfeed")
-    "oi" '(nate/erc :which-key "open ERC")
     "oa" '(org-agenda :which-key "open agenda")
     "oA" '(org-agenda-list :which-key "Agenda")
     ;; Search
@@ -1610,7 +1606,6 @@ This is a variadic `cl-pushnew'."
 #+end_src
 *** Org roam
 #+begin_src emacs-lisp
-(when *is-a-linux*
   (use-package org-roam
     :straight t
     :init
@@ -1630,7 +1625,7 @@ This is a variadic `cl-pushnew'."
     ("C-c n d" . org-roam-dailies-map)
     :config
     (require 'org-roam-dailies) ; ensure the keymap is available
-    (org-roam-db-autosync-mode)))
+    (org-roam-db-autosync-mode))
 #+end_src
 *** Org superstar
 #+begin_src emacs-lisp

@@ -921,9 +921,85 @@ This is a variadic `cl-pushnew'."
   (envrc-global-mode))
 
 (use-package tramp
-  :straight nil
-  :config
-  (setq tramp-default-method "ssh"))
+    :straight nil
+    :config
+    (setq tramp-default-method "ssh"))
+
+;; (require 'tramp-cache)
+
+;; (defconst docker-tramp-method "docker")
+;; (defconst docker-tramp-docker-exec "docker")
+
+;; (defun docker-tramp-add-method ()
+;;   "Add docker tramp method."
+;;   (add-to-list 'tramp-methods
+;;                `(,docker-tramp-method
+;;                  (tramp-login-program      ,docker-tramp-docker-exec)
+;;                  (tramp-login-args         (("exec" "-it") ("-u" "%u") ("%h") ("sh")))
+;;                  (tramp-remote-shell       "/bin/zsh")
+;;                  (tramp-remote-shell-args  ("-i" "-c")))))
+
+;; (defun docker-trump--running-containers ()
+;;   "Returns list with container names."
+;;   (split-string (shell-command-to-string "docker ps --format '{{.Names}}:'") "\n"))
+
+;; (defconst docker-tramp-completion-function-alis
+;;     '(docker-trump--running-containers))
+
+
+;; (eval-after-load 'tramp
+;;   '(progn
+;;      (docker-tramp-add-method)
+;;      (tramp-set-completion-function docker-tramp-method docker-tramp-completion-function-alist)))
+
+
+;; ;; TRAMP
+;; (setq tramp-default-method "ssh")
+;; (add-to-list 'tramp-remote-path "/home/user/.ghcup/bin:/home/user/.cabal/bin:/home/user/.local/bin")
+
+;; ;; tramp minibuffer
+;; (add-to-list 'directory-abbrev-alist
+;;              '("^/redo" . "/ssh:re|docker:user@devcontainer_dev_1:"))
+
+;; (add-to-list 'tramp-connection-properties
+;;              (list (regexp-quote "/ssh:re:")
+;;                    "direct-async-process" t
+;;                    "remote-shell" "/bin/zsh"))
+
+;; (add-hook 'find-file-hook
+;;           (lambda ()
+;;             (if (file-remote-p default-directory)
+;;               (setq-local projectile-mode-line "Projectile"))))
+
+
+;; (add-to-list 'directory-abbrev-alist
+;;              '("^/redo" . "/ssh:re|docker:user@devcontainer_dev_1:"))
+
+;; (setq remote-file-name-inhibit-cache nil)
+
+;; ;; Disable version control to avoid delays
+;; (setq vc-ignore-dir-regexp
+;;       (format "%s\\|%s"
+;;               vc-ignore-dir-regexp
+;;               tramp-file-name-regexp))
+
+;; (setq tramp-verbose 1)
+
+;; (defun go-local ()
+;;   "Destroy all TRAMP connections and kill all associated
+;; buffers. Be aware that this will destroy local sudo/root TRAMP
+;; sessions."
+;;   (interactive)
+;;   (ignore-errors (tramp-cleanup-all-connections))
+;;   (ignore-errors (tramp-cleanup-all-buffers)))
+
+
+
+
+;; (use-package dired-rsync
+;;   :ensure t
+;;   :config
+;;   (bind-key "C-c C-r" 'dired-rsync dired-mode-map))
 
 ;; Going closer to the sun.. I mean Emacs
 (use-package eglot
@@ -1187,7 +1263,8 @@ This is a variadic `cl-pushnew'."
                 org-agenda-inhibit-startup t))
 
 (setq org-capture-templates
-      '(("t" "Todo"v entry (file+headline "~/org/inbox.org" "Tasks")
+      '(
+        ("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
          "* TODO %? \n%U" :empty-lines 1)
         ("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
          "** %? \n %^T\n%U" :empty-lines 1))

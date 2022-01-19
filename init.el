@@ -1,5 +1,3 @@
-(setq user-emacs-directory "~/.own.emacs.d/")
-
 ;; -*- lexical-binding: t; -*-
 
 (defvar bootstrap-version)
@@ -137,6 +135,7 @@ This is a variadic `cl-pushnew'."
       custom-safe-themes t                 ; all themes are safe, right?
       scroll-margin 2                      ; it's nice to maintain a little margin
       select-enable-clipboard t            ; integrate system's and Emacs' clipboard
+      visible-bell t                       ; make those error squaks visual
       warning-minimum-level :error)        ; do not tell me about warnings
 
 (global-so-long-mode 1)                    ; so long baby!
@@ -144,6 +143,7 @@ This is a variadic `cl-pushnew'."
 (global-subword-mode 1)                    ; iterate through CamelCase words
 (global-auto-revert-mode t)                ; revert those buffers
 (set-default-coding-systems 'utf-8)        ; default to utf-8 encoding
+(global-hl-line-mode 1)                    ; enable global highlighting
 (global-hl-line-mode 1)                    ; enable global highlighting
 
 (use-package undo-tree)

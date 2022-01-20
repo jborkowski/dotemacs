@@ -338,6 +338,7 @@ This is a variadic `cl-pushnew'."
     ;; Search
     "s" '(:ignore t :which-key "search")
     "sb" '(consult-line :which-key "search buffer")
+    "sp" '(project-search :which-key "search project")
     "sr" '(consult-ripgrep :which-key "search for regexp")
     "si" '(consult-imenu :which-key "jump to symbol")
     ;; Magit
@@ -656,7 +657,7 @@ This is a variadic `cl-pushnew'."
   (setq eww-restore-desktop t
         eww-desktop-remove-duplicates t
         eww-header-line-format nil
-        eww-search-prefix "https://www.google.com/search/?q="
+        eww-search-prefix "https://www.google.com/search?q="
         eww-download-directory (expand-file-name "~/Downloads")
         eww-suggest-uris
         '(eww-links-at-point
@@ -668,6 +669,10 @@ This is a variadic `cl-pushnew'."
         eww-form-checkbox-selected-symbol "[X]"
         eww-form-checkbox-symbol "[ ]"
         eww-retrieve-command nil))
+
+(use-package pdf-tools
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :magic ("%PDF" . pdf-view-mode))
 
 (use-package dired
     :straight nil
@@ -1082,32 +1087,6 @@ This is a variadic `cl-pushnew'."
           flymake-mode-line-warning-counter
           flymake-mode-line-note-counter "")))
 
-(use-package flymake-shellcheck
-  :straight t
-  :commands flymake-shellcheck-load
-  :init
-  (add-hook 'sh-mode-hook 'flymake-shellcheck-load))
-
-(use-package nix-mode
-  :straight t
-  :mode "\\.nix\\'")
-
-(use-package json-mode
-  :straight t
-  :mode "\\.json\\'")
-
-(use-package web-mode
-  :straight t
-  :mode "\\.html?\\'"
-  :config
-  (setq web-mode-markup-indent-offset 2
-        web-mode-css-indent-offset 2
-        web-mode-code-indent-offset 2
-        web-mode-enable-auto-pairing nil
-        web-mode-enable-auto-closing t
-        web-mode-enable-current-element-highlight t
-        web-mode-enable-current-column-highlight t))
-
 (use-package haskell-mode
   :straight t
   :mode (("\\.hs\\'"    . haskell-mode)
@@ -1200,46 +1179,46 @@ This is a variadic `cl-pushnew'."
           ("E" . "example")
           ("q" . "quote")
           ("c" . "comment")))
-        )
-  (setq org-refile-targets
-        '((nil :maxlevel . 3)
-          (org-agenda-files :maxlevel . 3))
-        ;; Without this, completers like ivy/helm are only given the first level of
-        ;; each outline candidates. i.e. all the candidates under the "Tasks" heading
-        ;; are just "Tasks/". This is unhelpful. We want the full path to each refile
-        ;; target! e.g. FILE/Tasks/heading/subheading
-        org-refile-use-outline-path 'file
-        org-outline-path-complete-in-steps nil)
-  (setq org-todo-keywords
-        '((sequence
-           "TODO(t)"  ; A task that needs doing & is ready to do
-           "STRT(s)"  ; A task that is in progress
-           "WAIT(w)"  ; Something external is holding up this task
-           "HOLD(h)"  ; This task is paused/on hold because of me
-           "IDEA(i)"  ; An unconfirmed and unapproved task or notion
-           "|"
-           "DONE(d)"  ; Task successfully completed
-           "KILL(k)") ; Task was cancelled, aborted or is no longer applicable
-          (sequence
-           "[ ](T)"   ; A task that needs doing
-           "[-](S)"   ; Task is in progress
-           "[?](W)"   ; Task is being held up or paused
-           "|"
-           "[X](D)")  ; Task was completed
-          (sequence
-           "|"
-           "OKAY(o)"
-           "YES(y)"
-           "NO(n)"))
-        org-todo-keyword-faces
-        '(("[-]"  . +org-todo-active)
-          ("STRT" . +org-todo-active)
-          ("[?]"  . +org-todo-onhold)
-          ("WAIT" . +org-todo-onhold)
-          ("HOLD" . +org-todo-onhold)
-          ("NO"   . +org-todo-cancel)
-          ("KILL" . +org-todo-cancel))
-                )
+  )
+(setq org-refile-targets
+      '((nil :maxlevel . 3)
+        (org-agenda-files :maxlevel . 3))
+      ;; Without this, completers like ivy/helm are only given the first level of
+      ;; each outline candidates. i.e. all the candidates under the "Tasks" heading
+      ;; are just "Tasks/". This is unhelpful. We want the full path to each refile
+      ;; target! e.g. FILE/Tasks/heading/subheading
+      org-refile-use-outline-path 'file
+      org-outline-path-complete-in-steps nil)
+(setq org-todo-keywords
+      '((sequence
+         "TODO(t)"  ; A task that needs doing & is ready to do
+         "STRT(s)"  ; A task that is in progress
+         "WAIT(w)"  ; Something external is holding up this task
+         "HOLD(h)"  ; This task is paused/on hold because of me
+         "IDEA(i)"  ; An unconfirmed and unapproved task or notion
+         "|"
+         "DONE(d)"  ; Task successfully completed
+         "KILL(k)") ; Task was cancelled, aborted or is no longer applicable
+        (sequence
+         "[ ](T)"   ; A task that needs doing
+         "[-](S)"   ; Task is in progress
+         "[?](W)"   ; Task is being held up or paused
+         "|"
+         "[X](D)")  ; Task was completed
+        (sequence
+         "|"
+         "OKAY(o)"
+         "YES(y)"
+         "NO(n)"))
+      org-todo-keyword-faces
+      '(("[-]"  . +org-todo-active)
+        ("STRT" . +org-todo-active)
+        ("[?]"  . +org-todo-onhold)
+        ("WAIT" . +org-todo-onhold)
+        ("HOLD" . +org-todo-onhold)
+        ("NO"   . +org-todo-cancel)
+        ("KILL" . +org-todo-cancel))
+      )
 
 (use-package org-agenda
   :straight nil

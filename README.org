@@ -496,6 +496,7 @@ This is a variadic `cl-pushnew'."
     ;; Search
     "s" '(:ignore t :which-key "search")
     "sb" '(consult-line :which-key "search buffer")
+    "sp" '(project-search :which-key "search project")
     "sr" '(consult-ripgrep :which-key "search for regexp")
     "si" '(consult-imenu :which-key "jump to symbol")
     ;; Magit
@@ -900,7 +901,7 @@ This is a variadic `cl-pushnew'."
   (setq eww-restore-desktop t
         eww-desktop-remove-duplicates t
         eww-header-line-format nil
-        eww-search-prefix "https://www.google.com/search/?q="
+        eww-search-prefix "https://www.google.com/search?q="
         eww-download-directory (expand-file-name "~/Downloads")
         eww-suggest-uris
         '(eww-links-at-point
@@ -912,6 +913,12 @@ This is a variadic `cl-pushnew'."
         eww-form-checkbox-selected-symbol "[X]"
         eww-form-checkbox-symbol "[ ]"
         eww-retrieve-command nil))
+#+end_src
+** PDF
+#+begin_src emacs-lisp
+  (use-package pdf-tools
+    :mode ("\\.pdf\\'" . pdf-view-mode)
+    :magic ("%PDF" . pdf-view-mode))
 #+end_src
 ** Dired
 
@@ -1427,50 +1434,7 @@ This is a variadic `cl-pushnew'."
 
 #+end_src
 
-* Langs
-
-** Bash
-#+begin_src emacs-lisp
-(use-package flymake-shellcheck
-  :straight t
-  :commands flymake-shellcheck-load
-  :init
-  (add-hook 'sh-mode-hook 'flymake-shellcheck-load))
-#+end_src
-
-** Nix
-
-#+begin_src emacs-lisp
-(use-package nix-mode
-  :straight t
-  :mode "\\.nix\\'")
-#+end_src
-
-** JSON
-
-#+begin_src emacs-lisp
-(use-package json-mode
-  :straight t
-  :mode "\\.json\\'")
-#+end_src
-** HTML
-
-#+begin_src emacs-lisp
-
-(use-package web-mode
-  :straight t
-  :mode "\\.html?\\'"
-  :config
-  (setq web-mode-markup-indent-offset 2
-        web-mode-css-indent-offset 2
-        web-mode-code-indent-offset 2
-        web-mode-enable-auto-pairing nil
-        web-mode-enable-auto-closing t
-        web-mode-enable-current-element-highlight t
-        web-mode-enable-current-column-highlight t))
-
-#+end_src
-
+* Lang
 ** Haskell
 
 #+begin_src emacs-lisp
@@ -1557,51 +1521,51 @@ This is a variadic `cl-pushnew'."
 ** Org mode
 *** Org
 #+begin_src emacs-lisp
-(use-package org
-  :straight t
-  :commands org-capture org-agenda
-  :init
-  (add-hook 'org-mode-hook
-            (lambda ()
-              (org-indent-mode)
-              (variable-pitch-mode 1)
-              (visual-line-mode 1)
-              (local-unset-key (kbd "C-'"))))
+  (use-package org
+    :straight t
+    :commands org-capture org-agenda
+    :init
+    (add-hook 'org-mode-hook
+              (lambda ()
+                (org-indent-mode)
+                (variable-pitch-mode 1)
+                (visual-line-mode 1)
+                (local-unset-key (kbd "C-'"))))
 
-  :config
-  (setq org-directory "~/org/"
-        org-src-fontify-natively t
-        org-src-tab-acts-natively t
-        org-fontify-done-headline t
-        org-fontify-quote-and-verse-blocks t
-        org-fontify-whole-heading-line t
-        org-hide-emphasis-markers t
-        org-hide-leading-stars t
-        org-capture-bookmark nil
+    :config
+    (setq org-directory "~/org/"
+          org-src-fontify-natively t
+          org-src-tab-acts-natively t
+          org-fontify-done-headline t
+          org-fontify-quote-and-verse-blocks t
+          org-fontify-whole-heading-line t
+          org-hide-emphasis-markers t
+          org-hide-leading-stars t
+          org-capture-bookmark nil
 
-        org-indirect-buffer-display 'current-window
-        org-eldoc-breadcrumb-separator " → "
-        org-enforce-todo-dependencies t
-        org-entities-user
-        '(("flat"  "\\flat" nil "" "" "266D" "♭")
-          ("sharp" "\\sharp" nil "" "" "266F" "♯"))
-        org-image-actual-width nil
-        org-imenu-depth 6
-        org-priority-faces
-        '((?A . error)
-          (?B . warning)
-          (?C . success))
-        org-startup-indented t
-        org-tags-column 0
-        org-use-sub-superscripts '{}
-        org-structure-template-alist
-        '(("s" . "src")
-          ("e" . "src emacs-lisp")
-          ("h" . "src haskell")
-          ("E" . "example")
-          ("q" . "quote")
-          ("c" . "comment")))
-        )
+          org-indirect-buffer-display 'current-window
+          org-eldoc-breadcrumb-separator " → "
+          org-enforce-todo-dependencies t
+          org-entities-user
+          '(("flat"  "\\flat" nil "" "" "266D" "♭")
+            ("sharp" "\\sharp" nil "" "" "266F" "♯"))
+          org-image-actual-width nil
+          org-imenu-depth 6
+          org-priority-faces
+          '((?A . error)
+            (?B . warning)
+            (?C . success))
+          org-startup-indented t
+          org-tags-column 0
+          org-use-sub-superscripts '{}
+          org-structure-template-alist
+          '(("s" . "src")
+            ("e" . "src emacs-lisp")
+            ("h" . "src haskell")
+            ("E" . "example")
+            ("q" . "quote")
+            ("c" . "comment")))
+    )
   (setq org-refile-targets
         '((nil :maxlevel . 3)
           (org-agenda-files :maxlevel . 3))
@@ -1640,7 +1604,7 @@ This is a variadic `cl-pushnew'."
           ("HOLD" . +org-todo-onhold)
           ("NO"   . +org-todo-cancel)
           ("KILL" . +org-todo-cancel))
-                )
+        )
 #+end_src
 *** Org agenda
 #+begin_src emacs-lisp

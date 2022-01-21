@@ -272,294 +272,6 @@ This is a variadic `cl-pushnew'."
   (use-package undo-tree)
   (global-undo-tree-mode 1)
 #+end_src
-** Evil mode
-*** Evil
-#+begin_src emacs-lisp
-
-(defvar evil-want-C-g-bindings t)
-(defvar evil-want-C-i-jump nil)  ; we do this ourselves
-(defvar evil-want-C-u-scroll t)  ; moved the universal arg to <leader> u
-(defvar evil-want-C-u-delete t)
-(defvar evil-want-C-w-scroll t)
-(defvar evil-want-C-w-delete t)
-(defvar evil-want-Y-yank-to-eol t)
-(defvar evil-want-abbrev-expand-on-insert-exit nil)
-(defvar evil-respect-visual-line-mode nil)
-
-;; enable global evil
-(use-package evil
-  :straight t
-  :init
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  :preface
-  (setq evil-ex-search-vim-style-regexp t
-        evil-ex-visual-char-range t  ; column range for ex commands
-        evil-mode-line-format 'nil
-
-        ;; more vim-like behavior
-        evil-symbol-word-search t
-        ;; if the current state is obvious from the cursor's color/shape, then
-        ;; we won't need superfluous indicators to do it instead.
-        evil-default-cursor '+evil-default-cursor-fn
-        evil-normal-state-cursor 'box
-        evil-emacs-state-cursor  '(box +evil-emacs-cursor-fn)
-        evil-insert-state-cursor 'bar
-        evil-visual-state-cursor 'hollow
-
-        ;; Only do highlighting in selected window so that Emacs has less work
-        ;; to do highlighting them all.
-        evil-ex-interactive-search-highlight 'selected-window
-
-        ;; It's infuriating that innocuous "beginning of line" or "end of line"
-        ;; errors will abort macros, so suppress them:
-        evil-kbd-macro-suppress-motion-error t
-        evil-undo-system 'undo-tree );; or 'undo-redo
-
-  :config
-  (evil-mode 1)
-  (evil-select-search-module 'evil-search-module 'evil-search)
-
-  ;; stop copying each visual state move to the clipboard:
-  ;; https://github.com/emacs-evil/evil/issues/336
-  ;; grokked from:
-  ;; http://stackoverflow.com/questions/15873346/elisp-rename-macro
-  (advice-add #'evil-visual-update-x-selection :override #'ignore)
-  (advice-add #'help-with-tutorial :after (lambda (&rest _) (evil-emacs-state +1)))
-  (defun +evil-default-cursor-fn ()
-    (evil-set-cursor-color (get 'cursor 'evil-normal-color)))
-  (defun +evil-emacs-cursor-fn ()
-    (evil-set-cursor-color (get 'cursor 'evil-emacs-color)))
-
-
-      )
-#+end_src
-
-*** Evil commenter
-#+begin_src emacs-lisp
-
-(use-package evil-nerd-commenter
-  :commands (evilnc-comment-operator
-             evilnc-inner-comment
-             evilnc-outer-commenter)
-  :config    ([remap comment-line] #'evilnc-comment-or-uncomment-lines))
-
-#+end_src
-*** Evil snipe
-#+begin_src emacs-lisp
-
-(use-package evil-snipe
-  :commands evil-snipe-local-mode evil-snipe-override-local-mode
-  :init
-  (setq evil-snipe-smart-case t
-        evil-snipe-scope 'line
-        evil-snipe-repeat-scope 'visible
-        evil-snipe-char-fold t)
-  :config
-  (pushnew! evil-snipe-disabled-modes 'Info-mode 'calc-mode 'treemacs-mode 'dired-mode))
-
-#+end_src
-
-*** Evil surround
-#+begin_src emacs-lisp
-
-(use-package evil-surround
-  :commands (global-evil-surround-mode
-             evil-surround-edit
-             evil-Surround-edit
-             evil-surround-region)
-  :config (global-evil-surround-mode 1))
-
-#+end_src
-*** Evil textobj anyblock
-#+begin_src emacs-lisp
-
-(use-package evil-textobj-anyblock
-  :defer t
-  :config
-  (setq evil-textobj-anyblock-blocks
-        '(("(" . ")")
-          ("{" . "}")
-          ("\\[" . "\\]")
-          ("<" . ">"))))
-
-#+end_src
-*** Evil easymotion
-#+begin_src emacs-lisp
-(use-package evil-easymotion
-  :commands evilem-create evilem-default-keybindings
-  :config
-  ;; Use evil-search backend, instead of isearch
-  (evilem-make-motion evilem-motion-search-next #'evil-ex-search-next
-                      :bind ((evil-ex-search-highlight-all nil)))
-  (evilem-make-motion evilem-motion-search-previous #'evil-ex-search-previous
-                      :bind ((evil-ex-search-highlight-all nil)))
-  (evilem-make-motion evilem-motion-search-word-forward #'evil-ex-search-word-forward
-                      :bind ((evil-ex-search-highlight-all nil)))
-  (evilem-make-motion evilem-motion-search-word-backward #'evil-ex-search-word-backward
-                      :bind ((evil-ex-search-highlight-all nil)))
-
-  ;; Rebind scope of w/W/e/E/ge/gE evil-easymotion motions to the visible
-  ;; buffer, rather than just the current line.
-  (put 'visible 'bounds-of-thing-at-point (lambda () (cons (window-start) (window-end))))
-  (evilem-make-motion evilem-motion-forward-word-begin #'evil-forward-word-begin :scope 'visible)
-  (evilem-make-motion evilem-motion-forward-WORD-begin #'evil-forward-WORD-begin :scope 'visible)
-  (evilem-make-motion evilem-motion-forward-word-end #'evil-forward-word-end :scope 'visible)
-  (evilem-make-motion evilem-motion-forward-WORD-end #'evil-forward-WORD-end :scope 'visible)
-  (evilem-make-motion evilem-motion-backward-word-begin #'evil-backward-word-begin :scope 'visible)
-  (evilem-make-motion evielem-motion-backward-WORD-begin #'evil-backward-WORD-begin :scope 'visible)
-  (evilem-make-motion evilem-motion-backward-word-end #'evil-backward-word-end :scope 'visible)
-  (evilem-make-motion evilem-motion-backward-WORD-end #'evil-backward-WORD-end :scope 'visible))
-
-#+end_src
-*** Evil traces, visualstar, exato
-#+begin_src emacs-lisp
-
-(use-package evil-traces
-  :after evil-ex
-  :config
-  (pushnew! evil-traces-argument-type-alist
-            '(+evil:align . evil-traces-global)
-            '(+evil:align-right . evil-traces-global))
-  (evil-traces-mode))
-
-
-;; Allows you to use the selection for * and #
-(use-package evil-visualstar
-  :commands (evil-visualstar/begin-search
-             evil-visualstar/begin-search-forward
-             evil-visualstar/begin-search-backward)
-  :init
-  (evil-define-key* 'visual 'global
-        "*" #'evil-visualstar/begin-search-forward
-        "#" #'evil-visualstar/begin-search-backward))
-
-
-(use-package exato
-  :commands evil-outer-xml-attr evil-inner-xml-attr)
-
-#+end_src
-
-*** Evil collections
-#+begin_src emacs-lisp
-    (use-package evil-collection
-      :after evil
-      :straight t
-      :config
-      (evil-collection-init) )
-#+end_src
-*** Keybindings
-#+begin_src emacs-lisp
-
-;; Make ESC quit prompts
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-
-;; Since C-u is taken by evil, rebind it
-(global-set-key (kbd "C-M-u") 'universal-argument)
-
-(use-package general
-  :config
-  (general-evil-setup t)
-
-  (general-create-definer bore/leader-keys
-    :keymaps '(normal insert visual emacs)
-    :prefix "SPC"
-    :global-prefix "C-SPC")
-
-  (bore/leader-keys
-    "SPC" '(project-find-file :which-key "find file in project")
-    "RET" '(consult-bookmark :which-key "bookmark")
-    "." '(find-file :which-key "find file")
-    "u" '(universal-argument :which-key "universal argument")
-    "x" '((lambda () (interactive) (switch-to-buffer "*scratch*")) :which-key "open scratch")
-    "X" '(org-capture :which-key "org-capture")
-     ;; Notes
-    "n" '(:ignore t :which-key "notes")
-    "na" '(org-agenda :which-key "org-agenda")
-    "nl" '(org-store-link :which-key "org-store-link")
-    "nt" '(org-todo-list :which-key "todo list")
-    "nn" '(org-capture :which-key "org-capture")
-    "nd" '(org-roam-dailies-capture-today :which-key "Capture daily")
-    ;; Roam
-    "nr" '(:ignore t :which-key "roam")
-    "nrf" '(org-roam-node-find :which-key "find node")
-    "nri" '(org-roam-node-insert :which-key "insert node")
-    "nrn" '(org-roam-capture :which-key "capture to node")
-    "nrr" '(org-roam-buffer-toggle :which-key "toggle roam buffer")
-    ;; Open
-    "o" '(:ignore t :which-key "open")
-    "ot" '(vterm-other-window :which-key "open terminal")
-    "oe" '(eshell-toggle :which-key "open eshell")
-    "ob" '(eww :which-key "open browser")
-    "oa" '(org-agenda :which-key "open agenda")
-    "oA" '(org-agenda-list :which-key "Agenda")
-    ;; Search
-    "s" '(:ignore t :which-key "search")
-    "sb" '(consult-line :which-key "search buffer")
-    "sp" '(project-search :which-key "search project")
-    "sr" '(consult-ripgrep :which-key "search for regexp")
-    "si" '(consult-imenu :which-key "jump to symbol")
-    ;; Magit
-    "g" '(magit-status :which-key "magit")
-    ;; Buffer
-    "b" '(:ignore t :which-key "buffer")
-    "bb" '(consult-buffer :which-key "switch buffer")
-    "bk" '(kill-current-buffer :which-key "kill buffer")
-    "bi" '(ibuffer :which-key "ibuffer")
-    "bn" '(next-buffer :which-key "next buffer")
-    "bp" '(previous-buffer :which-key "previous buffer")
-    ;; Window
-    "w" '(:ignore t :which-key "window")
-    "wc" '(evil-window-delete :which-key "close window")
-    "wn" '(evil-window-new :which-key "new window")
-    "ws" '(evil-window-split :which-key "horizontal split window")
-    "wv" '(evil-window-vsplit :which-key "vertical split window")
-    "wh" '(evil-window-left :which-key "window left")
-    "wj" '(evil-window-down :which-key "window down")
-    "wk" '(evil-window-up :which-key "window up")
-    "wl" '(evil-window-right :which-key "window right")
-    "ww" '(evil-window-next :which-key "goto next window")
-    ;; Toggle
-    "t" '(:ignore t :which-key "toggle")
-    "to" '(olivetti-mode :which-key "toggle olivetti mode")
-    "tf" '(flymake-mode :which-key "toggle flymake")
-    "tl" '(eglot :which-key "toggle eglot")
-    "tt" '(modus-themes-toggle :which-key "toggle modus themes")
-    ;; Project
-    "p" '(:ignore t :which-key "project")
-    "pp" '(project-switch-project :which-key "switch project")
-    "pd" '(project-forget-project :which-key "delete known project")
-    "pb" '(project-switch-to-buffer :which-key "switch buffer in project")
-    "pf" '(project-find-file :which-key "find file in project")
-    "p." '(project-find-dir :which-key "find directory in project")
-    "pk" '(project-kill-buffers :which-key "kill project buffers")
-    ;; File
-    "f" '(:ignore t :which-key "file")
-    "fp" '((lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/README.org"))) :which-key "edit config")
-    "ff" '(find-file :which-key "find file")
-    "fs" '(save-buffer :which-key "save file")
-    "fS" '(write-file :which-key "save file as")
-    "fr" '(consult-recent-file :which-key "recent file")
-    ;; Help
-    "h" '(:ignore t :which-key "help")
-    "hi" '(info :which-key "show info")
-    "hk" '(describe-key :which-key "describe key")
-    "hf" '(describe-function :which-key "describe function")
-    "hv" '(describe-variable :which-key "describe variable")
-    "hx" '(describe-command :which-key "describe command")
-    "hm" '(describe-mode :which-key "describe mode")
-    "hp" '(describe-package :which-key "describe package")))
-#+end_src
-*** Evil org
-#+begin_src emacs-lisp
-(use-package evil-org
-  :after org
-  :ensure t
-  :hook (org-mode . evil-org-mode)
-  :config
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
-#+end_src
 ** Buffers
 
 #+begin_src emacs-lisp
@@ -731,9 +443,9 @@ This is a variadic `cl-pushnew'."
 
     #+begin_src emacs-lisp
       (setq scroll-conservatively 101                    ; value greater than 100 gets rid of half page jumping
-	    mouse-wheel-scroll-amount '(3 ((shift) . 3)) ; how many lines at a time
-	    mouse-wheel-progressive-speed t              ; accelerate scrolling
-	    mouse-wheel-follow-mouse 't)                 ; scroll window under mouse
+            mouse-wheel-scroll-amount '(3 ((shift) . 3)) ; how many lines at a time
+            mouse-wheel-progressive-speed t              ; accelerate scrolling
+            mouse-wheel-follow-mouse 't)                 ; scroll window under mouse
     #+end_src
 
 *** Isearch
@@ -1097,16 +809,16 @@ This is a variadic `cl-pushnew'."
 
 #+begin_src emacs-lisp
 
-     ;; I want to know every detail... one the margin
-     (use-package marginalia
-       :after vertico
-       :straight t
-       :custom
-       (marginalia-annotators '(marginalia-annotators-heavy
-				marginalia-annotators-light
-				nil))
-       :init
-       (marginalia-mode))
+  ;; I want to know every detail... one the margin
+  (use-package marginalia
+    :after vertico
+    :straight t
+    :custom
+    (marginalia-annotators '(marginalia-annotators-heavy
+                             marginalia-annotators-light
+                             nil))
+    :init
+    (marginalia-mode))
 
 #+end_src
 ** Embark
@@ -1129,14 +841,14 @@ This is a variadic `cl-pushnew'."
 
      ;; Hide the mode line of the Embark live/completions buffers
      (add-to-list 'display-buffer-alist
-		  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-		    nil
-		    (window-parameters (mode-line-format . none)))))
+                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                    nil
+                    (window-parameters (mode-line-format . none)))))
 
       (use-package embark-consult
-		  :after (embark consult)
-		  :config
-		  (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
+                  :after (embark consult)
+                  :config
+                  (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
 
    #+end_src
 ** Consult
@@ -1160,7 +872,7 @@ This is a variadic `cl-pushnew'."
 	   ("<help> a" . consult-apropos)            ; orig. apropos-command
 	   ;; M-g bindings (goto-map)
 	   ("M-g e" . consult-compile-error)
-	   ("M-g f" . consult-flymake)               ; Alternative: consult-flycheck
+	   ("M-g f" . consult-flycheck)               ; Alternative: consult-flycheck
 	   ("M-g g" . consult-goto-line)             ; orig. goto-line
 	   ("M-g M-g" . consult-goto-line)           ; orig. goto-line
 	   ("M-g o" . consult-outline)               ; Alternative: consult-org-heading
@@ -1315,11 +1027,22 @@ This is a variadic `cl-pushnew'."
   ;;   (bind-key "C-c C-r" 'dired-rsync dired-mode-map))
 #+end_src
 
+** Project custom
+#+begin_src emacs-lisp
+    (defun bore/project-override (dir)
+      (let ((override (locate-dominating-file dir ".project.el")))
+        (if override
+          (cons 'vc override)
+          nil)))
+  (use-package project
+    :config
+    (add-hook 'project-find-functions #'bore/project-override))
+#+end_src
 ** Language Server Protocol
 
 #+begin_src emacs-lisp
 
-  ;; Going closer to the sun.. I mean Emacs
+  ;; Going cxloser to the sun.. I mean Emacs
   (use-package eglot
     :straight t
     :commands eglot eglot-ensure
@@ -1344,7 +1067,6 @@ This is a variadic `cl-pushnew'."
   (use-package consult-eglot
     :straight t
     :after eglot)
-
 #+end_src
 
 ** Dumb-jump
@@ -1359,7 +1081,23 @@ This is a variadic `cl-pushnew'."
 #+end_src
 
 ** Completions
+*** Company Mode
+#+begin_src emacs-lisp
+  ;; (use-package company
+  ;;   :ensure t
+  ;;   :hook ((prog-mode lsp-mode org-mode text-mode conf-mode) . company-mode)
+  ;;   :custom
+  ;;   (company-minimum-prefix-length 2)  ; Min prefix before autocompletion starts
+  ;;   (company-idle-delay 0.1)           ; Not much delay before autocompletion kicks in
+  ;;   (company-show-numbers t)           ; Show numbers the top completions (M-*number* to access)
+  ;;   (company-selection-wrap-around t)) ; Use a cyclic list for selecting matches
 
+  ;; (use-package company-box
+  ;;   :ensure t
+  ;;   :hook (company-mode . company-box-mode)
+  ;;   :config
+  ;;   (setq company-box-scrollbar nil))  ; the completions are so fast that I don't see any scrollbar
+#+end_src
 *** Corfu
 
 #+begin_src emacs-lisp
@@ -1419,7 +1157,6 @@ This is a variadic `cl-pushnew'."
 
 #+begin_src emacs-lisp
 
-  ;; Have some mercy on me
   (use-package flymake
     :straight nil
     :hook (prog-mode . flymake-mode)
@@ -1433,7 +1170,27 @@ This is a variadic `cl-pushnew'."
             flymake-mode-line-note-counter "")))
 
 #+end_src
+** Flycheck
+#+begin_src emacs-lisp
+(use-package flycheck
+  :defer t
+  :ensure t
+  :bind (("M-n" . flycheck-next-error)        ; Go to next error
+         ("M-p" . flycheck-previous-error))   ; Go to previous error
+  :hook
+  (org-src-mode . disable-flycheck-for-elisp)
+  :custom
+  (flycheck-emacs-lisp-initialize-packages t)
+  (flycheck-display-errors-delay 0.1)
+  :config
+  (global-flycheck-mode)
+  (flycheck-set-indication-mode 'left-margin)
 
+  (defun disable-flycheck-for-elisp ()
+    (setq-local flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+
+  (add-to-list 'flycheck-checkers 'proselint))
+#+end_src
 * Lang
 ** Haskell
 
@@ -1448,6 +1205,10 @@ This is a variadic `cl-pushnew'."
                 ("C-c C-o" . hoogle)
                 ("C-c C-h" . hs-lint))
     :custom
+    (setq haskell-interactive-popup-errors nil)
+    (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+    (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+    (add-to-list 'completion-ignored-extensions ".hi")
     (haskell-interactive-popup-errors nil)
     (haskell-process-log t)
     (haskell-process-type 'cabal-new-repl)

@@ -795,21 +795,6 @@ This is a variadic `cl-pushnew'."
   :defer t)
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
 
-;; (use-package company
-;;   :ensure t
-;;   :hook ((prog-mode lsp-mode org-mode text-mode conf-mode) . company-mode)
-;;   :custom
-;;   (company-minimum-prefix-length 2)  ; Min prefix before autocompletion starts
-;;   (company-idle-delay 0.1)           ; Not much delay before autocompletion kicks in
-;;   (company-show-numbers t)           ; Show numbers the top completions (M-*number* to access)
-;;   (company-selection-wrap-around t)) ; Use a cyclic list for selecting matches
-
-;; (use-package company-box
-;;   :ensure t
-;;   :hook (company-mode . company-box-mode)
-;;   :config
-;;   (setq company-box-scrollbar nil))  ; the completions are so fast that I don't see any scrollbar
-
 (use-package corfu
   ;; Optional customizations
   :straight t
@@ -858,25 +843,6 @@ This is a variadic `cl-pushnew'."
         '(" " flymake-mode-line-error-counter
           flymake-mode-line-warning-counter
           flymake-mode-line-note-counter "")))
-
-(use-package flycheck
-  :defer t
-  :ensure t
-  :bind (("M-n" . flycheck-next-error)        ; Go to next error
-         ("M-p" . flycheck-previous-error))   ; Go to previous error
-  :hook
-  (org-src-mode . disable-flycheck-for-elisp)
-  :custom
-  (flycheck-emacs-lisp-initialize-packages t)
-  (flycheck-display-errors-delay 0.1)
-  :config
-  (global-flycheck-mode)
-  (flycheck-set-indication-mode 'left-margin)
-
-  (defun disable-flycheck-for-elisp ()
-    (setq-local flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
-
-  (add-to-list 'flycheck-checkers 'proselint))
 
 (use-package haskell-mode
   :straight t

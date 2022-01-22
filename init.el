@@ -1034,4 +1034,16 @@ This is a variadic `cl-pushnew'."
 (use-package org-superstar)
 (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
 
+(use-package nix-mode
+  :mode "\\.nix\\'")
+
+(use-package nix-drv-mode
+  :straight (nix-drv-mode
+             :host github
+             :repo "NixOS/nix-mode")
+  :mode "\\.drv\\'")
+
+(use-package nix-update
+  :commands nix-update-fetch)
+
 ;;; init.el ends here

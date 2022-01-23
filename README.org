@@ -230,6 +230,11 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 #+end_src
 
 * Emacs
+** emacs-everywhere
+#+begin_src emacs-lisp
+  (use-package emacs-everywhere
+    :straight t)
+#+end_src
 ** pushnew!
 
 #+begin_src emacs-lisp

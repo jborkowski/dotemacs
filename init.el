@@ -118,6 +118,9 @@
 		eshell-mode-hool))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
+(use-package emacs-everywhere
+  :straight t)
+
 (defmacro pushnew! (place &rest values)
   "Push VALUES sequentially into PLACE, if they aren't already present.
 This is a variadic `cl-pushnew'."

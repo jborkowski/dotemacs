@@ -250,26 +250,24 @@ This is a variadic `cl-pushnew'."
 ** Better defaults
 
 #+begin_src emacs-lisp
-  (setq inhibit-splash-screen t              ; disable splash sceen
-        inhibit-startup-screen t             ; disable startup sceen
-        inhibit-startup-message t            ; disable startup messame
-        initial-scratch-message nil          ; disable startup message - buffer
-        kill-do-not-save-duplicates t        ; kill those nasty duplicates
-        require-final-newline t              ; remain POSIX compliant
-        password-cache-expiry nil            ; I really want to trust my computer
-        custom-safe-themes t                 ; all themes are safe, right?
-        scroll-margin 2                      ; it's nice to maintain a little margin
-        select-enable-clipboard t            ; integrate system's and Emacs' clipboard
-        visible-bell t                       ; make those error squaks visual
-        warning-minimum-level :error)        ; do not tell me about warnings
+  (setq inhibit-splash-screen t
+        inhibit-startup-screen t
+        inhibit-startup-message t
+        initial-scratch-message nil
+        kill-do-not-save-duplicates t
+        require-final-newline t
+        password-cache-expiry nil
+        custom-safe-themes t
+        scroll-margin 2
+        select-enable-clipboard t
+        visible-bell t
+        warning-minimum-level :error)
 
-  (global-so-long-mode 1)                    ; so long baby!
-  (fset 'yes-or-no-p 'y-or-n-p)              ; short questions answers
-  (global-subword-mode 1)                    ; iterate through CamelCase words
-  (global-auto-revert-mode t)                ; revert those buffers
-  (set-default-coding-systems 'utf-8)        ; default to utf-8 encoding
-  (global-hl-line-mode 1)                    ; enable global highlighting
-  (global-hl-line-mode 1)                    ; enable global highlighting
+  (global-so-long-mode 1)
+  (fset 'yes-or-no-p 'y-or-n-p)
+  (global-auto-revert-mode t)
+  (set-default-coding-systems 'utf-8)
+  (global-hl-line-mode 1)
 #+end_src
 
 ** Undo
@@ -1183,6 +1181,7 @@ This is a variadic `cl-pushnew'."
     (haskell-process-auto-import-loaded-modules t)
     (haskell-process-suggest-remove-import-lines t))
 
+  (custom-set-variables '(haskell-stylish-on-save t))
   (use-package hindent
     :straight t
     :hook (haskell-mode . hindent-mode))

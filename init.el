@@ -160,7 +160,7 @@ This is a variadic `cl-pushnew'."
       ;; Add prompt indicator to `completing-read-multiple'.
       ;; Alternatively try `consult-completing-read-multiple'.
       (defun crm-indicator (args)
-	(cons (concat "[CRM] " (car args)) (cdr args)))
+        (cons (concat "[CRM] " (car args)) (cdr args)))
       (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
       ;; TAB cycle if there are only few candidates
@@ -168,7 +168,7 @@ This is a variadic `cl-pushnew'."
 
       ;; Do not allow the cursor in the minibuffer prompt
       (setq minibuffer-prompt-properties
-	    '(read-only t cursor-intangible t face minibuffer-prompt))
+            '(read-only t cursor-intangible t face minibuffer-prompt))
       (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
       ;; Clean up whitespace, newlines and line breaks
@@ -177,7 +177,7 @@ This is a variadic `cl-pushnew'."
       ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
       ;; Vertico commands are hidden in normal buffers.
       (setq read-extended-command-predicate
-	    #'command-completion-default-include-p)
+            #'command-completion-default-include-p)
 
       ;; Enable recursive minibuffers
       (setq enable-recursive-minibuffers t)
@@ -539,6 +539,15 @@ This is a variadic `cl-pushnew'."
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
+(use-package yasnippet
+  :straight t
+  :config
+  (setq yas-snippet-dirs
+        (append yas-snippet-dirs
+                '("~/.emacs.d/snippets")))
+  (yas-global-mode 1)
+  )
+
 ;; Enable vertigo
 (use-package vertico
   :straight t
@@ -801,9 +810,7 @@ This is a variadic `cl-pushnew'."
   :straight t
   :custom
   (corfu-cycle t)                ; enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ; enable auto completion
-  (corfu-auto-delay 0.5)         ; I need help, quick!
-  (corfu-auto-prefix 2)          ; give me some space (2 characters wide)
+  (corfu-auto nil)               ; disable auto completion
   (corfu-quit-no-match t)        ; automatically quit if there is no match
   (corfu-echo-documentation nil) ; do not show documentation in the echo area
   :init

@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Emacs lisp Use Package
+# key: oep
+# --
+
+#+begin_src emacs-lisp
+(use-package $1
+    :straight t)
+#+end_src

@@ -1404,6 +1404,30 @@ This is a variadic `cl-pushnew'."
   (use-package org-superstar)
   (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
 #+end_src
+*** Org attach
+#+begin_src emacs-lisp
+  (use-package org-attach
+    :straight nil
+    :commands (org-attach-new
+               org-attach-open
+               org-attach-open-in-emacs
+               org-attach-reveal-in-emacs
+               org-attach-url
+               org-attach-set-directory
+               org-attach-sync)
+    :config
+    (unless org-attach-id-dir
+      ;; Centralized attachments directory by default
+      (setq-default org-attach-id-dir (expand-file-name ".attach/" org-directory)))
+    )
+#+end_src
+*** Org cliplink
+#+begin_src emacs-lisp
+  (use-package org-cliplink
+    :straight t
+    :config
+    (global-set-key (kbd "C-c l") 'org-cliplink))
+#+end_src
 
 ** Nix
 #+begin_src emacs-lisp

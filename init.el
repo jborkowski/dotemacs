@@ -97,9 +97,9 @@
 (defun bore/with-font-faces ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
-    (set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'regular))
-      (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'regular))
-      (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 16 :weight 'light))))
+    (set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 14 :weight 'regular))
+      (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 14 :weight 'regular))
+      (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 14 :weight 'light))))
 
 (add-hook 'after-init-hook 'bore/with-font-faces)
 (add-hook 'server-after-make-frame-hook 'bore/with-font-faces)
@@ -120,28 +120,38 @@
 		eshell-mode-hool))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
+(use-package tab-bar
+  :straight nil
+  :custom
+  (tab-bar-close-button-show nil)
+  (tab-bar-new-button-show nil)
+  (tab-bar-show 1)
+  :init
+  (setq tab-bar-new-tab-to 'rightmost
+        tab-bar-close-tab-select 'recent
+        ;; set default tab name to current buffer.
+        ;; alternative is to set new tab to scratch - tab-bar-new-tab-choice "*scratch*"
+        tab-bar-new-tab-choice t
+        tab-bar-tab-name-function 'tab-bar-tab-name-current
+        ))
+
+  (tab-bar-history-mode 1)
+
 (use-package emacs-everywhere
   :straight t)
 
-(defmacro pushnew! (place &rest values)
-  "Push VALUES sequentially into PLACE, if they aren't already present.
-This is a variadic `cl-pushnew'."
-  (let ((var (make-symbol "result")))
-    `(dolist (,var (list ,@values) (with-no-warnings ,place))
-       (cl-pushnew ,var ,place :test #'equal))))
-
 (setq inhibit-splash-screen t
-        inhibit-startup-screen t
-        inhibit-startup-message t
-        initial-scratch-message nil
-        kill-do-not-save-duplicates t
-        require-final-newline t
-        password-cache-expiry nil
-        custom-safe-themes t
-        scroll-margin 2
-        select-enable-clipboard t
-        visible-bell t
-        warning-minimum-level :error)
+      inhibit-startup-screen t
+      inhibit-startup-message t
+      initial-scratch-message nil
+      kill-do-not-save-duplicates t
+      require-final-newline t
+      password-cache-expiry nil
+      custom-safe-themes t
+      scroll-margin 2
+      select-enable-clipboard t
+      visible-bell t
+      warning-minimum-level :error)
 
 (recentf-mode 1)
 (global-so-long-mode 1)
@@ -150,14 +160,8 @@ This is a variadic `cl-pushnew'."
 (set-default-coding-systems 'utf-8)
 (global-hl-line-mode 1)
 
-;; Save what you enter into minibuffer prompts
-(setq history-length 25)
-(savehist-mode 1)
 (setq  x-meta-keysym 'super
        x-super-keysym 'meta)
-
-(use-package undo-tree)
-(global-undo-tree-mode 1)
 
 (use-package emacs
       :straight nil
@@ -322,30 +326,28 @@ This is a variadic `cl-pushnew'."
   :hook
   (after-init . winner-mode))
 
-;; Pretty minimal modeline that suits my mood
 (setq mode-line-position-line-format `(" %l:%c"))
-(setq mode-line-position-column-line-format '(" %l,%c"))       ; Emacs 28
+(setq mode-line-position-column-line-format '(" %l,%c"))
 (setq mode-line-compact nil)
 (setq-default mode-line-format
-	      '("%e"
-		mode-line-front-space
-		mode-line-mule-info
-		mode-line-client
-		mode-line-modified
-		mode-line-remote
-		mode-line-frame-identification
-		mode-line-buffer-identification
-		"  "
-		mode-line-position
-		"  "
-		(vc-mode vc-mode)
-		"  "
-		mode-line-modes
-		"  "
-		mode-line-misc-info
-		mode-line-end-spaces))
+              '("%e"
+                mode-line-front-space
+                mode-line-mule-info
+                mode-line-client
+                mode-line-modified
+                mode-line-remote
+                mode-line-frame-identification
+                mode-line-buffer-identification
+                "  "
+                mode-line-position
+                "  "
+                (vc-mode vc-mode)
+                "  "
+                mode-line-modes
+                "  "
+                mode-line-misc-info
+                mode-line-end-spaces))
 
-;; Hide modeline "lighters"
 (use-package minions
   :straight t
   :config
@@ -395,18 +397,18 @@ This is a variadic `cl-pushnew'."
   :straight nil
   :config
   (setq browse-url-secondary-browser-function 'eww-browse-url
-	browse-url-browser-function 'browse-url-default-browser))
+        browse-url-browser-function 'browse-url-default-browser))
 
 (use-package shr
   :straight nil
   :config
   (setq shr-use-colors nil             ; t is bad for accessibility
-	shr-use-fonts nil              ; t is not for me
-	shr-max-image-proportion 0.6
-	shr-image-animate nil          ; No GIFs, thank you!
-	shr-width nil
-	shr-discard-aria-hidden t
-	shr-cookie-policy nil))
+        shr-use-fonts nil              ; t is not for me
+        shr-max-image-proportion 0.6
+        shr-image-animate nil          ; No GIFs, thank you!
+        shr-width nil
+        shr-discard-aria-hidden t
+        shr-cookie-policy nil))
 
 (use-package url-cookie
   :straight nil
@@ -417,20 +419,20 @@ This is a variadic `cl-pushnew'."
   :bind ("C-c o b" . eww)
   :config
   (setq eww-restore-desktop t
-	eww-desktop-remove-duplicates t
-	eww-header-line-format nil
-	eww-search-prefix "https://duckduckgo.com/g?ia="
-	eww-download-directory (expand-file-name "~/Downloads")
-	eww-suggest-uris
-	'(eww-links-at-point
-	  thing-at-point-url-at-point)
-	eww-history-limit 150
-	eww-use-external-browser-for-content-type
-	"\\`\\(video/\\|audio\\)"
-	eww-browse-url-new-window-is-tab nil
-	eww-form-checkbox-selected-symbol "[X]"
-	eww-form-checkbox-symbol "[ ]"
-	eww-retrieve-command nil))
+        eww-desktop-remove-duplicates t
+        eww-header-line-format nil
+        eww-search-prefix "https://duckduckgo.com/?ia="
+        eww-download-directory (expand-file-name "~/Downloads")
+        eww-suggest-uris
+        '(eww-links-at-point
+          thing-at-point-url-at-point)
+        eww-history-limit 150
+        eww-use-external-browser-for-content-type
+        "\\`\\(video/\\|audio\\)"
+        eww-browse-url-new-window-is-tab nil
+        eww-form-checkbox-selected-symbol "[X]"
+        eww-form-checkbox-symbol "[ ]"
+        eww-retrieve-command nil))
 
 (use-package pdf-tools
   :mode ("\\.pdf\\'" . pdf-view-mode)
@@ -594,14 +596,14 @@ This is a variadic `cl-pushnew'."
   :init
   (vertico-mode)
   (setq vertico-resize t
-	vertico-cycle t
-	vertico-count 17
-	completion-in-region-function
-	(lambda (&rest args)
-	  (apply (if vertico-mode
-		     #'consult-completion-in-region
-		   #'completion--in-region)
-		 args))))
+        vertico-cycle t
+        vertico-count 17
+        completion-in-region-function
+        (lambda (&rest args)
+          (apply (if vertico-mode
+                     #'consult-completion-in-region
+                   #'completion--in-region)
+                 args))))
 
 ;; Use the orderless completion style
 (use-package orderless
@@ -647,77 +649,77 @@ This is a variadic `cl-pushnew'."
                :config
                (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
 
-( use-package consult
+(use-package consult
   :straight t
   :defer t
-  :bind (;; C-x bindings (ctl-x-map)
-	 ("C-x C-r" . consult-recent-file)
-	 ("C-x M-:" . consult-complex-command)     ; orig. repeat-complex-command
-	 ("C-x b"   . consult-buffer)              ; orig. switch-to-buffer
-	 ("C-x M-k" . consult-kmacro)
-	 ("C-x M-m" . consult-minor-mode-menu)
-	 ("C-x r b" . consult-bookmark)            ; override bookmark-jump
-	 ("C-x 4 b" . consult-buffer-other-window) ; orig. switch-to-buffer-other-window
-	 ("C-x 5 b" . consult-buffer-other-frame)  ; orig. switch-to-buffer-other-frame
-	 ;; Other custom bindings
-	 ("M-y" . consult-yank-pop)                ; orig. yank-pop
-	 ("<help> a" . consult-apropos)            ; orig. apropos-command
-	 ;; M-g bindings (goto-map)
-	 ("M-g e" . consult-compile-error)
-	 ("M-g f" . consult-flycheck)               ; Alternative: consult-flycheck
-	 ("M-g g" . consult-goto-line)             ; orig. goto-line
-	 ("M-g M-g" . consult-goto-line)           ; orig. goto-line
-	 ("M-g o" . consult-outline)               ; Alternative: consult-org-heading
-	 ("M-g m" . consult-mark)
-	 ("M-g k" . consult-global-mark)
-	 ("M-g i" . consult-imenu)
-	 ("M-g I" . consult-imenu-multi)
-	 ;; M-s bindings (search-map)
-	 ("M-s f" . consult-find)
-	 ("M-s F" . consult-locate)
-	 ("M-s g" . consult-grep)
-	 ("M-s G" . consult-git-grep)
-	 ("M-s r" . consult-ripgrep)
-	 ("M-s l" . consult-line)
-	 ("M-s L" . consult-line-multi)
-	 ("M-s m" . consult-multi-occur)
-	 ("M-s k" . consult-keep-lines)
-	 ("M-s u" . consult-focus-lines)
-	 ;; Isearch integration
-	 ("M-s e" . consult-isearch-history)
-	 :map isearch-mode-map
-	 ("M-e" . consult-isearch-history)          ; orig. isearch-edit-string
-	 ("M-s e" . consult-isearch-history))       ; orig. isearch-edit-string
+  :bind (
+         ;; C-x bindings (ctl-x-map)
+         ("C-x C-r" . consult-recent-file)
+         ("C-x M-:" . consult-complex-command)     ; orig. repeat-complex-command
+         ("C-x b"   . consult-buffer)              ; orig. switch-to-buffer
+         ("C-x M-k" . consult-kmacro)
+         ("C-x M-m" . consult-minor-mode-menu)
+         ("C-x r b" . consult-bookmark)            ; override bookmark-jump
+         ("C-x 4 b" . consult-buffer-other-window) ; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ; orig. switch-to-buffer-other-frame
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ; orig. yank-pop
+         ("<help> a" . consult-apropos)            ; orig. apropos-command
+         ;; M-g bindings (goto-map)
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flycheck)               ; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ; orig. goto-line
+         ("M-g o" . consult-outline)               ; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings (search-map)
+         ("M-s f" . consult-find)
+         ("M-s F" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s m" . consult-multi-occur)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)          ; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history))       ; orig. isearch-edit-string
 
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
   (setq register-preview-delay 0
-	register-preview-function #'consult-register-format)
+        register-preview-function #'consult-register-format)
   (advice-add #'register-preview :override #'consult-register-window)
   (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
   (setq xref-show-xrefs-function #'consult-xref
-	xref-show-definitions-function #'consult-xref)
-
+        xref-show-definitions-function #'consult-xref)
   :config
   (consult-customize
    consult-theme
    :preview-key '(:debounce 0.5 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
-   ;; consult--source-file consult--source-project-file consult--source-bookmark
+   consult--source-file consult--source-project-file consult--source-bookmark
    :preview-key (kbd "M-."))
 
   (setq consult-narrow-key "<"
-	consult-line-numbers-widen t
-	consult-async-min-input 2
-	consult-async-refresh-delay  0.15
-	consult-async-input-throttle 0.2
-	consult-async-input-debounce 0.1)
+        consult-line-numbers-widen t
+        consult-async-min-input 2
+        consult-async-refresh-delay  0.15
+        consult-async-input-throttle 0.2
+        consult-async-input-debounce 0.1)
 
   (setq consult-project-root-function
-	(lambda ()
-	  (when-let (project (project-current))
-	    (car (project-roots project))))))
+        (lambda ()
+          (when-let (project (project-current))
+            (car (project-roots project))))))
 
 (when *is-a-linux*
        (use-package mu4e
@@ -903,6 +905,33 @@ order by priority, created DESC "
   :straight t
   :hook (haskell-mode . hindent-mode))
 
+(use-package ghcid
+:straight (:package "ghcid" :host nil :type git :repo "https://github.com/ndmitchell/ghcid" )
+:defer
+:load-path "site-lisp/"
+:bind (:map projectile-mode-map
+            ("C-c m s" . ghcid)
+            ("C-c m b" . show-ghcid-buf)
+            ("C-c m t" . set-ghcid-target))
+:custom
+(ghcid-target "")
+;;:config (setq-local default-directory projectile-project-root)
+:preface
+(use-package haskell-mode :ensure t)
+(defun show-ghcid-buf ()
+  (interactive)
+  (show-buffer ghcid-buf-name))
+(defun set-ghcid-target (ghcid-targ &optional ghcid-test-targ)
+  (interactive
+   (list
+    (completing-read "ghcid target: " (map 'list (lambda (targ) (format "%s:%s" (projectile-project-name) targ)) (haskell-cabal-enum-targets)))
+    (completing-read "ghcid --test target: " '("--test=main" "--test=Main.main" nil))))
+  (setq ghcid-target ghcid-targ)
+  (when ghcid-test-targ
+    (setq ghcid-target-test (format "%s" ghcid-test-targ)))
+  (kill-ghcid)
+  (ghcid)))
+
 (use-package toml-mode
   :straight t
   :mode "\\.toml\\'")
@@ -1051,16 +1080,16 @@ order by priority, created DESC "
   :init
   (setq org-roam-v2-ack t)
   :custom
-  (org-roam-directory "~/org/roam") ;; move my roam files to ~/org/roam
+  (org-roam-directory "~/org/roam")
   :bind (("C-c n l" . org-roam-buffer-toggle)
-	 ("C-c n f" . org-roam-node-find)
-	 ("C-c n i" . org-roam-node-insert)
-	 ("C-c n g" . org-roam-graph)
-	 :map org-mode-map
-	 ("C-M-i"    . completion-at-point)
-	 :map org-roam-dailies-map
-	 ("Y" . org-roam-dailies-capture-yesterday)
-	 ("T" . org-roam-dailies-capture-tomorrow))
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n g" . org-roam-graph)
+         :map org-mode-map
+         ("C-M-i"    . completion-at-point)
+         :map org-roam-dailies-map
+         ("Y" . org-roam-dailies-capture-yesterday)
+         ("T" . org-roam-dailies-capture-tomorrow))
   :bind-keymap
   ("C-c n d" . org-roam-dailies-map)
   :config
@@ -1090,6 +1119,11 @@ order by priority, created DESC "
   :config
   (global-set-key (kbd "C-c l") 'org-cliplink))
 
+(setq js-indent-level 2
+    typescript-indent-level 2
+    json-reformat:indent-width 2
+    css-indent-offset 2)
+
 (use-package nix-mode
   :mode "\\.nix\\'")
 
@@ -1105,8 +1139,8 @@ order by priority, created DESC "
 (use-package terraform-mode
   :straight t)
 
-(use-package cmake-mode
-  :straight nil)
+;; (use-package cmake-mode
+;;  :straight nil)
 
 (use-package rust-mode
   :straight t
@@ -1114,5 +1148,10 @@ order by priority, created DESC "
   (setq rust-format-on-save t)
   (add-hook 'rust-mode-hook 'eglot-ensure)
   (define-key rust-mode-map (kbd "C-c C-c") 'rust-run))
+
+(use-package docker
+  :straight t)
+(use-package dockerfile-mode
+  :straight t)
 
 ;;; init.el ends here

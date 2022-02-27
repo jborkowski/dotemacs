@@ -129,23 +129,28 @@ This is a variadic `cl-pushnew'."
        (cl-pushnew ,var ,place :test #'equal))))
 
 (setq inhibit-splash-screen t
-      inhibit-startup-screen t
-      inhibit-startup-message t
-      initial-scratch-message nil
-      kill-do-not-save-duplicates t
-      require-final-newline t
-      password-cache-expiry nil
-      custom-safe-themes t
-      scroll-margin 2
-      select-enable-clipboard t
-      visible-bell t
-      warning-minimum-level :error)
+        inhibit-startup-screen t
+        inhibit-startup-message t
+        initial-scratch-message nil
+        kill-do-not-save-duplicates t
+        require-final-newline t
+        password-cache-expiry nil
+        custom-safe-themes t
+        scroll-margin 2
+        select-enable-clipboard t
+        visible-bell t
+        warning-minimum-level :error)
 
+(recentf-mode 1)
 (global-so-long-mode 1)
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-auto-revert-mode t)
 (set-default-coding-systems 'utf-8)
 (global-hl-line-mode 1)
+
+;; Save what you enter into minibuffer prompts
+(setq history-length 25)
+(savehist-mode 1)
 
 (use-package undo-tree)
 (global-undo-tree-mode 1)
@@ -407,7 +412,7 @@ This is a variadic `cl-pushnew'."
   (setq eww-restore-desktop t
         eww-desktop-remove-duplicates t
         eww-header-line-format nil
-        eww-search-prefix "https://www.google.com/search?q="
+        eww-search-prefix "https://duckduckgo.com/g?ia="
         eww-download-directory (expand-file-name "~/Downloads")
         eww-suggest-uris
         '(eww-links-at-point
@@ -548,6 +553,34 @@ This is a variadic `cl-pushnew'."
   (yas-global-mode 1)
   )
 
+;; Configure Tempel
+(use-package tempel
+  :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
+         ("M-*" . tempel-insert))
+
+  :init
+
+  ;; Setup completion at point
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'. `tempel-expand'
+    ;; only triggers on exact matches. Alternatively use `tempel-complete' if
+    ;; you want to see all matches, but then Tempel will probably trigger too
+    ;; often when you don't expect it.
+    ;; NOTE: We add `tempel-expand' *before* the main programming mode Capf,
+    ;; such that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons #'tempel-expand
+                      completion-at-point-functions)))
+
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+
+  ;; Optionally make the Tempel templates available to Abbrev,
+  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
+  ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
+  ;; (tempel-global-abbrev-mode)
+  )
+
 ;; Enable vertigo
 (use-package vertico
   :straight t
@@ -664,7 +697,7 @@ This is a variadic `cl-pushnew'."
    :preview-key '(:debounce 0.5 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
-   consult--source-file consult--source-project-file consult--source-bookmark
+   ;; consult--source-file consult--source-project-file consult--source-bookmark
    :preview-key (kbd "M-."))
 
   (setq consult-narrow-key "<"
@@ -794,7 +827,7 @@ This is a variadic `cl-pushnew'."
         eglot-confirm-server-initiated-edits nil
         eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p 3)
-  (add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server" "--lsp"))))
+  (add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server-wrapper" "--lsp"))))
 
 (use-package consult-eglot
   :straight t

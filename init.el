@@ -917,6 +917,7 @@ This is a variadic `cl-pushnew'."
 (use-package yaml-mode
   :straight t
   :mode "\\.ya?ml\\'")
+(setq js-indent-level 2)
 
 (use-package dhall-mode
   :defer t
@@ -1057,7 +1058,7 @@ This is a variadic `cl-pushnew'."
   :init
   (setq org-roam-v2-ack t)
   :custom
-  (org-roam-directory "~/roam") ;; move my roam files to ~/org/roam
+  (org-roam-directory "~/org/roam") ;; move my roam files to ~/org/roam
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n i" . org-roam-node-insert)
@@ -1107,5 +1108,8 @@ This is a variadic `cl-pushnew'."
 
 (use-package nix-update
   :commands nix-update-fetch)
+
+(use-package terraform-mode
+  :straight t)
 
 ;;; init.el ends here

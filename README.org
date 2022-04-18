@@ -1490,10 +1490,12 @@ g* Completion framework
 
 ** Rust
 #+begin_src emacs-lisp
-        (use-package rust-mode
-          :straight t
-          :config
-          (setq rust-format-on-save t))
+  (use-package rust-mode
+    :straight t
+    :config
+    (setq rust-format-on-save t)
+    (add-hook 'rust-mode-hook 'eglot-ensure)
+    (define-key rust-mode-map (kbd "C-c C-c") 'rust-run))
 #+end_src
 
 

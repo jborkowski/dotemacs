@@ -1111,6 +1111,8 @@ order by priority, created DESC "
 (use-package rust-mode
   :straight t
   :config
-  (setq rust-format-on-save t))
+  (setq rust-format-on-save t)
+  (add-hook 'rust-mode-hook 'eglot-ensure)
+  (define-key rust-mode-map (kbd "C-c C-c") 'rust-run))
 
 ;;; init.el ends here

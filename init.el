@@ -17,6 +17,8 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
+(straight-use-package 'org)
+
 (defconst *is-a-mac* (eq system-type 'darwin))
 (defconst *is-a-linux* (eq system-type 'gnu/linux))
 
@@ -73,24 +75,24 @@
 (nyan-mode 1)
 
 (use-package ligature
-  :straight (ligature :host github
-		      :repo "mickeynp/ligature.el")
-  :config
-  ;; Enable all Recursive ligatures in programming modes
-  (ligature-set-ligatures 'prog-mode '("==" "===" "!=" "!==" "=/=" "!!" "??"
-				       "%%" "&&" "&&&" "||" "|||" "=>" "->" "<-"
-				       "##" "###" "####" "//" "f\"" "f'" "${"
-				       "?." "?:" "/*" "*/" "///" "'''" "\"\"\""
-				       "```" "<!--" "-->" ">-" "-<" "::" ">>"
-				       ">>>" "<<" "<<<" "://" "++" "+++" "--"
-				       "---" "**" "***" "+=" "-=" "*=" "/=" "=~"
-				       "<*" "<*>" "<|" "|>" "<|>" "<$>" "<=>"
-				       "<>" "<+>" ">>-" "-<<" "__" "-[ ]" "-[x]"
-				       "\\b" "\\n" "\\r" "\\t" "\\v" "|=" "!~"
-				       "<<~" "<<=" ">>=" "=<<"))
-  ;; Enables ligature checks globally in all buffers. You can also do it
-  ;; per mode with `ligature-mode'.
-  (global-ligature-mode t))
+    :straight (ligature :host github
+                        :repo "mickeynp/ligature.el")
+    :config
+    ;; Enable all Recursive ligatures in programming modes
+    (ligature-set-ligatures 'prog-mode '("==" "===" "!=" "!==" "=/=" "!!" "??"
+                                         "%%" "&&" "&&&" "||" "|||" "=>" "->" "<-"
+                                         "##" "###" "####" "//" "f\"" "f'" "${"
+                                         "?." "?:" "/*" "*/" "///" "'''" "\"\"\""
+                                         "```" "<!--" "-->" ">-" "-<" "::" ">>"
+                                         ">>>" "<<" "<<<" "://" "++" "+++" "--"
+                                         "---" "**" "***" "+=" "-=" "*=" "/=" "=~"
+                                         "<*" "<*>" "<|" "|>" "<|>" "<$>" "<=>"
+                                         "<>" "<+>" ">>-" "-<<" "__" "-[ ]" "-[x]"
+                                         "\\b" "\\n" "\\r" "\\t" "\\v" "|=" "!~"
+                                         "<<~" "<<=" ">>=" "=<<"))
+    ;; Enables ligature checks globally in all buffers. You can also do it
+    ;; per mode with `ligature-mode'.
+    (global-ligature-mode t))
 
 (defun bore/with-font-faces ()
   "Setup all Emacs font faces."
@@ -151,6 +153,8 @@ This is a variadic `cl-pushnew'."
 ;; Save what you enter into minibuffer prompts
 (setq history-length 25)
 (savehist-mode 1)
+(setq  x-meta-keysym 'super
+       x-super-keysym 'meta)
 
 (use-package undo-tree)
 (global-undo-tree-mode 1)
@@ -384,22 +388,25 @@ This is a variadic `cl-pushnew'."
 
 ;; add evil-mc
 
+(use-package mindre-theme
+  :straight (:host github :repo "erikbackman/mindre-theme"))
+
 (use-package browse-url
   :straight nil
   :config
   (setq browse-url-secondary-browser-function 'eww-browse-url
-        browse-url-browser-function 'browse-url-default-browser))
+	browse-url-browser-function 'browse-url-default-browser))
 
 (use-package shr
   :straight nil
   :config
   (setq shr-use-colors nil             ; t is bad for accessibility
-        shr-use-fonts nil              ; t is not for me
-        shr-max-image-proportion 0.6
-        shr-image-animate nil          ; No GIFs, thank you!
-        shr-width nil
-        shr-discard-aria-hidden t
-        shr-cookie-policy nil))
+	shr-use-fonts nil              ; t is not for me
+	shr-max-image-proportion 0.6
+	shr-image-animate nil          ; No GIFs, thank you!
+	shr-width nil
+	shr-discard-aria-hidden t
+	shr-cookie-policy nil))
 
 (use-package url-cookie
   :straight nil
@@ -410,20 +417,20 @@ This is a variadic `cl-pushnew'."
   :bind ("C-c o b" . eww)
   :config
   (setq eww-restore-desktop t
-        eww-desktop-remove-duplicates t
-        eww-header-line-format nil
-        eww-search-prefix "https://duckduckgo.com/g?ia="
-        eww-download-directory (expand-file-name "~/Downloads")
-        eww-suggest-uris
-        '(eww-links-at-point
-          thing-at-point-url-at-point)
-        eww-history-limit 150
-        eww-use-external-browser-for-content-type
-        "\\`\\(video/\\|audio\\)"
-        eww-browse-url-new-window-is-tab nil
-        eww-form-checkbox-selected-symbol "[X]"
-        eww-form-checkbox-symbol "[ ]"
-        eww-retrieve-command nil))
+	eww-desktop-remove-duplicates t
+	eww-header-line-format nil
+	eww-search-prefix "https://duckduckgo.com/g?ia="
+	eww-download-directory (expand-file-name "~/Downloads")
+	eww-suggest-uris
+	'(eww-links-at-point
+	  thing-at-point-url-at-point)
+	eww-history-limit 150
+	eww-use-external-browser-for-content-type
+	"\\`\\(video/\\|audio\\)"
+	eww-browse-url-new-window-is-tab nil
+	eww-form-checkbox-selected-symbol "[X]"
+	eww-form-checkbox-symbol "[ ]"
+	eww-retrieve-command nil))
 
 (use-package pdf-tools
   :mode ("\\.pdf\\'" . pdf-view-mode)
@@ -712,91 +719,77 @@ This is a variadic `cl-pushnew'."
 	  (when-let (project (project-current))
 	    (car (project-roots project))))))
 
+(when *is-a-linux*
+       (use-package mu4e
+       :straight nil
+       :commands mu4e mu4e-compose-new
+       :bind ("C-c o m" . mu4e)
+
+       :config
+       (require 'mu4e-org) ; org-mode integration
+
+       (setq user-mail-address "jonatan.borkowski@pm.me"
+             user-full-name  "Jonatan Borkowski")
+
+       ;; Get mail
+       (setq mu4e-maildir "~/.mail"
+             mu4e-get-mail-command "mbsync -a"
+             mu4e-change-filenames-when-moving t   ; needed for mbsync
+             mu4e-update-interval 120)             ; update every 2 minutes
+
+       ;; Send mail
+       (setq mail-specify-envelope-from t
+             message-send-mail-function 'smtpmail-send-it
+             smtpmail-auth-credentials "~/.authinfo.gpg"
+             smtpmail-smtp-server "127.0.0.1"
+             message-kill-buffer-on-exit t
+             smtpmail-stream-type 'starttls
+             smtpmail-smtp-service 1025))
+     ;; Trust certificates
+     (require 'gnutls)
+     (if (file-exists-p "~/.config/protonmail/bridge/cert.pem")
+         (add-to-list 'gnutls-trustfiles (expand-file-name "~/.config/protonmail/bridge/cert.pem")))
+  )
+
+
+(when *is-a-linux*
+  (use-package org-msg
+    :after mu4e
+    :straight t
+    :config
+    (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil tex:dvipng"
+          org-msg-startup "hidestars indent inlineimages"
+          org-msg-greeting-name-limit 3
+          org-msg-default-alternatives '((new . (utf-8 html))
+                                         (reply-to-text . (utf-8))
+                                         (reply-to-html . (utf-8 html)))
+          org-msg-convert-citation t)))
+
+(use-package org-jira
+    :straight t
+    :init
+    (make-directory "~/.org-jira" 0)
+    :config
+
+    (setq jiralib-url "https://restaumatic.atlassian.net")
+
+    (setq org-jira-custom-jqls
+          '((:jql " project IN (RS) and createdDate >= '2022-01-01' order by created DESC "
+                  :limit 10
+                  :filename "this-years-work")
+            (:jql " project IN (RS)
+AND status IN ('To Do', 'In Development')
+AND (labels = EMPTY or labels NOT IN ('FutureUpdate'))
+order by priority, created DESC "
+          :limit 20
+          :filename "ex-ahu-priority-items")
+    ))
+    )
+
 (use-package envrc
   :straight t
   :config
   (envrc-global-mode))
-
-(use-package tramp
-    :straight nil
-    :config
-    (setq tramp-default-method "ssh"))
-
-;; (require 'tramp-cache)
-
-;; (defconst docker-tramp-method "docker")
-;; (defconst docker-tramp-docker-exec "docker")
-
-;; (defun docker-tramp-add-method ()
-;;   "Add docker tramp method."
-;;   (add-to-list 'tramp-methods
-;;                `(,docker-tramp-method
-;;                  (tramp-login-program      ,docker-tramp-docker-exec)
-;;                  (tramp-login-args         (("exec" "-it") ("-u" "%u") ("%h") ("sh")))
-;;                  (tramp-remote-shell       "/bin/zsh")
-;;                  (tramp-remote-shell-args  ("-i" "-c")))))
-
-;; (defun docker-trump--running-containers ()
-;;   "Returns list with container names."
-;;   (split-string (shell-command-to-string "docker ps --format '{{.Names}}:'") "\n"))
-
-;; (defconst docker-tramp-completion-function-alis
-;;     '(docker-trump--running-containers))
-
-
-;; (eval-after-load 'tramp
-;;   '(progn
-;;      (docker-tramp-add-method)
-;;      (tramp-set-completion-function docker-tramp-method docker-tramp-completion-function-alist)))
-
-
-;; ;; TRAMP
-;; (setq tramp-default-method "ssh")
-;; (add-to-list 'tramp-remote-path "/home/user/.ghcup/bin:/home/user/.cabal/bin:/home/user/.local/bin")
-
-;; ;; tramp minibuffer
-;; (add-to-list 'directory-abbrev-alist
-;;              '("^/redo" . "/ssh:re|docker:user@devcontainer_dev_1:"))
-
-;; (add-to-list 'tramp-connection-properties
-;;              (list (regexp-quote "/ssh:re:")
-;;                    "direct-async-process" t
-;;                    "remote-shell" "/bin/zsh"))
-
-;; (add-hook 'find-file-hook
-;;           (lambda ()
-;;             (if (file-remote-p default-directory)
-;;               (setq-local projectile-mode-line "Projectile"))))
-
-
-;; (add-to-list 'directory-abbrev-alist
-;;              '("^/redo" . "/ssh:re|docker:user@devcontainer_dev_1:"))
-
-;; (setq remote-file-name-inhibit-cache nil)
-
-;; ;; Disable version control to avoid delays
-;; (setq vc-ignore-dir-regexp
-;;       (format "%s\\|%s"
-;;               vc-ignore-dir-regexp
-;;               tramp-file-name-regexp))
-
-;; (setq tramp-verbose 1)
-
-;; (defun go-local ()
-;;   "Destroy all TRAMP connections and kill all associated
-;; buffers. Be aware that this will destroy local sudo/root TRAMP
-;; sessions."
-;;   (interactive)
-;;   (ignore-errors (tramp-cleanup-all-connections))
-;;   (ignore-errors (tramp-cleanup-all-buffers)))
-
-
-
-
-;; (use-package dired-rsync
-;;   :ensure t
-;;   :config
-;;   (bind-key "C-c C-r" 'dired-rsync dired-mode-map))
 
 (defun bore/project-override (dir)
     (let ((override (locate-dominating-file dir ".project.el")))
@@ -944,49 +937,49 @@ This is a variadic `cl-pushnew'."
   :commands org-capture org-agenda
   :init
   (add-hook 'org-mode-hook
-            (lambda ()
-              (org-indent-mode)
-              (variable-pitch-mode 1)
-              (visual-line-mode 1)
-              (local-unset-key (kbd "C-'"))))
+	    (lambda ()
+	      (org-indent-mode)
+	      (variable-pitch-mode 1)
+	      (visual-line-mode 1)
+	      (local-unset-key (kbd "C-'"))))
 
   :config
   (setq org-directory "~/org/"
-        org-src-fontify-natively t
-        org-src-tab-acts-natively t
-        org-fontify-done-headline t
-        org-fontify-quote-and-verse-blocks t
-        org-fontify-whole-heading-line t
-        org-hide-emphasis-markers t
-        org-hide-leading-stars t
-        org-capture-bookmark nil
+	org-src-fontify-natively t
+	org-src-tab-acts-natively t
+	org-fontify-done-headline t
+	org-fontify-quote-and-verse-blocks t
+	org-fontify-whole-heading-line t
+	org-hide-emphasis-markers t
+	org-hide-leading-stars t
+	org-capture-bookmark nil
 
-        org-indirect-buffer-display 'current-window
-        org-eldoc-breadcrumb-separator " → "
-        org-enforce-todo-dependencies t
-        org-entities-user
-        '(("flat"  "\\flat" nil "" "" "266D" "♭")
-          ("sharp" "\\sharp" nil "" "" "266F" "♯"))
-        org-image-actual-width nil
-        org-imenu-depth 6
-        org-priority-faces
-        '((?A . error)
-          (?B . warning)
-          (?C . success))
-        org-startup-indented t
-        org-tags-column 0
-        org-use-sub-superscripts '{}
-        org-structure-template-alist
-        '(("s" . "src")
-          ("e" . "src emacs-lisp")
-          ("h" . "src haskell")
-          ("E" . "example")
-          ("q" . "quote")
-          ("c" . "comment")))
+	org-indirect-buffer-display 'current-window
+	org-eldoc-breadcrumb-separator " → "
+	org-enforce-todo-dependencies t
+	org-entities-user
+	'(("flat"  "\\flat" nil "" "" "266D" "♭")
+	  ("sharp" "\\sharp" nil "" "" "266F" "♯"))
+	org-image-actual-width nil
+	org-imenu-depth 6
+	org-priority-faces
+	'((?A . error)
+	  (?B . warning)
+	  (?C . success))
+	org-startup-indented t
+	org-tags-column 0
+	org-use-sub-superscripts '{}
+	org-structure-template-alist
+	'(("s" . "src")
+	  ("e" . "src emacs-lisp")
+	  ("h" . "src haskell")
+	  ("E" . "example")
+	  ("q" . "quote")
+	  ("c" . "comment")))
   )
 (setq org-refile-targets
       '((nil :maxlevel . 3)
-        (org-agenda-files :maxlevel . 3))
+	(org-agenda-files :maxlevel . 3))
       ;; Without this, completers like ivy/helm are only given the first level of
       ;; each outline candidates. i.e. all the candidates under the "Tasks" heading
       ;; are just "Tasks/". This is unhelpful. We want the full path to each refile
@@ -995,33 +988,33 @@ This is a variadic `cl-pushnew'."
       org-outline-path-complete-in-steps nil)
 (setq org-todo-keywords
       '((sequence
-         "TODO(t)"  ; A task that needs doing & is ready to do
-         "STRT(s)"  ; A task that is in progress
-         "WAIT(w)"  ; Something external is holding up this task
-         "HOLD(h)"  ; This task is paused/on hold because of me
-         "IDEA(i)"  ; An unconfirmed and unapproved task or notion
-         "|"
-         "DONE(d)"  ; Task successfully completed
-         "KILL(k)") ; Task was cancelled, aborted or is no longer applicable
-        (sequence
-         "[ ](T)"   ; A task that needs doing
-         "[-](S)"   ; Task is in progress
-         "[?](W)"   ; Task is being held up or paused
-         "|"
-         "[X](D)")  ; Task was completed
-        (sequence
-         "|"
-         "OKAY(o)"
-         "YES(y)"
-         "NO(n)"))
+	 "TODO(t)"  ; A task that needs doing & is ready to do
+	 "STRT(s)"  ; A task that is in progress
+	 "WAIT(w)"  ; Something external is holding up this task
+	 "HOLD(h)"  ; This task is paused/on hold because of me
+	 "IDEA(i)"  ; An unconfirmed and unapproved task or notion
+	 "|"
+	 "DONE(d)"  ; Task successfully completed
+	 "KILL(k)") ; Task was cancelled, aborted or is no longer applicable
+	(sequence
+	 "[ ](T)"   ; A task that needs doing
+	 "[-](S)"   ; Task is in progress
+	 "[?](W)"   ; Task is being held up or paused
+	 "|"
+	 "[X](D)")  ; Task was completed
+	(sequence
+	 "|"
+	 "OKAY(o)"
+	 "YES(y)"
+	 "NO(n)"))
       org-todo-keyword-faces
       '(("[-]"  . +org-todo-active)
-        ("STRT" . +org-todo-active)
-        ("[?]"  . +org-todo-onhold)
-        ("WAIT" . +org-todo-onhold)
-        ("HOLD" . +org-todo-onhold)
-        ("NO"   . +org-todo-cancel)
-        ("KILL" . +org-todo-cancel))
+	("STRT" . +org-todo-active)
+	("[?]"  . +org-todo-onhold)
+	("WAIT" . +org-todo-onhold)
+	("HOLD" . +org-todo-onhold)
+	("NO"   . +org-todo-cancel)
+	("KILL" . +org-todo-cancel))
       )
 
 (use-package org-agenda
@@ -1047,10 +1040,10 @@ This is a variadic `cl-pushnew'."
 
 (setq org-capture-templates
       '(
-        ("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
-         "* TODO %? \n%U" :empty-lines 1)
-        ("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
-         "** %? \n %^T\n%U" :empty-lines 1))
+	("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
+	 "* TODO %? \n%U" :empty-lines 1)
+	("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
+	 "** %? \n %^T\n%U" :empty-lines 1))
       )
 
 (use-package org-roam
@@ -1060,14 +1053,14 @@ This is a variadic `cl-pushnew'."
   :custom
   (org-roam-directory "~/org/roam") ;; move my roam files to ~/org/roam
   :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n i" . org-roam-node-insert)
-         ("C-c n g" . org-roam-graph)
-         :map org-mode-map
-         ("C-M-i"    . completion-at-point)
-         :map org-roam-dailies-map
-         ("Y" . org-roam-dailies-capture-yesterday)
-         ("T" . org-roam-dailies-capture-tomorrow))
+	 ("C-c n f" . org-roam-node-find)
+	 ("C-c n i" . org-roam-node-insert)
+	 ("C-c n g" . org-roam-graph)
+	 :map org-mode-map
+	 ("C-M-i"    . completion-at-point)
+	 :map org-roam-dailies-map
+	 ("Y" . org-roam-dailies-capture-yesterday)
+	 ("T" . org-roam-dailies-capture-tomorrow))
   :bind-keymap
   ("C-c n d" . org-roam-dailies-map)
   :config
@@ -1080,12 +1073,12 @@ This is a variadic `cl-pushnew'."
 (use-package org-attach
   :straight nil
   :commands (org-attach-new
-             org-attach-open
-             org-attach-open-in-emacs
-             org-attach-reveal-in-emacs
-             org-attach-url
-             org-attach-set-directory
-             org-attach-sync)
+	     org-attach-open
+	     org-attach-open-in-emacs
+	     org-attach-reveal-in-emacs
+	     org-attach-url
+	     org-attach-set-directory
+	     org-attach-sync)
   :config
   (unless org-attach-id-dir
     ;; Centralized attachments directory by default
@@ -1111,5 +1104,13 @@ This is a variadic `cl-pushnew'."
 
 (use-package terraform-mode
   :straight t)
+
+(use-package cmake-mode
+  :straight nil)
+
+(use-package rust-mode
+  :straight t
+  :config
+  (setq rust-format-on-save t))
 
 ;;; init.el ends here

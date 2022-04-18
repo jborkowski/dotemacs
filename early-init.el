@@ -11,3 +11,7 @@
 (tool-bar-mode -1)   ; disable the toolbar
 (tooltip-mode -1)    ; disable tooltips
 (menu-bar-mode -1)   ; disable the menu bar
+
+(add-to-list 'default-frame-alist '(undecorated . t))
+(custom-set-variables
+ '(initial-frame-alist (quote ((fullscreen . maximized)))))

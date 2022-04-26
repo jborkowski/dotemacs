@@ -48,7 +48,7 @@ This allows to easily exclude packages that are not needed on specific OS.
   (defconst *is-a-linux* (eq system-type 'gnu/linux))
 
 #+end_src
-** Configure environment
+** onfigure environment
 #+begin_src emacs-lisp
   ;; Ensure that environment variables are the same as the user’s shell
   (when *is-a-mac*
@@ -248,6 +248,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
           ;; alternative is to set new tab to scratch - tab-bar-new-tab-choice "*scratch*"
           tab-bar-new-tab-choice t
           tab-bar-tab-name-function 'tab-bar-tab-name-current
+          tab-bar-format '(tab-bar-format-history tab-bar-format-tabs)
           ))
 
     (tab-bar-history-mode 1)
@@ -840,6 +841,21 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     ;; (tempel-global-abbrev-mode)
     )
 #+end_src
+
+** Elfeed RSS
+#+begin_src emacs-lisp
+  (use-package elfeed
+    :straight t
+    :config
+    (setq elfeed-feeds
+        '(("https://sachachua.com/blog/category/emacs/feed/" blog emacs)
+          ("https://lexi-lambda.github.io/feeds/all.atom.xml" blog haskell alexis)
+          ("https://www.stephendiehl.com/feed.rss" blog diehl haskell)
+          ("http://www.reddit.com/r/emacs/.rss" reddit emacs)))
+    :bind
+    ("C-x w" . elfeed))
+#+end_src
+
 
 * Completion framework
 ** Vertico
@@ -1434,15 +1450,19 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
                 org-agenda-inhibit-startup t))
 #+end_src
 *** Org capture
-    #+begin_src emacs-lisp
-      (setq org-capture-templates
-	    '(
-	      ("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
-	       "* TODO %? \n%U" :empty-lines 1)
-	      ("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
-	       "** %? \n %^T\n%U" :empty-lines 1))
-	    )
-    #+end_src
+#+begin_src emacs-lisp
+  (setq org-capture-templates
+        '(
+          ("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
+           "* TODO %? \n%U" :empty-lines 1)
+          ("w" "Work Issues" entry (file+headline "~/org/work.org" "Issues")
+           "* TODO %?\n  %i\n  %a" :empty-line 1)
+          ("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
+           "** %? \n %^T\n%U" :empty-lines 1))
+        )
+
+#+end_src
+
 *** Org roam
 #+begin_src emacs-lisp
   (use-package org-roam

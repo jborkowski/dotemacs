@@ -133,6 +133,7 @@
         ;; alternative is to set new tab to scratch - tab-bar-new-tab-choice "*scratch*"
         tab-bar-new-tab-choice t
         tab-bar-tab-name-function 'tab-bar-tab-name-current
+        tab-bar-format '(tab-bar-format-history tab-bar-format-tabs)
         ))
 
   (tab-bar-history-mode 1)
@@ -589,6 +590,17 @@
   ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
   ;; (tempel-global-abbrev-mode)
   )
+
+(use-package elfeed
+  :straight t
+  :config
+  (setq elfeed-feeds
+      '(("https://sachachua.com/blog/category/emacs/feed/" blog emacs)
+        ("https://lexi-lambda.github.io/feeds/all.atom.xml" blog haskell alexis)
+        ("https://www.stephendiehl.com/feed.rss" blog diehl haskell)
+        ("http://www.reddit.com/r/emacs/.rss" reddit emacs)))
+  :bind
+  ("C-x w" . elfeed))
 
 ;; Enable vertigo
 (use-package vertico
@@ -1069,10 +1081,12 @@ order by priority, created DESC "
 
 (setq org-capture-templates
       '(
-	("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
-	 "* TODO %? \n%U" :empty-lines 1)
-	("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
-	 "** %? \n %^T\n%U" :empty-lines 1))
+        ("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
+         "* TODO %? \n%U" :empty-lines 1)
+        ("w" "Work Issues" entry (file+headline "~/org/work.org" "Issues")
+         "* TODO %?\n  %i\n  %a" :empty-line 1)
+        ("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
+         "** %? \n %^T\n%U" :empty-lines 1))
       )
 
 (use-package org-roam

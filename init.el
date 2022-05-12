@@ -18,6 +18,7 @@
 (setq straight-use-package-by-default t)
 
 (straight-use-package 'org)
+(setenv "PATH" (concat (getenv "PATH") ":/home/jonatan/.ghcup/bin"))
 
 (defconst *is-a-mac* (eq system-type 'darwin))
 (defconst *is-a-linux* (eq system-type 'gnu/linux))
@@ -161,8 +162,7 @@
 (set-default-coding-systems 'utf-8)
 (global-hl-line-mode 1)
 
-(setq  x-meta-keysym 'super
-       x-super-keysym 'meta)
+(setq x-alt-keysym 'meta) ;; Alt as Meta key
 
 (use-package emacs
       :straight nil
@@ -718,7 +718,7 @@
    :preview-key '(:debounce 0.5 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
-   consult--source-file consult--source-project-file consult--source-bookmark
+   ;; consult--source-file consult--source-project-file consult--source-bookmark
    :preview-key (kbd "M-."))
 
   (setq consult-narrow-key "<"
@@ -907,7 +907,7 @@ order by priority, created DESC "
   (add-to-list 'completion-ignored-extensions ".hi")
   (haskell-interactive-popup-errors nil)
   (haskell-process-log t)
-  (haskell-process-type 'cabal-new-repl)
+  (haskell-process-type 'cabal-repl)
   (haskell-process-load-or-reload-prompt t)
   (haskell-process-auto-import-loaded-modules t)
   (haskell-process-suggest-remove-import-lines t))
@@ -1167,5 +1167,22 @@ order by priority, created DESC "
   :straight t)
 (use-package dockerfile-mode
   :straight t)
+
+(use-package elixir-mode
+  :straight t
+  :init
+  (provide 'smartparens-elixir)
+
+  ;(add-hook 'elixir-mode-local-vars-hook #'lsp! 'append)
+
+  ;; (after! lsp-mode
+  ;;        (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]_build\\'"))
+  )
+(use-package alchemist
+  :straight t)
+(use-package exunit
+  :straight t)
+(add-to-list 'eglot-server-programs '(elixir-mode
+                                        "~/.emacs.d/elixir-ls/release/language_server.sh"))
 
 ;;; init.el ends here

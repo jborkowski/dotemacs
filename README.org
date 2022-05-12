@@ -1,6 +1,6 @@
 #+TITLE: Emacs configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el
-#+STARTUP: overview
+#+STARTUP: overvie
 
 * Base
 ** Use lexical binding
@@ -36,6 +36,8 @@ Instead of built-in ~package.el~, this configuration is based on ~straight.el~ w
   (setq straight-use-package-by-default t)
 
   (straight-use-package 'org)
+  (setenv "PATH" (concat (getenv "PATH") ":/home/jonatan/.ghcup/bin"))
+
 #+end_src
 
 ** Define system variables
@@ -285,8 +287,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
   (set-default-coding-systems 'utf-8)
   (global-hl-line-mode 1)
 
-  (setq  x-meta-keysym 'super
-         x-super-keysym 'meta)
+  (setq x-alt-keysym 'meta) ;; Alt as Meta key
 #+end_src
 
 ** Buffers
@@ -997,7 +998,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
        :preview-key '(:debounce 0.5 any)
        consult-ripgrep consult-git-grep consult-grep
        consult-bookmark consult-recent-file consult-xref
-       consult--source-file consult--source-project-file consult--source-bookmark
+       ;; consult--source-file consult--source-project-file consult--source-bookmark
        :preview-key (kbd "M-."))
 
       (setq consult-narrow-key "<"
@@ -1239,7 +1240,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     (add-to-list 'completion-ignored-extensions ".hi")
     (haskell-interactive-popup-errors nil)
     (haskell-process-log t)
-    (haskell-process-type 'cabal-new-repl)
+    (haskell-process-type 'cabal-repl)
     (haskell-process-load-or-reload-prompt t)
     (haskell-process-auto-import-loaded-modules t)
     (haskell-process-suggest-remove-import-lines t))
@@ -1567,6 +1568,26 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :straight t)
   (use-package dockerfile-mode
     :straight t)
+#+end_src
+** Elixir
+#+begin_src emacs-lisp
+  (use-package elixir-mode
+    :straight t
+    :init
+    (provide 'smartparens-elixir)
+
+    ;(add-hook 'elixir-mode-local-vars-hook #'lsp! 'append)
+
+    ;; (after! lsp-mode
+    ;;        (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]_build\\'"))
+    )
+  (use-package alchemist
+    :straight t)
+  (use-package exunit
+    :straight t)
+  (add-to-list 'eglot-server-programs '(elixir-mode
+                                          "~/.emacs.d/elixir-ls/release/language_server.sh"))
+
 #+end_src
 * The End
 #+begin_src emacs-lisp

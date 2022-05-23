@@ -391,9 +391,6 @@
 
 ;; add evil-mc
 
-(use-package mindre-theme
-  :straight (:host github :repo "erikbackman/mindre-theme"))
-
 (use-package browse-url
   :straight nil
   :config
@@ -853,8 +850,9 @@ order by priority, created DESC "
   (corfu-auto nil)               ; disable auto completion
   (corfu-quit-no-match t)        ; automatically quit if there is no match
   (corfu-echo-documentation nil) ; do not show documentation in the echo area
-  :init
-  (corfu-global-mode))
+ ;; :init
+ ;; (corfu-global-mode)
+ )
 
 (use-package cape
   :straight t
@@ -1184,5 +1182,37 @@ order by priority, created DESC "
   :straight t)
 (add-to-list 'eglot-server-programs '(elixir-mode
                                         "~/.emacs.d/elixir-ls/release/language_server.sh"))
+
+(use-package js2-mode
+  :straight t
+  :mode "\\.jsx?\\'"
+  ;; Set up proper indentation in JavaScript and JSON files
+  :hook (js2-mode . prettier-format-on-save-mode)
+  :init (setq-default js-indent-level 2)
+  :bind (:map js2-mode-map
+              ("C-c C-f"  . prettier-format-buffer))
+  :config
+  ;; Use js2-mode for Node scripts
+  (add-to-list 'magic-mode-alist '("#!/usr/bin/env node" . js2-mode))
+
+  ;; Don't use built-in syntax checking
+  (setq js2-mode-show-parse-errors nil
+        js2-mode-show-strict-warnings nil)
+
+  (setq js--prettify-symbols-alist nil  ; I will handle ligatures by myself
+        js2-highlight-level 3))         ; More highlighting
+
+(reformatter-define prettier-format
+  :program "prettier"
+  :args (list "--stdin-filepath" (buffer-file-name))
+  :lighter " prettier)"
+
+  (use-package typescript-mode
+  :straight t
+  :mode "\\.ts\\'"
+  :hook (typescript-mode . prettier-format-on-save-mode)
+  :bind (:map typescript-mode-map
+              ("C-c C-f"  . prettier-format-buffer))
+  :config (setq typescript-indent-level 2))
 
 ;;; init.el ends here

@@ -1,6 +1,6 @@
 #+TITLE: Emacs configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el
-#+STARTUP: overvie
+#+STARTUP: overview
 
 * Base
 ** Use lexical binding
@@ -597,12 +597,6 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 ;; add evil-mc
 #+end_src
-** Mindre Theme
-#+begin_src emacs-lisp
-  (use-package mindre-theme
-    :straight (:host github :repo "erikbackman/mindre-theme"))
-#+end_src
-
 * Tools
 ** Emacs Web Wowser
 #+begin_src emacs-lisp
@@ -856,7 +850,6 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :bind
     ("C-x w" . elfeed))
 #+end_src
-
 
 * Completion framework
 ** Vertico
@@ -1155,16 +1148,17 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 *** Corfu
 #+begin_src emacs-lisp
 
-  (use-package corfu
-    ;; Optional customizations
-    :straight t
-    :custom
-    (corfu-cycle t)                ; enable cycling for `corfu-next/previous'
-    (corfu-auto nil)               ; disable auto completion
-    (corfu-quit-no-match t)        ; automatically quit if there is no match
-    (corfu-echo-documentation nil) ; do not show documentation in the echo area
-    :init
-    (corfu-global-mode))
+    (use-package corfu
+      ;; Optional customizations
+      :straight t
+      :custom
+      (corfu-cycle t)                ; enable cycling for `corfu-next/previous'
+      (corfu-auto nil)               ; disable auto completion
+      (corfu-quit-no-match t)        ; automatically quit if there is no match
+      (corfu-echo-documentation nil) ; do not show documentation in the echo area
+     ;; :init
+     ;; (corfu-global-mode)
+     )
 
 #+end_src
 
@@ -1589,6 +1583,41 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
                                           "~/.emacs.d/elixir-ls/release/language_server.sh"))
 
 #+end_src
+** JavaScript and TypeScrpt
+#+begin_src emacs-lisp
+  (use-package js2-mode
+    :straight t
+    :mode "\\.jsx?\\'"
+    ;; Set up proper indentation in JavaScript and JSON files
+    :hook (js2-mode . prettier-format-on-save-mode)
+    :init (setq-default js-indent-level 2)
+    :bind (:map js2-mode-map
+                ("C-c C-f"  . prettier-format-buffer))
+    :config
+    ;; Use js2-mode for Node scripts
+    (add-to-list 'magic-mode-alist '("#!/usr/bin/env node" . js2-mode))
+
+    ;; Don't use built-in syntax checking
+    (setq js2-mode-show-parse-errors nil
+          js2-mode-show-strict-warnings nil)
+
+    (setq js--prettify-symbols-alist nil  ; I will handle ligatures by myself
+          js2-highlight-level 3))         ; More highlighting
+
+  (reformatter-define prettier-format
+    :program "prettier"
+    :args (list "--stdin-filepath" (buffer-file-name))
+    :lighter " prettier)"
+
+    (use-package typescript-mode
+    :straight t
+    :mode "\\.ts\\'"
+    :hook (typescript-mode . prettier-format-on-save-mode)
+    :bind (:map typescript-mode-map
+                ("C-c C-f"  . prettier-format-buffer))
+    :config (setq typescript-indent-level 2))
+#+end_src
+
 * The End
 #+begin_src emacs-lisp
 

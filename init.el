@@ -815,7 +815,13 @@ order by priority, created DESC "
 (use-package eglot
   :straight t
   :commands eglot eglot-ensure
-  :hook (haskell-mode . eglot-ensure)
+  :hook ((c-mode
+          c++-mode
+          c-or-c++-mode
+          js2-mode
+          typescript-mode
+          haskell-mode
+          elixir-mode) . eglot-ensure)
   :bind (:map eglot-mode-map
               ("C-c c j" . consult-eglot-symbols)
               ("C-c c x" . consult-flymake)
@@ -831,7 +837,10 @@ order by priority, created DESC "
         eglot-confirm-server-initiated-edits nil
         eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p 3)
-  (add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server-wrapper" "--lsp"))))
+  (add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
+  (add-to-list 'eglot-server-programs '(elixir-mode
+                                    "~/.emacs.d/elixir-ls/release/language_server.sh"))
+  )
 
 (use-package consult-eglot
   :straight t
@@ -1180,8 +1189,6 @@ order by priority, created DESC "
   :straight t)
 (use-package exunit
   :straight t)
-(add-to-list 'eglot-server-programs '(elixir-mode
-                                        "~/.emacs.d/elixir-ls/release/language_server.sh"))
 
 (use-package js2-mode
   :straight t
@@ -1205,9 +1212,9 @@ order by priority, created DESC "
 (reformatter-define prettier-format
   :program "prettier"
   :args (list "--stdin-filepath" (buffer-file-name))
-  :lighter " prettier)"
+  :lighter " prettier")
 
-  (use-package typescript-mode
+(use-package typescript-mode
   :straight t
   :mode "\\.ts\\'"
   :hook (typescript-mode . prettier-format-on-save-mode)

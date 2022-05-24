@@ -7,10 +7,13 @@
               package-enable-at-startup nil ; package initialization occurs after `early-init-file'.
               package-native-compile t)     ; native is better, I guess?
 
-(scroll-bar-mode -1) ; disable visible scrollbar
-(tool-bar-mode -1)   ; disable the toolbar
 (tooltip-mode -1)    ; disable tooltips
 (menu-bar-mode -1)   ; disable the menu bar
+
+(if (fboundp 'tool-bar-mode)
+  (tool-bar-mode -1))         ; disable the toolbar
+(if (fboundp 'scroll-bar-mode)
+  (scroll-bar-mode -1))       ; disable visible scrollbar
 
 (add-to-list 'default-frame-alist '(undecorated . t))
 (custom-set-variables

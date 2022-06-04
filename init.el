@@ -98,9 +98,9 @@
 (defun bore/with-font-faces ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
-    (set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 14 :weight 'regular))
-      (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 14 :weight 'regular))
-      (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 14 :weight 'light))))
+    (set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 18 :weight 'regular))
+      (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 18 :weight 'regular))
+      (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 18 :weight 'light))))
 
 (add-hook 'after-init-hook 'bore/with-font-faces)
 (add-hook 'server-after-make-frame-hook 'bore/with-font-faces)
@@ -731,35 +731,62 @@
             (car (project-roots project))))))
 
 (when *is-a-linux*
-       (use-package mu4e
-       :straight nil
-       :commands mu4e mu4e-compose-new
-       :bind ("C-c o m" . mu4e)
+  (use-package mu4e
+    :straight nil
+    :commands mu4e mu4e-compose-new
+    :bind ("C-c o m" . mu4e)
 
-       :config
-       (require 'mu4e-org) ; org-mode integration
+    :config
+    (require 'mu4e-org)
 
-       (setq user-mail-address "jonatan.borkowski@pm.me"
-             user-full-name  "Jonatan Borkowski")
+    (setq mu4e-contexts
+          (list
+           (make-mu4e-context
+            :name "Proton"
+            :match-func
+            (lambda (msg)
+              (when msg
+                (string-prefix-p "/Proton" (mu4e-message-field msg :maildir))))
+            :vars '((user-mail-address . "jonatan.borkowski@pm.me")
+                    (user-full-name . "Jonatan Borkowski")
+                    (user-draft-folder . "/Proton/Drafts")
+                    (mu4e-sent-folder  . "/Proton/Sent Mail")
+                    (mu4e-refile-folder  . "/Proton/All Mail")
+                    (mu4e-trash-folder  . "/Proton/Trash")))
 
-       ;; Get mail
-       (setq mu4e-maildir "~/.mail"
-             mu4e-get-mail-command "mbsync -a"
-             mu4e-change-filenames-when-moving t   ; needed for mbsync
-             mu4e-update-interval 120)             ; update every 2 minutes
+           ;; Work account
+           (make-mu4e-context
+            :name "Work"
+            :match-func
+            (lambda (msg)
+              (when msg
+                (string-prefix-p "/Restamatic" (mu4e-message-field msg :maildir))))
+            :vars '((user-mail-address . "jonatan.borkowski@restaumatic.com")
+                    (user-full-name    . "Jonatan Borkowski")
+                    (mu4e-drafts-folder  . "/Restaumatic/[Gmail]/Drafts")
+                    (mu4e-sent-folder  . "/Restaumatic/[Gmail]/Sent Mail")
+                    (mu4e-refile-folder  . "/Restaumatic/[Gmail]/All Mail")
+                    (mu4e-trash-folder  . "/Restamatic/[Gmail]/Trash")))))
 
-       ;; Send mail
-       (setq mail-specify-envelope-from t
-             message-send-mail-function 'smtpmail-send-it
-             smtpmail-auth-credentials "~/.authinfo.gpg"
-             smtpmail-smtp-server "127.0.0.1"
-             message-kill-buffer-on-exit t
-             smtpmail-stream-type 'starttls
-             smtpmail-smtp-service 1025))
-     ;; Trust certificates
-     (require 'gnutls)
-     (if (file-exists-p "~/.config/protonmail/bridge/cert.pem")
-         (add-to-list 'gnutls-trustfiles (expand-file-name "~/.config/protonmail/bridge/cert.pem")))
+    ;; Get mail
+    (setq mu4e-maildir "~/.mail"
+          mu4e-get-mail-command "mbsync -a"
+          mu4e-change-filenames-when-moving t   ; needed for mbsync
+          mu4e-update-interval 120)             ; update every 2 minutes
+
+    ;; Send mail
+    (setq mail-specify-envelope-from t
+          message-send-mail-function 'smtpmail-send-it
+          smtpmail-auth-credentials "~/.authinfo.gpg"
+          smtpmail-smtp-server "127.0.0.1"
+          message-kill-buffer-on-exit t
+          smtpmail-stream-type 'starttls
+          smtpmail-smtp-service 1025))
+
+  ;; Trust certificates
+  (require 'gnutls)
+  (if (file-exists-p "~/.config/protonmail/bridge/cert.pem")
+      (add-to-list 'gnutls-trustfiles (expand-file-name "~/.config/protonmail/bridge/cert.pem")))
   )
 
 
@@ -812,39 +839,38 @@ order by priority, created DESC "
   (add-hook 'project-find-functions #'bore/project-override))
 
 ;; Going cxloser to the sun.. I mean Emacs
-(use-package eglot
-  :straight t
-  :commands eglot eglot-ensure
-  :hook ((c-mode
-          c++-mode
-          c-or-c++-mode
-          js2-mode
-          typescript-mode
-          haskell-mode
-          elixir-mode) . eglot-ensure)
-  :bind (:map eglot-mode-map
-              ("C-c c j" . consult-eglot-symbols)
-              ("C-c c x" . consult-flymake)
-              ("C-c c a" . eglot-code-actions)
-              ("C-c c r" . eglot-rename)
-              ("C-c c f" . eglot-format)
-              ("C-c c d" . eldoc))
-  :config
-  (setq eglot-sync-connect 1
-        eglot-connect-timeout 10
-        eglot-autoshutdown t
-        eglot-send-changes-idle-time 0.5
-        eglot-confirm-server-initiated-edits nil
-        eldoc-echo-area-display-truncation-message nil
-        eldoc-echo-area-use-multiline-p 3)
-  (add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
-  (add-to-list 'eglot-server-programs '(elixir-mode
-                                    "~/.emacs.d/elixir-ls/release/language_server.sh"))
-  )
+    (use-package eglot
+      :straight t
+      :commands eglot eglot-ensure
+      :hook ((c-mode
+              c++-mode
+              c-or-c++-mode
+              js2-mode
+              typescript-mode
+              haskell-mode
+              elixir-mode) . eglot-ensure)
+      :bind (:map eglot-mode-map
+                  ("C-c c j" . consult-eglot-symbols)
+                  ("C-c c x" . consult-flymake)
+                  ("C-c c a" . eglot-code-actions)
+                  ("C-c c r" . eglot-rename)
+                  ("C-c c f" . eglot-format)
+                  ("C-c c d" . eldoc))
+      :config
+      (setq eglot-sync-connect 1
+            eglot-connect-timeout 10
+            eglot-autoshutdown t
+            eglot-send-changes-idle-time 0.5
+            eglot-confirm-server-initiated-edits nil
+            eldoc-echo-area-display-truncation-message nil
+            eldoc-echo-area-use-multiline-p 3)
+      (add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
+  (add-to-list 'eglot-server-programs '(elixir-mode  "~/.emacs.d/elixir-ls/release/language_server.sh"))
+)
 
-(use-package consult-eglot
-  :straight t
-  :after eglot)
+    (use-package consult-eglot
+      :straight t
+      :after eglot)
 
 (use-package dumb-jump
   :straight t
@@ -1179,11 +1205,6 @@ order by priority, created DESC "
   :straight t
   :init
   (provide 'smartparens-elixir)
-
-  ;(add-hook 'elixir-mode-local-vars-hook #'lsp! 'append)
-
-  ;; (after! lsp-mode
-  ;;        (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]_build\\'"))
   )
 (use-package alchemist
   :straight t)

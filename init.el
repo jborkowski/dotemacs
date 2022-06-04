@@ -123,10 +123,11 @@
 
 (use-package tab-bar
   :straight nil
-  :custom
-  (tab-bar-close-button-show nil)
-  (tab-bar-new-button-show nil)
-  (tab-bar-show 1)
+  :config
+  (setq tab-bar-close-button-show nil
+        tab-bar-new-button nil
+        tab-bar-separator " "
+        tab-bar-show 1)
   :init
   (setq tab-bar-new-tab-to 'rightmost
         tab-bar-close-tab-select 'recent
@@ -139,9 +140,6 @@
 
   (tab-bar-history-mode 1)
 
-(use-package emacs-everywhere
-  :straight t)
-
 (setq inhibit-splash-screen t
       inhibit-startup-screen t
       inhibit-startup-message t
@@ -151,7 +149,7 @@
       password-cache-expiry nil
       custom-safe-themes t
       scroll-margin 2
-      select-enable-clipboard t
+     ;; select-enable-clipboard t
       visible-bell t
       warning-minimum-level :error)
 
@@ -234,20 +232,20 @@
 	ibuffer-old-time 48)
   (add-hook 'ibuffer-mode-hook #'hl-line-mode))
 
-;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
   :straight nil
   :config
   (setq savehist-save-minibuffer-history t
-        history-length 1000
-        history-delete-duplicates t
-        savehist-autosave-interval nil     ; save on kill only
+        savehist-autosave-interval nil
         savehist-additional-variables
-        '(kill-ring                        ; persist clipboard
-          register-alist                   ; persist macros
-          mark-ring global-mark-ring       ; persist marks
-          search-ring regexp-search-ring)) ; persist searches
+        '(kill-ring
+          register-alist
+          mark-ring global-mark-ring
+          search-ring regexp-search-ring))
   (savehist-mode 1))
+(setq undo-limit 80000000
+      history-limit 5000
+      history-delete-duplicates t)
 
 ;; Enable autosave and backup
 (setq auto-save-default t
@@ -390,6 +388,23 @@
          ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
 
 ;; add evil-mc
+
+(use-package ispell
+  :straight nil
+  :config
+  (setq ispell-program-name "hunspell"
+        ispell-dictionary "en_US,pl_PL")
+  (ispell-set-spellchecker-params)
+  (ispell-hunspell-add-multi-dic ispell-dictionary))
+
+(use-package flyspell
+  :hook ((message-mode git-commit-mode org-mode text-mode) . flyspell-mode)
+  :bind (:map flyspell-mode-map
+              ("C-." . nil)
+              ("C-;" . nil))
+  :config
+  (setq flyspell-issue-welcome-flag nil
+        flyspell-issue-message-flag nil))
 
 (use-package browse-url
   :straight nil
@@ -838,44 +853,52 @@ order by priority, created DESC "
   :config
   (add-hook 'project-find-functions #'bore/project-override))
 
-;; Going cxloser to the sun.. I mean Emacs
-    (use-package eglot
-      :straight t
-      :commands eglot eglot-ensure
-      :hook ((c-mode
-              c++-mode
-              c-or-c++-mode
-              js2-mode
-              typescript-mode
-              haskell-mode
-              elixir-mode) . eglot-ensure)
-      :bind (:map eglot-mode-map
-                  ("C-c c j" . consult-eglot-symbols)
-                  ("C-c c x" . consult-flymake)
-                  ("C-c c a" . eglot-code-actions)
-                  ("C-c c r" . eglot-rename)
-                  ("C-c c f" . eglot-format)
-                  ("C-c c d" . eldoc))
-      :config
-      (setq eglot-sync-connect 1
-            eglot-connect-timeout 10
-            eglot-autoshutdown t
-            eglot-send-changes-idle-time 0.5
-            eglot-confirm-server-initiated-edits nil
-            eldoc-echo-area-display-truncation-message nil
-            eldoc-echo-area-use-multiline-p 3)
-      (add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
-  (add-to-list 'eglot-server-programs '(elixir-mode  "~/.emacs.d/elixir-ls/release/language_server.sh"))
-)
-
-    (use-package consult-eglot
-      :straight t
-      :after eglot)
-
-(use-package dumb-jump
+(use-package lsp-mode
   :straight t
-  :defer t)
-  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+  :hook ((c-mode
+          c++-mode
+          c-or-c++-mode
+          js2-mode
+          rust-mode
+          typescript-mode
+          haskell-mode
+          elixir-mode) . lsp-deferred)
+  :bind (:map lsp-mode-map
+              ("C-c c d" . lsp-describe-thing-at-point)
+              ("C-c c s" . consult-lsp-symbols)
+              ("C-c c f" . lsp-format-buffer)
+              ("C-c c x" . lsp-execute-code-action)
+              ("C-c c r" . lsp-rename)
+              ("C-c c j" . consult-eglot-symbols))
+  :commands lsp lsp-deferred
+
+  :config
+  (setq lsp-idle-delay 0.5
+        lsp-diagnostics-provider t
+        lsp-keep-workspace-alive nil
+        lsp-headerline-breadcrumb-enable nil
+        lsp-modeline-code-actions-enable nil
+        lsp-modeline-diagnostics-enable nil
+        lsp-enable-file-watchers nil
+        lsp-file-watch-threshold 5000
+        read-process-output-max (* 1024 1024))
+  (add-hook 'lsp-completion-mode-hook
+          (lambda ()
+            (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
+
+
+
+  ;; (add-to-list 'lsp-server-programs '(haskell-mode . ;; ("haskell-language-server-wrapper" "--lsp")))
+  ;;(add-to-list 'lsp-server-programs '(elixir-mode  ; "~/.emacs.d/elixir-ls/release/language_server.sh"))
+
+
+(use-package lsp-haskell
+  :straight t
+  :after (lsp haskell-mode))
+
+(use-package consult-lsp
+  :straight t
+  :after lsp-mode)
 
 (use-package corfu
   ;; Optional customizations
@@ -895,7 +918,9 @@ order by priority, created DESC "
   :init
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-keyword))
+  (add-to-list 'completion-at-point-functions #'cape-keyword)
+  :config
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent))
 
 ;; Use the overpowered expand of the hippies
 (use-package hippie-exp
@@ -925,30 +950,41 @@ order by priority, created DESC "
           flymake-mode-line-warning-counter
           flymake-mode-line-note-counter "")))
 
+(use-package flymake-collection
+  :straight t
+  :hook (after-init . flymake-collection-hook-setup))
+
+(use-package reformatter
+:straight t
+:defer t)
+
 (use-package haskell-mode
   :straight t
   :mode (("\\.hs\\'"    . haskell-mode)
          ("\\.cabal\\'" . haskell-cabal-mode))
-  :hook (haskell-mode . interactive-haskell-mode)
+  :hook ((haskell-mode . interactive-haskell-mode)
+         (haskell-mode . haskell-indentation-mode)
+         (haskell-mode . fourmolu-format-on-save-mode))
+
   :bind (:map haskell-mode-map
-              ("C-c C-o" . hoogle)
-              ("C-c C-h" . hs-lint))
+              ("C-c c o" . hoogle)
+              ("C-c c f" . fourmolu-format-buffer))
   :custom
-  (setq haskell-interactive-popup-errors nil)
-  (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-  (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
-  (add-to-list 'completion-ignored-extensions ".hi")
   (haskell-interactive-popup-errors nil)
   (haskell-process-log t)
-  (haskell-process-type 'cabal-repl)
+  (haskell-process-type 'cabal-new-repl)
   (haskell-process-load-or-reload-prompt t)
   (haskell-process-auto-import-loaded-modules t)
+  (haskell-process-suggest-hoogle-imports t)
   (haskell-process-suggest-remove-import-lines t))
 
 (custom-set-variables '(haskell-stylish-on-save t))
-(use-package hindent
-  :straight t
-  :hook (haskell-mode . hindent-mode))
+
+
+(reformatter-define fourmolu-format
+  :program "fourmolu"
+  :args '("--indentation" "2")
+  :lighter " fourmolu")
 
 (use-package ghcid
 :straight (:package "ghcid" :host nil :type git :repo "https://github.com/ndmitchell/ghcid" )
@@ -1189,12 +1225,14 @@ order by priority, created DESC "
 ;; (use-package cmake-mode
 ;;  :straight nil)
 
-(use-package rust-mode
+(use-package rustic
   :straight t
+  :bind (:map rustic-mode-map
+              ("C-c c a" . lsp-rust-analyzer-status)
+              ("C-c c b" . rustic-cargo-build))
   :config
-  (setq rust-format-on-save t)
-  (add-hook 'rust-mode-hook 'eglot-ensure)
-  (define-key rust-mode-map (kbd "C-c C-c") 'rust-run))
+  (setq lsp-eldoc-hook nil)
+  (setq rust-format-on-save t))
 
 (use-package docker
   :straight t)

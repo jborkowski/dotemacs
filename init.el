@@ -70,7 +70,27 @@
 
 ;; Use Nord Theme
 (use-package nord-theme)
-(load-theme 'nord t)
+;; (load-theme 'nord t)
+
+(use-package modues-themes
+  :straight nil
+  :defer nil
+  :config
+  (setq modus-themes-italic-constructs t
+        modus-themes-bold-constructs t
+        modus-themes-mixed-fonts t
+        modus-themes-scale-headings t
+        modus-themes-mode-line '(borderless)
+        modus-themes-syntax '(faint)
+        modus-themes-lang-checkers '(faint)
+        modus-themes-completions '(opinionated)
+        modus-themes-diffs 'desaturated
+        modus-themes-vivendi-color-overrides
+        '((bg-main . "#2E3440") (fg-main . "#ECEFF4")
+          (bg-dim . "#434C5E") (fg-dim . "#D8DEE9")
+          (bg-alt . "#4C566A") (fg-alt . "#ECEFF4"))
+        modus-themes-org-blocks 'gray-background))
+(load-theme 'modus-vivendi)
 
 (use-package nyan-mode)
 (nyan-mode 1)
@@ -388,6 +408,11 @@
          ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
 
 ;; add evil-mc
+
+(use-package clipetty
+    :straight t
+    :unless (display-graphic-p)
+    :hook (tty-setup . global-clipetty-mode))
 
 (use-package ispell
   :straight nil
@@ -866,10 +891,13 @@ order by priority, created DESC "
   :bind (:map lsp-mode-map
               ("C-c c d" . lsp-describe-thing-at-point)
               ("C-c c s" . consult-lsp-symbols)
+              ("C-c c t" . lsp-goto-type-definition)
+              ("M-," . lsp-find-references)
+              ("M-." . lsp-find-definition)
               ("C-c c f" . lsp-format-buffer)
               ("C-c c x" . lsp-execute-code-action)
               ("C-c c r" . lsp-rename)
-              ("C-c c j" . consult-eglot-symbols))
+              ("C-c c j" . consult-lsp-symbols))
   :commands lsp lsp-deferred
 
   :config
@@ -879,6 +907,7 @@ order by priority, created DESC "
         lsp-headerline-breadcrumb-enable nil
         lsp-modeline-code-actions-enable nil
         lsp-modeline-diagnostics-enable nil
+        lsp-modeline-workspace-status-enable nil
         lsp-enable-file-watchers nil
         lsp-file-watch-threshold 5000
         read-process-output-max (* 1024 1024))
@@ -964,7 +993,7 @@ order by priority, created DESC "
          ("\\.cabal\\'" . haskell-cabal-mode))
   :hook ((haskell-mode . interactive-haskell-mode)
          (haskell-mode . haskell-indentation-mode)
-         (haskell-mode . fourmolu-format-on-save-mode))
+         (haskell-mode . stylish-format-on-save-mode))
 
   :bind (:map haskell-mode-map
               ("C-c c o" . hoogle)
@@ -980,6 +1009,9 @@ order by priority, created DESC "
 
 (custom-set-variables '(haskell-stylish-on-save t))
 
+(reformatter-define stylish-format
+  :program "stylish-haskell"
+  :lighter " stylish-haskell")
 
 (reformatter-define fourmolu-format
   :program "fourmolu"

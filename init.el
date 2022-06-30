@@ -992,6 +992,7 @@ order by priority, created DESC "
   :straight t
   :mode (("\\.hs\\'"    . haskell-mode)
          ("\\.cabal\\'" . haskell-cabal-mode))
+
   :hook ((haskell-mode . interactive-haskell-mode)
          (haskell-mode . haskell-indentation-mode)
          (haskell-mode . fourmolu-format-on-save-mode))
@@ -1010,7 +1011,7 @@ order by priority, created DESC "
 
 (reformatter-define fourmolu-format
   :program "fourmolu"
-  :args '("--indentation" "2")
+  :args (list "--stdin-input-file" (buffer-file-name))
   :lighter " fourmolu")
 
 (use-package ghcid

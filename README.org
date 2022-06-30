@@ -1322,6 +1322,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :straight t
     :mode (("\\.hs\\'"    . haskell-mode)
            ("\\.cabal\\'" . haskell-cabal-mode))
+
     :hook ((haskell-mode . interactive-haskell-mode)
            (haskell-mode . haskell-indentation-mode)
            (haskell-mode . fourmolu-format-on-save-mode))
@@ -1340,7 +1341,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
   (reformatter-define fourmolu-format
     :program "fourmolu"
-    :args '("--indentation" "2")
+    :args (list "--stdin-input-file" (buffer-file-name))
     :lighter " fourmolu")
 
 #+end_src

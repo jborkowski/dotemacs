@@ -886,6 +886,7 @@ order by priority, created DESC "
           js2-mode
           rust-mode
           typescript-mode
+          purescript-mode
           haskell-mode
           elixir-mode) . lsp-deferred)
   :bind (:map lsp-mode-map
@@ -993,7 +994,7 @@ order by priority, created DESC "
          ("\\.cabal\\'" . haskell-cabal-mode))
   :hook ((haskell-mode . interactive-haskell-mode)
          (haskell-mode . haskell-indentation-mode)
-         (haskell-mode . stylish-format-on-save-mode))
+         (haskell-mode . fourmoulu-format-on-save-mode))
 
   :bind (:map haskell-mode-map
               ("C-c c o" . hoogle)
@@ -1007,15 +1008,9 @@ order by priority, created DESC "
   (haskell-process-suggest-hoogle-imports t)
   (haskell-process-suggest-remove-import-lines t))
 
-(custom-set-variables '(haskell-stylish-on-save t))
-
-(reformatter-define stylish-format
-  :program "stylish-haskell"
-  :lighter " stylish-haskell")
-
 (reformatter-define fourmolu-format
   :program "fourmolu"
-  :args '("--indentation" "2")
+  :args (list "--stdin-input-file" (buffer-file-name))
   :lighter " fourmolu")
 
 (use-package ghcid
@@ -1312,5 +1307,13 @@ order by priority, created DESC "
   :bind (:map typescript-mode-map
               ("C-c C-f"  . prettier-format-buffer))
   :config (setq typescript-indent-level 2))
+
+(use-package purescript-mode
+  :straight t
+  :mode "\\.purs\\'"
+  :hook ((purescript-mode . turn-on-purescript-indentation)
+         (purescript-mode . purs-tidy-format-on-save-mode))
+  :bind (:map purescript-mode-map
+              ("C-c c f"  . purs-tidy-format-buffer)))
 
 ;;; init.el ends here

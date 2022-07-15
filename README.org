@@ -1324,7 +1324,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
            ("\\.cabal\\'" . haskell-cabal-mode))
     :hook ((haskell-mode . interactive-haskell-mode)
            (haskell-mode . haskell-indentation-mode)
-           (haskell-mode . stylish-format-on-save-mode))
+           (haskell-mode . fourmoulu-format-on-save-mode))
 
     :bind (:map haskell-mode-map
                 ("C-c c o" . hoogle)
@@ -1338,15 +1338,9 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     (haskell-process-suggest-hoogle-imports t)
     (haskell-process-suggest-remove-import-lines t))
 
-  (custom-set-variables '(haskell-stylish-on-save t))
-
-  (reformatter-define stylish-format
-    :program "stylish-haskell"
-    :lighter " stylish-haskell")
-
   (reformatter-define fourmolu-format
     :program "fourmolu"
-    :args '("--indentation" "2")
+    :args (list "--stdin-input-file" (buffer-file-name))
     :lighter " fourmolu")
 
 #+end_src

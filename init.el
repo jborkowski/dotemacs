@@ -992,9 +992,10 @@ order by priority, created DESC "
   :straight t
   :mode (("\\.hs\\'"    . haskell-mode)
          ("\\.cabal\\'" . haskell-cabal-mode))
+
   :hook ((haskell-mode . interactive-haskell-mode)
          (haskell-mode . haskell-indentation-mode)
-         (haskell-mode . fourmoulu-format-on-save-mode))
+         (haskell-mode . fourmolu-format-on-save-mode))
 
   :bind (:map haskell-mode-map
               ("C-c c o" . hoogle)

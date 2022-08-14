@@ -531,28 +531,40 @@
   (global-diff-hl-mode 1))
 
 (use-package eshell
-   :straight nil
-   :commands eshell
-   :bind ("C-c o E" . eshell)
-   :config
-   (setq eshell-kill-processes-on-exit t
-	 eshell-highlight-prompt t
-	 eshell-hist-ignoredups t
-	 eshell-prompt-regexp "^.* λ "))
+      :straight nil
+      :commands eshell
+      :bind ("C-c o E" . eshell)
+      :config
+      (setq eshell-kill-processes-on-exit t
+            eshell-highlight-prompt t
+            eshell-hist-ignoredups t
+            eshell-prompt-regexp "^.* λ "))
 
- (use-package eshell-syntax-highlighting
-   :straight t
-   :after eshell-mode
-   :config
-   (eshell-syntax-highlighting-global-mode +1))
+    (use-package eshell-syntax-highlighting
+      :straight t
+      :after eshell-mode
+      :config
+      (eshell-syntax-highlighting-global-mode +1))
 
- (use-package eshell-toggle
-   :straight t
-   :commands eshell-toggle
-   :bind ("C-c o e" . eshell-toggle)
-   :custom
-   (eshell-toggle-size-fraction 4)
-   (eshell-toggle-run-command nil))
+    (use-package eshell-toggle
+      :straight t
+      :commands eshell-toggle
+      :bind ("C-c o e" . eshell-toggle)
+      :custom
+      (eshell-toggle-size-fraction 4)
+      (eshell-toggle-run-command nil))
+
+(use-package vterm
+  :straight t
+  :bind
+  ("C-c o t" . vterm-other-window)
+  ("C-c o T" . vterm)
+  :config
+  (setq vterm-kill-buffer-on-exit t
+        vterm-always-compile-module t
+        vterm-max-scrollback 5000
+        vterm-timer-delay nil
+        vterm-shell "/bin/zsh"))
 
 (use-package rainbow-mode
   :straight t
@@ -987,6 +999,14 @@ order by priority, created DESC "
 (use-package reformatter
 :straight t
 :defer t)
+
+(use-package agda2-mode
+    :straight t
+    :mode ("\\.agda\\" . agda2-mode))
+
+(use-package agda-input
+    :straight
+    (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
 
 (use-package haskell-mode
   :straight t

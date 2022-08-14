@@ -765,29 +765,41 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 ** Terminal
 #+begin_src emacs-lisp
-   (use-package eshell
-      :straight nil
-      :commands eshell
-      :bind ("C-c o E" . eshell)
-      :config
-      (setq eshell-kill-processes-on-exit t
-	    eshell-highlight-prompt t
-	    eshell-hist-ignoredups t
-	    eshell-prompt-regexp "^.* λ "))
+      (use-package eshell
+         :straight nil
+         :commands eshell
+         :bind ("C-c o E" . eshell)
+         :config
+         (setq eshell-kill-processes-on-exit t
+               eshell-highlight-prompt t
+               eshell-hist-ignoredups t
+               eshell-prompt-regexp "^.* λ "))
 
-    (use-package eshell-syntax-highlighting
-      :straight t
-      :after eshell-mode
-      :config
-      (eshell-syntax-highlighting-global-mode +1))
+       (use-package eshell-syntax-highlighting
+         :straight t
+         :after eshell-mode
+         :config
+         (eshell-syntax-highlighting-global-mode +1))
 
-    (use-package eshell-toggle
-      :straight t
-      :commands eshell-toggle
-      :bind ("C-c o e" . eshell-toggle)
-      :custom
-      (eshell-toggle-size-fraction 4)
-      (eshell-toggle-run-command nil))
+       (use-package eshell-toggle
+         :straight t
+         :commands eshell-toggle
+         :bind ("C-c o e" . eshell-toggle)
+         :custom
+         (eshell-toggle-size-fraction 4)
+         (eshell-toggle-run-command nil))
+
+   (use-package vterm
+     :straight t
+     :bind
+     ("C-c o t" . vterm-other-window)
+     ("C-c o T" . vterm)
+     :config
+     (setq vterm-kill-buffer-on-exit t
+           vterm-always-compile-module t
+           vterm-max-scrollback 5000
+           vterm-timer-delay nil
+           vterm-shell "/bin/zsh"))
 
 #+end_src
 ** Rainbow mode
@@ -1314,6 +1326,17 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
   :defer t)
 #+end_src
 * Lang
+** Agda
+#+begin_src emacs-lisp
+  (use-package agda2-mode
+      :straight t
+      :mode ("\\.agda\\" . agda2-mode))
+
+  (use-package agda-input
+      :straight
+      (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
+
+#+end_src
 ** Haskell
 
 #+begin_src emacs-lisp

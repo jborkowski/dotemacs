@@ -1330,7 +1330,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 #+begin_src emacs-lisp
   (use-package agda2-mode
       :straight t
-      :mode ("\\.agda\\" . agda2-mode))
+      :mode ("\\.agda\\'" . agda2-mode))
 
   (use-package agda-input
       :straight

@@ -1002,7 +1002,7 @@ order by priority, created DESC "
 
 (use-package agda2-mode
     :straight t
-    :mode ("\\.agda\\" . agda2-mode))
+    :mode ("\\.agda\\'" . agda2-mode))
 
 (use-package agda-input
     :straight

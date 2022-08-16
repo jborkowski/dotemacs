@@ -118,9 +118,9 @@
 (defun bore/with-font-faces ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
-    (set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 18 :weight 'regular))
-      (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 18 :weight 'regular))
-      (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 18 :weight 'light))))
+    (set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'regular))
+      (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'regular))
+      (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'light))))
 
 (add-hook 'after-init-hook 'bore/with-font-faces)
 (add-hook 'server-after-make-frame-hook 'bore/with-font-faces)

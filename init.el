@@ -895,7 +895,7 @@ order by priority, created DESC "
   :hook ((c-mode
           c++-mode
           c-or-c++-mode
-          js2-mode
+          js-mode
           rust-mode
           typescript-mode
           purescript-mode
@@ -1024,7 +1024,7 @@ order by priority, created DESC "
   :custom
   (haskell-interactive-popup-errors nil)
   (haskell-process-log t)
-  (haskell-process-type 'cabal-new-repl)
+  (haskell-process-type 'stack-ghci)
   (haskell-process-load-or-reload-prompt t)
   (haskell-process-auto-import-loaded-modules t)
   (haskell-process-suggest-hoogle-imports t)

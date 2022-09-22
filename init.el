@@ -88,7 +88,7 @@
         '((bg-main . "#2E3440") (fg-main . "#ECEFF4")
           (bg-dim . "#434C5E") (fg-dim . "#D8DEE9")
           (bg-alt . "#4C566A") (fg-alt . "#ECEFF4"))
-  ;;      modus-themes-org-blocks 'gray-background
+          modus-themes-org-blocks 'gray-background
         )
   )
 (load-theme 'modus-vivendi)

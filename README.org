@@ -166,27 +166,27 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 ** Modus Themes
 #+begin_src emacs-lisp
-      (use-package modues-themes
-        :straight nil
-        :defer nil
-        :config
-        (setq modus-themes-italic-constructs t
-              modus-themes-bold-constructs t
-              modus-themes-mixed-fonts t
-              modus-themes-scale-headings t
-              modus-themes-mode-line '(borderless)
-              modus-themes-syntax '(faint)
-              modus-themes-lang-checkers '(faint)
-              modus-themes-completions '(opinionated)
-              modus-themes-diffs 'desaturated
-              modus-themes-vivendi-color-overrides
-              '((bg-main . "#2E3440") (fg-main . "#ECEFF4")
-                (bg-dim . "#434C5E") (fg-dim . "#D8DEE9")
-                (bg-alt . "#4C566A") (fg-alt . "#ECEFF4"))
-        ;;      modus-themes-org-blocks 'gray-background
-              )
-        )
-      (load-theme 'modus-vivendi)
+  (use-package modues-themes
+    :straight nil
+    :defer nil
+    :config
+    (setq modus-themes-italic-constructs t
+          modus-themes-bold-constructs t
+          modus-themes-mixed-fonts t
+          modus-themes-scale-headings t
+          modus-themes-mode-line '(borderless)
+          modus-themes-syntax '(faint)
+          modus-themes-lang-checkers '(faint)
+          modus-themes-completions '(opinionated)
+          modus-themes-diffs 'desaturated
+          modus-themes-vivendi-color-overrides
+          '((bg-main . "#2E3440") (fg-main . "#ECEFF4")
+            (bg-dim . "#434C5E") (fg-dim . "#D8DEE9")
+            (bg-alt . "#4C566A") (fg-alt . "#ECEFF4"))
+            modus-themes-org-blocks 'gray-background
+          )
+    )
+  (load-theme 'modus-vivendi)
 #+end_src
 ** Nyan Cat
 #+begin_src emacs-lisp

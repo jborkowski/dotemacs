@@ -55,9 +55,9 @@ This allows to easily exclude packages that are not needed on specific OS.
   ;; Ensure that environment variables are the same as the user’s shell
   (when *is-a-mac*
     (use-package exec-path-from-shell
-    :straight t
-    :if (memq window-system '(mac ns x))
-    :hook (after-init . exec-path-from-shell-initialize)))
+      :straight t
+      :if (memq window-system '(mac ns x))
+      :hook (after-init . exec-path-from-shell-initialize)))
 #+end_src
 ** Tangle configuration
 
@@ -92,9 +92,9 @@ This allows to easily exclude packages that are not needed on specific OS.
   (menu-bar-mode -1)   ; disable the menu bar
 
   (if (fboundp 'tool-bar-mode)
-    (tool-bar-mode -1))         ; disable the toolbar
+      (tool-bar-mode -1))         ; disable the toolbar
   (if (fboundp 'scroll-bar-mode)
-    (scroll-bar-mode -1))       ; disable visible scrollbar
+      (scroll-bar-mode -1))       ; disable visible scrollbar
 
   (add-to-list 'default-frame-alist '(undecorated . t))
   (custom-set-variables
@@ -151,7 +151,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 #+begin_src emacs-lisp
 
   (setq user-full-name "Jonatan Borkowski"
-	user-mail-address "jonatan.borkowski@pm.me")
+        user-mail-address "jonatan.borkowski@pm.me")
 
 #+end_src
 
@@ -161,36 +161,38 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 #+begin_src emacs-lisp
   ;; Use Nord Theme
   (use-package nord-theme)
-  ;; (load-theme 'nord t)
+
 #+end_src
 
 ** Modus Themes
 #+begin_src emacs-lisp
-  (use-package modues-themes
-    :straight nil
-    :defer nil
-    :config
-    (setq modus-themes-italic-constructs t
-          modus-themes-bold-constructs t
-          modus-themes-mixed-fonts t
-          modus-themes-scale-headings t
-          modus-themes-mode-line '(borderless)
-          modus-themes-syntax '(faint)
-          modus-themes-lang-checkers '(faint)
-          modus-themes-completions '(opinionated)
-          modus-themes-diffs 'desaturated
-          modus-themes-vivendi-color-overrides
-          '((bg-main . "#2E3440") (fg-main . "#ECEFF4")
-            (bg-dim . "#434C5E") (fg-dim . "#D8DEE9")
-            (bg-alt . "#4C566A") (fg-alt . "#ECEFF4"))
-          modus-themes-org-blocks 'gray-background))
-  (load-theme 'modus-vivendi)
+      (use-package modues-themes
+        :straight nil
+        :defer nil
+        :config
+        (setq modus-themes-italic-constructs t
+              modus-themes-bold-constructs t
+              modus-themes-mixed-fonts t
+              modus-themes-scale-headings t
+              modus-themes-mode-line '(borderless)
+              modus-themes-syntax '(faint)
+              modus-themes-lang-checkers '(faint)
+              modus-themes-completions '(opinionated)
+              modus-themes-diffs 'desaturated
+              modus-themes-vivendi-color-overrides
+              '((bg-main . "#2E3440") (fg-main . "#ECEFF4")
+                (bg-dim . "#434C5E") (fg-dim . "#D8DEE9")
+                (bg-alt . "#4C566A") (fg-alt . "#ECEFF4"))
+        ;;      modus-themes-org-blocks 'gray-background
+              )
+        )
+      (load-theme 'modus-vivendi)
 #+end_src
 ** Nyan Cat
 #+begin_src emacs-lisp
 
-(use-package nyan-mode)
-(nyan-mode 1)
+  (use-package nyan-mode)
+  (nyan-mode 1)
 
 #+end_src
 
@@ -198,24 +200,24 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 #+begin_src emacs-lisp
   (use-package ligature
-      :straight (ligature :host github
-                          :repo "mickeynp/ligature.el")
-      :config
-      ;; Enable all Recursive ligatures in programming modes
-      (ligature-set-ligatures 'prog-mode '("==" "===" "!=" "!==" "=/=" "!!" "??"
-                                           "%%" "&&" "&&&" "||" "|||" "=>" "->" "<-"
-                                           "##" "###" "####" "//" "f\"" "f'" "${"
-                                           "?." "?:" "/*" "*/" "///" "'''" "\"\"\""
-                                           "```" "<!--" "-->" ">-" "-<" "::" ">>"
-                                           ">>>" "<<" "<<<" "://" "++" "+++" "--"
-                                           "---" "**" "***" "+=" "-=" "*=" "/=" "=~"
-                                           "<*" "<*>" "<|" "|>" "<|>" "<$>" "<=>"
-                                           "<>" "<+>" ">>-" "-<<" "__" "-[ ]" "-[x]"
-                                           "\\b" "\\n" "\\r" "\\t" "\\v" "|=" "!~"
-                                           "<<~" "<<=" ">>=" "=<<"))
-      ;; Enables ligature checks globally in all buffers. You can also do it
-      ;; per mode with `ligature-mode'.
-      (global-ligature-mode t))
+    :straight (ligature :host github
+                        :repo "mickeynp/ligature.el")
+    :config
+    ;; Enable all Recursive ligatures in programming modes
+    (ligature-set-ligatures 'prog-mode '("==" "===" "!=" "!==" "=/=" "!!" "??"
+                                         "%%" "&&" "&&&" "||" "|||" "=>" "->" "<-"
+                                         "##" "###" "####" "//" "f\"" "f'" "${"
+                                         "?." "?:" "/*" "*/" "///" "'''" "\"\"\""
+                                         "```" "<!--" "-->" ">-" "-<" "::" ">>"
+                                         ">>>" "<<" "<<<" "://" "++" "+++" "--"
+                                         "---" "**" "***" "+=" "-=" "*=" "/=" "=~"
+                                         "<*" "<*>" "<|" "|>" "<|>" "<$>" "<=>"
+                                         "<>" "<+>" ">>-" "-<<" "__" "-[ ]" "-[x]"
+                                         "\\b" "\\n" "\\r" "\\t" "\\v" "|=" "!~"
+                                         "<<~" "<<=" ">>=" "=<<"))
+    ;; Enables ligature checks globally in all buffers. You can also do it
+    ;; per mode with `ligature-mode'.
+    (global-ligature-mode t))
 
 #+end_src
 
@@ -225,8 +227,8 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     "Setup all Emacs font faces."
     (when (display-graphic-p)
       (set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'regular))
-        (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'regular))
-        (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'light))))
+      (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'regular))
+      (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'light))))
 
   (add-hook 'after-init-hook 'bore/with-font-faces)
   (add-hook 'server-after-make-frame-hook 'bore/with-font-faces)
@@ -238,8 +240,8 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 *** All the icons
 #+begin_src emacs-lisp
-;; For the first time remember to run M-x all-the-icons-install-fonts
-(use-package all-the-icons)
+  ;; For the first time remember to run M-x all-the-icons-install-fonts
+  (use-package all-the-icons)
 #+end_src
 
 ** Line numbers
@@ -251,9 +253,9 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
   ;; But for sure disable line numbers in some modes
   (dolist (mode '(org-mode-hook
-		  term-mode-hook
-		  vterm-mode-hook
-		  eshell-mode-hool))
+                  term-mode-hook
+                  vterm-mode-hook
+                  eshell-mode-hool))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 #+end_src
@@ -278,9 +280,14 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
           tab-bar-format '(tab-bar-format-history tab-bar-format-tabs)
           ))
 
-    (tab-bar-history-mode 1)
+  (tab-bar-history-mode 1)
 #+end_src
+** TTY tweaks
+#+begin_src emacs-lisp
+  (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
 
+  (setq mode-line-end-spaces nil)
+#+end_src
 * Editor
 ** Better defaults
 
@@ -294,7 +301,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
         password-cache-expiry nil
         custom-safe-themes t
         scroll-margin 2
-       ;; select-enable-clipboard t
+        ;; select-enable-clipboard t
         visible-bell t
         warning-minimum-level :error)
 
@@ -312,40 +319,40 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 #+begin_src emacs-lisp
   (use-package emacs
-        :straight nil
-        :bind
-        (("C-x K"   . bore/kill-buffer)
-         ("C-z"     . repeat)
-         ("C-c q q" . kill-emacs))
-        :init
-        ;; Add prompt indicator to `completing-read-multiple'.
-        ;; Alternatively try `consult-completing-read-multiple'.
-        (defun crm-indicator (args)
-          (cons (concat "[CRM] " (car args)) (cdr args)))
-        (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+    :straight nil
+    :bind
+    (("C-x K"   . bore/kill-buffer)
+     ("C-z"     . repeat)
+     ("C-c q q" . kill-emacs))
+    :init
+    ;; Add prompt indicator to `completing-read-multiple'.
+    ;; Alternatively try `consult-completing-read-multiple'.
+    (defun crm-indicator (args)
+      (cons (concat "[CRM] " (car args)) (cdr args)))
+    (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-        ;; TAB cycle if there are only few candidates
-        (setq completion-cycle-threshold 3)
+    ;; TAB cycle if there are only few candidates
+    (setq completion-cycle-threshold 3)
 
-        ;; Do not allow the cursor in the minibuffer prompt
-        (setq minibuffer-prompt-properties
-              '(read-only t cursor-intangible t face minibuffer-prompt))
-        (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+    ;; Do not allow the cursor in the minibuffer prompt
+    (setq minibuffer-prompt-properties
+          '(read-only t cursor-intangible t face minibuffer-prompt))
+    (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-        ;; Clean up whitespace, newlines and line breaks
-        (add-hook 'before-save-hook 'delete-trailing-whitespace)
+    ;; Clean up whitespace, newlines and line breaks
+    (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-        ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-        ;; Vertico commands are hidden in normal buffers.
-        (setq read-extended-command-predicate
-              #'command-completion-default-include-p)
+    ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+    ;; Vertico commands are hidden in normal buffers.
+    (setq read-extended-command-predicate
+          #'command-completion-default-include-p)
 
-        ;; Enable recursive minibuffers
-        (setq enable-recursive-minibuffers t)
+    ;; Enable recursive minibuffers
+    (setq enable-recursive-minibuffers t)
 
-        ;; Enable indentation+completion using the TAB key.
-        ;; `completion-at-point' is often bound to M-TAB.
-        (setq tab-always-indent 'complete))
+    ;; Enable indentation+completion using the TAB key.
+    ;; `completion-at-point' is often bound to M-TAB.
+    (setq tab-always-indent 'complete))
 
   (defun bore/kill-buffer (&optional arg)
     "Kill buffer which is currently visible (ARG)."
@@ -353,7 +360,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     (if arg
         (call-interactively 'kill-buffer)
       (kill-this-buffer)))
- #+end_src
+#+end_src
 
 
 #+begin_src emacs-lisp
@@ -363,49 +370,49 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :bind (("C-x C-b" . ibuffer))
     :config
     (setq ibuffer-expert t
-	  ibuffer-display-summary nil
-	  ibuffer-use-other-window nil
-	  ibuffer-show-empty-filter-groups nil
-	  ibuffer-movement-cycle nil
-	  ibuffer-default-sorting-mode 'filename/process
-	  ibuffer-use-header-line t
-	  ibuffer-default-shrink-to-minimum-size nil
-	  ibuffer-formats
-	  '((mark modified read-only locked " "
-		  (name 40 40 :left :elide)
-		  " "
-		  (size 9 -1 :right)
-		  " "
-		  (mode 16 16 :left :elide)
-		  " " filename-and-process)
-	    (mark " "
-		  (name 16 -1)
-		  " " filename))
-	  ibuffer-saved-filter-groups nil
-	  ibuffer-old-time 48)
+          ibuffer-display-summary nil
+          ibuffer-use-other-window nil
+          ibuffer-show-empty-filter-groups nil
+          ibuffer-movement-cycle nil
+          ibuffer-default-sorting-mode 'filename/process
+          ibuffer-use-header-line t
+          ibuffer-default-shrink-to-minimum-size nil
+          ibuffer-formats
+          '((mark modified read-only locked " "
+                  (name 40 40 :left :elide)
+                  " "
+                  (size 9 -1 :right)
+                  " "
+                  (mode 16 16 :left :elide)
+                  " " filename-and-process)
+            (mark " "
+                  (name 16 -1)
+                  " " filename))
+          ibuffer-saved-filter-groups nil
+          ibuffer-old-time 48)
     (add-hook 'ibuffer-mode-hook #'hl-line-mode))
 
 #+end_src
 
 ** History
 
- #+begin_src emacs-lisp
-      (use-package savehist
-        :straight nil
-        :config
-        (setq savehist-save-minibuffer-history t
-              savehist-autosave-interval nil
-              savehist-additional-variables
-              '(kill-ring
-                register-alist
-                mark-ring global-mark-ring
-                search-ring regexp-search-ring))
-        (savehist-mode 1))
-      (setq undo-limit 80000000
-            history-limit 5000
-            history-delete-duplicates t)
+#+begin_src emacs-lisp
+  (use-package savehist
+    :straight nil
+    :config
+    (setq savehist-save-minibuffer-history t
+          savehist-autosave-interval nil
+          savehist-additional-variables
+          '(kill-ring
+            register-alist
+            mark-ring global-mark-ring
+            search-ring regexp-search-ring))
+    (savehist-mode 1))
+  (setq undo-limit 80000000
+        history-limit 5000
+        history-delete-duplicates t)
 
- #+end_src
+#+end_src
 
 ** Autosave
 
@@ -476,12 +483,12 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 ** Navigation
 *** Scrolling
 
-    #+begin_src emacs-lisp
-      (setq scroll-conservatively 101                    ; value greater than 100 gets rid of half page jumping
-            mouse-wheel-scroll-amount '(3 ((shift) . 3)) ; how many lines at a time
-            mouse-wheel-progressive-speed t              ; accelerate scrolling
-            mouse-wheel-follow-mouse 't)                 ; scroll window under mouse
-    #+end_src
+#+begin_src emacs-lisp
+  (setq scroll-conservatively 101                    ; value greater than 100 gets rid of half page jumping
+        mouse-wheel-scroll-amount '(3 ((shift) . 3)) ; how many lines at a time
+        mouse-wheel-progressive-speed t              ; accelerate scrolling
+        mouse-wheel-follow-mouse 't)                 ; scroll window under mouse
+#+end_src
 
 *** Isearch
 
@@ -570,54 +577,54 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 ** Helpful packages
 
-   #+begin_src emacs-lisp
-     (use-package which-key
-       :straight t
-       :defer t
-       :init (which-key-mode)
-       :config
-       (setq which-key-idle-delay 0.5))
+#+begin_src emacs-lisp
+  (use-package which-key
+    :straight t
+    :defer t
+    :init (which-key-mode)
+    :config
+    (setq which-key-idle-delay 0.5))
 
-     (use-package helpful
-       :straight t
-       :commands helpful-callable helpful-variable helpful-command helpful-key
-       :bind
-       ([remap describe-function] . helpful-function)
-       ([remap describe-command]  . helpful-command)
-       ([remap describe-variable] . helpful-variable)
-       ([remap describe-key]      . helpful-key))
+  (use-package helpful
+    :straight t
+    :commands helpful-callable helpful-variable helpful-command helpful-key
+    :bind
+    ([remap describe-function] . helpful-function)
+    ([remap describe-command]  . helpful-command)
+    ([remap describe-variable] . helpful-variable)
+    ([remap describe-key]      . helpful-key))
 
-       #+end_src
+#+end_src
 ** Highlight TODO in code
 #+begin_src emacs-lisp
-(use-package hl-todo
-  :straight t
-  :hook (prog-mode . hl-todo-mode))
+  (use-package hl-todo
+    :straight t
+    :hook (prog-mode . hl-todo-mode))
 #+end_src
 
 ** Multiple cursors
 #+begin_src emacs-lisp
-(use-package iedit
-  :straight t
-  :commands iedit-mode iedit-rectangle-mode
-  :bind ("C-;" . iedit-mode))
+  (use-package iedit
+    :straight t
+    :commands iedit-mode iedit-rectangle-mode
+    :bind ("C-;" . iedit-mode))
 
-(use-package evil-multiedit
-  :defer t)
+  (use-package evil-multiedit
+    :defer t)
 
-(use-package multiple-cursors
-  :straight t
-  :bind (("C-<" . mc/mark-previous-like-this)
-         ("C->" . mc/mark-next-like-this)
-         ("C-c C-<" . mc/mark-all-like-this)
-         ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
+  (use-package multiple-cursors
+    :straight t
+    :bind (("C-<" . mc/mark-previous-like-this)
+           ("C->" . mc/mark-next-like-this)
+           ("C-c C-<" . mc/mark-all-like-this)
+           ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
 
-;; add evil-mc
+  ;; add evil-mc
 #+end_src
 
 ** Clipetty
 #+begin_src emacs-lisp
-(use-package clipetty
+  (use-package clipetty
     :straight t
     :unless (display-graphic-p)
     :hook (tty-setup . global-clipetty-mode))
@@ -699,21 +706,21 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 #+begin_src emacs-lisp
   (use-package dired
-      :straight nil
-      :commands dired dired-jump
-      :config
-      (setq dired-kill-when-opening-new-dired-buffer t
-	    delete-by-moving-to-trash t
-	    dired-dwim-target t
-	    dired-recursive-copies 'always
-	    dired-recursive-deletes 'always))
+    :straight nil
+    :commands dired dired-jump
+    :config
+    (setq dired-kill-when-opening-new-dired-buffer t
+          delete-by-moving-to-trash t
+          dired-dwim-target t
+          dired-recursive-copies 'always
+          dired-recursive-deletes 'always))
 
   (use-package consult-dir
     :straight t
     :bind (("C-x C-d" . consult-dir)
-	   :map vertico-map
-	   ("C-x C-d" . consult-dir)
-	   ("C-x C-j" . consult-dir-jump-file)))
+           :map vertico-map
+           ("C-x C-d" . consult-dir)
+           ("C-x C-j" . consult-dir-jump-file)))
 
 #+end_src
 
@@ -764,41 +771,41 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 ** Terminal
 #+begin_src emacs-lisp
-      (use-package eshell
-         :straight nil
-         :commands eshell
-         :bind ("C-c o E" . eshell)
-         :config
-         (setq eshell-kill-processes-on-exit t
-               eshell-highlight-prompt t
-               eshell-hist-ignoredups t
-               eshell-prompt-regexp "^.* λ "))
+  (use-package eshell
+    :straight nil
+    :commands eshell
+    :bind ("C-c o E" . eshell)
+    :config
+    (setq eshell-kill-processes-on-exit t
+          eshell-highlight-prompt t
+          eshell-hist-ignoredups t
+          eshell-prompt-regexp "^.* λ "))
 
-       (use-package eshell-syntax-highlighting
-         :straight t
-         :after eshell-mode
-         :config
-         (eshell-syntax-highlighting-global-mode +1))
+  (use-package eshell-syntax-highlighting
+    :straight t
+    :after eshell-mode
+    :config
+    (eshell-syntax-highlighting-global-mode +1))
 
-       (use-package eshell-toggle
-         :straight t
-         :commands eshell-toggle
-         :bind ("C-c o e" . eshell-toggle)
-         :custom
-         (eshell-toggle-size-fraction 4)
-         (eshell-toggle-run-command nil))
+  (use-package eshell-toggle
+    :straight t
+    :commands eshell-toggle
+    :bind ("C-c o e" . eshell-toggle)
+    :custom
+    (eshell-toggle-size-fraction 4)
+    (eshell-toggle-run-command nil))
 
-   (use-package vterm
-     :straight t
-     :bind
-     ("C-c o t" . vterm-other-window)
-     ("C-c o T" . vterm)
-     :config
-     (setq vterm-kill-buffer-on-exit t
-           vterm-always-compile-module t
-           vterm-max-scrollback 5000
-           vterm-timer-delay nil
-           vterm-shell "/bin/zsh"))
+  (use-package vterm
+    :straight t
+    :bind
+    ("C-c o t" . vterm-other-window)
+    ("C-c o T" . vterm)
+    :config
+    (setq vterm-kill-buffer-on-exit t
+          vterm-always-compile-module t
+          vterm-max-scrollback 5000
+          vterm-timer-delay nil
+          vterm-shell "/bin/zsh"))
 
 #+end_src
 ** Rainbow mode
@@ -865,7 +872,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 #+end_src
 ** TempEL
 #+begin_src emacs-lisp
-    ;; Configure Tempel
+  ;; Configure Tempel
   (use-package tempel
     :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
            ("M-*" . tempel-insert))
@@ -900,10 +907,10 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :straight t
     :config
     (setq elfeed-feeds
-        '(("https://sachachua.com/blog/category/emacs/feed/" blog emacs)
-          ("https://lexi-lambda.github.io/feeds/all.atom.xml" blog haskell alexis)
-          ("https://www.stephendiehl.com/feed.rss" blog diehl haskell)
-          ("http://www.reddit.com/r/emacs/.rss" reddit emacs)))
+          '(("https://sachachua.com/blog/category/emacs/feed/" blog emacs)
+            ("https://lexi-lambda.github.io/feeds/all.atom.xml" blog haskell alexis)
+            ("https://www.stephendiehl.com/feed.rss" blog diehl haskell)
+            ("http://www.reddit.com/r/emacs/.rss" reddit emacs)))
     :bind
     ("C-x w" . elfeed))
 #+end_src
@@ -959,108 +966,108 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 #+end_src
 ** Embark
 
- #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 
-   (use-package embark
-     :ensure t
+  (use-package embark
+    :ensure t
 
-     :bind
-     (("C-." . embark-act)
-      ("C-h B" . embark-bindings))
+    :bind
+    (("C-." . embark-act)
+     ("C-h B" . embark-bindings))
 
-     :init
+    :init
 
-     ;; Optionally replace the key help with a completing-read interface
-     (setq prefix-help-command #'embark-prefix-help-command)
+    ;; Optionally replace the key help with a completing-read interface
+    (setq prefix-help-command #'embark-prefix-help-command)
 
-     :config
+    :config
 
-     ;; Hide the mode line of the Embark live/completions buffers
-     (add-to-list 'display-buffer-alist
-                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                    nil
-                    (window-parameters (mode-line-format . none)))))
+    ;; Hide the mode line of the Embark live/completions buffers
+    (add-to-list 'display-buffer-alist
+                 '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                   nil
+                   (window-parameters (mode-line-format . none)))))
 
-      (use-package embark-consult
-                  :after (embark consult)
-                  :config
-                  (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
+  (use-package embark-consult
+    :after (embark consult)
+    :config
+    (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
 
-   #+end_src
+#+end_src
 ** Consult
 #+begin_src emacs-lisp
 
-    (use-package consult
-      :straight t
-      :defer t
-      :bind (
-             ;; C-x bindings (ctl-x-map)
-             ("C-x C-r" . consult-recent-file)
-             ("C-x M-:" . consult-complex-command)     ; orig. repeat-complex-command
-             ("C-x b"   . consult-buffer)              ; orig. switch-to-buffer
-             ("C-x M-k" . consult-kmacro)
-             ("C-x M-m" . consult-minor-mode-menu)
-             ("C-x r b" . consult-bookmark)            ; override bookmark-jump
-             ("C-x 4 b" . consult-buffer-other-window) ; orig. switch-to-buffer-other-window
-             ("C-x 5 b" . consult-buffer-other-frame)  ; orig. switch-to-buffer-other-frame
-             ;; Other custom bindings
-             ("M-y" . consult-yank-pop)                ; orig. yank-pop
-             ("<help> a" . consult-apropos)            ; orig. apropos-command
-             ;; M-g bindings (goto-map)
-             ("M-g e" . consult-compile-error)
-             ("M-g f" . consult-flycheck)               ; Alternative: consult-flycheck
-             ("M-g g" . consult-goto-line)             ; orig. goto-line
-             ("M-g M-g" . consult-goto-line)           ; orig. goto-line
-             ("M-g o" . consult-outline)               ; Alternative: consult-org-heading
-             ("M-g m" . consult-mark)
-             ("M-g k" . consult-global-mark)
-             ("M-g i" . consult-imenu)
-             ("M-g I" . consult-imenu-multi)
-             ;; M-s bindings (search-map)
-             ("M-s f" . consult-find)
-             ("M-s F" . consult-locate)
-             ("M-s g" . consult-grep)
-             ("M-s G" . consult-git-grep)
-             ("M-s r" . consult-ripgrep)
-             ("M-s l" . consult-line)
-             ("M-s L" . consult-line-multi)
-             ("M-s m" . consult-multi-occur)
-             ("M-s k" . consult-keep-lines)
-             ("M-s u" . consult-focus-lines)
-             ;; Isearch integration
-             ("M-s e" . consult-isearch-history)
-             :map isearch-mode-map
-             ("M-e" . consult-isearch-history)          ; orig. isearch-edit-string
-             ("M-s e" . consult-isearch-history))       ; orig. isearch-edit-string
+  (use-package consult
+    :straight t
+    :defer t
+    :bind (
+           ;; C-x bindings (ctl-x-map)
+           ("C-x C-r" . consult-recent-file)
+           ("C-x M-:" . consult-complex-command)     ; orig. repeat-complex-command
+           ("C-x b"   . consult-buffer)              ; orig. switch-to-buffer
+           ("C-x M-k" . consult-kmacro)
+           ("C-x M-m" . consult-minor-mode-menu)
+           ("C-x r b" . consult-bookmark)            ; override bookmark-jump
+           ("C-x 4 b" . consult-buffer-other-window) ; orig. switch-to-buffer-other-window
+           ("C-x 5 b" . consult-buffer-other-frame)  ; orig. switch-to-buffer-other-frame
+           ;; Other custom bindings
+           ("M-y" . consult-yank-pop)                ; orig. yank-pop
+           ("<help> a" . consult-apropos)            ; orig. apropos-command
+           ;; M-g bindings (goto-map)
+           ("M-g e" . consult-compile-error)
+           ("M-g f" . consult-flycheck)               ; Alternative: consult-flycheck
+           ("M-g g" . consult-goto-line)             ; orig. goto-line
+           ("M-g M-g" . consult-goto-line)           ; orig. goto-line
+           ("M-g o" . consult-outline)               ; Alternative: consult-org-heading
+           ("M-g m" . consult-mark)
+           ("M-g k" . consult-global-mark)
+           ("M-g i" . consult-imenu)
+           ("M-g I" . consult-imenu-multi)
+           ;; M-s bindings (search-map)
+           ("M-s f" . consult-find)
+           ("M-s F" . consult-locate)
+           ("M-s g" . consult-grep)
+           ("M-s G" . consult-git-grep)
+           ("M-s r" . consult-ripgrep)
+           ("M-s l" . consult-line)
+           ("M-s L" . consult-line-multi)
+           ("M-s m" . consult-multi-occur)
+           ("M-s k" . consult-keep-lines)
+           ("M-s u" . consult-focus-lines)
+           ;; Isearch integration
+           ("M-s e" . consult-isearch-history)
+           :map isearch-mode-map
+           ("M-e" . consult-isearch-history)          ; orig. isearch-edit-string
+           ("M-s e" . consult-isearch-history))       ; orig. isearch-edit-string
 
-      :hook (completion-list-mode . consult-preview-at-point-mode)
-      :init
-      (setq register-preview-delay 0
-            register-preview-function #'consult-register-format)
-      (advice-add #'register-preview :override #'consult-register-window)
-      (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
-      (setq xref-show-xrefs-function #'consult-xref
-            xref-show-definitions-function #'consult-xref)
-      :config
-      (consult-customize
-       consult-theme
-       :preview-key '(:debounce 0.5 any)
-       consult-ripgrep consult-git-grep consult-grep
-       consult-bookmark consult-recent-file consult-xref
-       ;; consult--source-file consult--source-project-file consult--source-bookmark
-       :preview-key (kbd "M-."))
+    :hook (completion-list-mode . consult-preview-at-point-mode)
+    :init
+    (setq register-preview-delay 0
+          register-preview-function #'consult-register-format)
+    (advice-add #'register-preview :override #'consult-register-window)
+    (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+    (setq xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
+    :config
+    (consult-customize
+     consult-theme
+     :preview-key '(:debounce 0.5 any)
+     consult-ripgrep consult-git-grep consult-grep
+     consult-bookmark consult-recent-file consult-xref
+     ;; consult--source-file consult--source-project-file consult--source-bookmark
+     :preview-key (kbd "M-."))
 
-      (setq consult-narrow-key "<"
-            consult-line-numbers-widen t
-            consult-async-min-input 2
-            consult-async-refresh-delay  0.15
-            consult-async-input-throttle 0.2
-            consult-async-input-debounce 0.1)
+    (setq consult-narrow-key "<"
+          consult-line-numbers-widen t
+          consult-async-min-input 2
+          consult-async-refresh-delay  0.15
+          consult-async-input-throttle 0.2
+          consult-async-input-debounce 0.1)
 
-      (setq consult-project-root-function
-            (lambda ()
-              (when-let (project (project-current))
-                (car (project-roots project))))))
+    (setq consult-project-root-function
+          (lambda ()
+            (when-let (project (project-current))
+              (car (project-roots project))))))
 
 #+end_src
 ** Mu4e
@@ -1140,26 +1147,26 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 #+end_src
 ** JIRA
 #+begin_src emacs-lisp
-     (use-package org-jira
-       :straight t
-       :init
-       (make-directory "~/.org-jira" 0)
-       :config
+  (use-package org-jira
+    :straight t
+    :init
+    (make-directory "~/.org-jira" 0)
+    :config
 
-       (setq jiralib-url "https://restaumatic.atlassian.net")
+    (setq jiralib-url "https://restaumatic.atlassian.net")
 
-       (setq org-jira-custom-jqls
-             '((:jql " project IN (RS) and createdDate >= '2022-01-01' order by created DESC "
-                     :limit 10
-                     :filename "this-years-work")
-               (:jql " project IN (RS)
-   AND status IN ('To Do', 'In Development')
-   AND (labels = EMPTY or labels NOT IN ('FutureUpdate'))
-   order by priority, created DESC "
-             :limit 20
-             :filename "ex-ahu-priority-items")
-       ))
-       )
+    (setq org-jira-custom-jqls
+          '((:jql " project IN (RS) and createdDate >= '2022-01-01' order by created DESC "
+                  :limit 10
+                  :filename "this-years-work")
+            (:jql " project IN (RS)
+  AND status IN ('To Do', 'In Development')
+  AND (labels = EMPTY or labels NOT IN ('FutureUpdate'))
+  order by priority, created DESC "
+                  :limit 20
+                  :filename "ex-ahu-priority-items")
+            ))
+    )
 #+end_src
 
 * Development
@@ -1176,11 +1183,11 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 ** Project custom
 #+begin_src emacs-lisp
-    (defun bore/project-override (dir)
-      (let ((override (locate-dominating-file dir ".project.el")))
-        (if override
+  (defun bore/project-override (dir)
+    (let ((override (locate-dominating-file dir ".project.el")))
+      (if override
           (cons 'vc override)
-          nil)))
+        nil)))
   (use-package project
     :config
     (add-hook 'project-find-functions #'bore/project-override))
@@ -1223,13 +1230,13 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
           lsp-file-watch-threshold 5000
           read-process-output-max (* 1024 1024))
     (add-hook 'lsp-completion-mode-hook
-            (lambda ()
-              (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
+              (lambda ()
+                (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
 
 
 
-    ;; (add-to-list 'lsp-server-programs '(haskell-mode . ;; ("haskell-language-server-wrapper" "--lsp")))
-    ;;(add-to-list 'lsp-server-programs '(elixir-mode  ; "~/.emacs.d/elixir-ls/release/language_server.sh"))
+  ;; (add-to-list 'lsp-server-programs '(haskell-mode . ;; ("haskell-language-server-wrapper" "--lsp")))
+  ;;(add-to-list 'lsp-server-programs '(elixir-mode  ; "~/.emacs.d/elixir-ls/release/language_server.sh"))
 
 
   (use-package lsp-haskell
@@ -1246,17 +1253,17 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 *** Corfu
 #+begin_src emacs-lisp
 
-    (use-package corfu
-      ;; Optional customizations
-      :straight t
-      :custom
-      (corfu-cycle t)                ; enable cycling for `corfu-next/previous'
-      (corfu-auto nil)               ; disable auto completion
-      (corfu-quit-no-match t)        ; automatically quit if there is no match
-      (corfu-echo-documentation nil) ; do not show documentation in the echo area
-     ;; :init
-     ;; (corfu-global-mode)
-     )
+  (use-package corfu
+    ;; Optional customizations
+    :straight t
+    :custom
+    (corfu-cycle t)                ; enable cycling for `corfu-next/previous'
+    (corfu-auto nil)               ; disable auto completion
+    (corfu-quit-no-match t)        ; automatically quit if there is no match
+    (corfu-echo-documentation nil) ; do not show documentation in the echo area
+    ;; :init
+    ;; (corfu-global-mode)
+    )
 
 #+end_src
 
@@ -1321,20 +1328,20 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 ** Reformatter
 #+begin_src emacs-lisp
   (use-package reformatter
-  :straight t
-  :defer t)
+    :straight t
+    :defer t)
 #+end_src
 * Lang
 ** Agda
 #+begin_src emacs-lisp
   (use-package agda2-mode
-      :straight t
-      :mode (("\\.agda\\'" . agda2-mode)
-             ("\\.lagda.md\\'" . agda2-mode)))
+    :straight t
+    :mode (("\\.agda\\'" . agda2-mode)
+           ("\\.lagda.md\\'" . agda2-mode)))
 
   (use-package agda-input
-      :straight
-      (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
+    :straight
+    (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
 #+end_src
 ** Haskell
 
@@ -1370,31 +1377,31 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 #+begin_src emacs-lisp
   (use-package ghcid
-  :straight (:package "ghcid" :host nil :type git :repo "https://github.com/ndmitchell/ghcid" )
-  :defer
-  :load-path "site-lisp/"
-  :bind (:map projectile-mode-map
-              ("C-c m s" . ghcid)
-              ("C-c m b" . show-ghcid-buf)
-              ("C-c m t" . set-ghcid-target))
-  :custom
-  (ghcid-target "")
-  ;;:config (setq-local default-directory projectile-project-root)
-  :preface
-  (use-package haskell-mode :ensure t)
-  (defun show-ghcid-buf ()
-    (interactive)
-    (show-buffer ghcid-buf-name))
-  (defun set-ghcid-target (ghcid-targ &optional ghcid-test-targ)
-    (interactive
-     (list
-      (completing-read "ghcid target: " (map 'list (lambda (targ) (format "%s:%s" (projectile-project-name) targ)) (haskell-cabal-enum-targets)))
-      (completing-read "ghcid --test target: " '("--test=main" "--test=Main.main" nil))))
-    (setq ghcid-target ghcid-targ)
-    (when ghcid-test-targ
-      (setq ghcid-target-test (format "%s" ghcid-test-targ)))
-    (kill-ghcid)
-    (ghcid)))
+    :straight (:package "ghcid" :host nil :type git :repo "https://github.com/ndmitchell/ghcid" )
+    :defer
+    :load-path "site-lisp/"
+    :bind (:map projectile-mode-map
+                ("C-c m s" . ghcid)
+                ("C-c m b" . show-ghcid-buf)
+                ("C-c m t" . set-ghcid-target))
+    :custom
+    (ghcid-target "")
+    ;;:config (setq-local default-directory projectile-project-root)
+    :preface
+    (use-package haskell-mode :ensure t)
+    (defun show-ghcid-buf ()
+      (interactive)
+      (show-buffer ghcid-buf-name))
+    (defun set-ghcid-target (ghcid-targ &optional ghcid-test-targ)
+      (interactive
+       (list
+        (completing-read "ghcid target: " (map 'list (lambda (targ) (format "%s:%s" (projectile-project-name) targ)) (haskell-cabal-enum-targets)))
+        (completing-read "ghcid --test target: " '("--test=main" "--test=Main.main" nil))))
+      (setq ghcid-target ghcid-targ)
+      (when ghcid-test-targ
+        (setq ghcid-target-test (format "%s" ghcid-test-targ)))
+      (kill-ghcid)
+      (ghcid)))
 
 #+end_src
 
@@ -1402,9 +1409,9 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 #+begin_src emacs-lisp
 
-(use-package toml-mode
-  :straight t
-  :mode "\\.toml\\'")
+  (use-package toml-mode
+    :straight t
+    :mode "\\.toml\\'")
 
 #+end_src
 
@@ -1412,31 +1419,31 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 #+begin_src emacs-lisp
 
-(use-package yaml-mode
-  :straight t
-  :mode "\\.ya?ml\\'")
-(setq js-indent-level 2)
+  (use-package yaml-mode
+    :straight t
+    :mode "\\.ya?ml\\'")
+  (setq js-indent-level 2)
 #+end_src
 
 ** Dhall
 
 #+begin_src emacs-lisp
 
-(use-package dhall-mode
-  :defer t
-  :config
-  (set-repl-handler! 'dhall-mode #'dhall-repl-show)
-  (setq dhall-format-at-save t)
-  )
+  (use-package dhall-mode
+    :defer t
+    :config
+    (set-repl-handler! 'dhall-mode #'dhall-repl-show)
+    (setq dhall-format-at-save t)
+    )
 #+end_src
 
 ** Lua
 
 #+begin_src emacs-lisp
 
-(use-package lua-mode
-  :straight t
-  :mode "\\.lua\\'")
+  (use-package lua-mode
+    :straight t
+    :mode "\\.lua\\'")
 
 #+end_src
 
@@ -1444,127 +1451,100 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 #+begin_src emacs-lisp
 
-(use-package markdown-mode
-  :straight t
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'"       . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :commands (markdown-mode gfm-mode)
-  :config
-  (setq markdown-fontify-code-blocks-natively t))
+  (use-package markdown-mode
+    :straight t
+    :mode (("README\\.md\\'" . gfm-mode)
+           ("\\.md\\'"       . markdown-mode)
+           ("\\.markdown\\'" . markdown-mode))
+    :commands (markdown-mode gfm-mode)
+    :config
+    (setq markdown-fontify-code-blocks-natively t))
 
 #+end_src
 
 ** Org mode
 *** Org
-    #+begin_src emacs-lisp
-      (use-package org
-	:straight t
-	:commands org-capture org-agenda
-	:init
-	(add-hook 'org-mode-hook
-		  (lambda ()
-		    (org-indent-mode)
-		    (variable-pitch-mode 1)
-		    (visual-line-mode 1)
-		    (local-unset-key (kbd "C-'"))))
+#+begin_src emacs-lisp
+  (use-package org
+    :straight t
+    :commands org-capture org-agenda
+    :init
+    (add-hook 'org-mode-hook
+              (lambda ()
+                (org-indent-mode)
+                (variable-pitch-mode 1)
+                (org-modern-mode)
+                (visual-line-mode 1)
+                (local-unset-key (kbd "C-'"))))
 
-	:config
-	(setq org-directory "~/org/"
-	      org-src-fontify-natively t
-	      org-src-tab-acts-natively t
-	      org-fontify-done-headline t
-	      org-fontify-quote-and-verse-blocks t
-	      org-fontify-whole-heading-line t
-	      org-hide-emphasis-markers t
-	      org-hide-leading-stars t
-	      org-capture-bookmark nil
+    :config
+    (setq org-directory "~/org/"
+          org-adapt-indentation nil
+          org-edit-src-persistent-message nil
+          org-fold-catch-invisible-edits 'show-and-error
+          org-insert-heading-respect-content t
+          org-fontify-quote-and-verse-blocks t
+          org-tags-column 0
+          org-hide-emphasis-markers t
+          org-hide-macro-markers t
+          org-hide-leading-stars nil
+          org-ellipsis "…"
+          org-capture-bookmark nil
+          org-mouse-1-follows-link t
+          org-pretty-entities t
+          org-pretty-entities-include-sub-superscripts nil
+          org-indirect-buffer-display 'current-window
+          org-eldoc-breadcrumb-separator " → "
+          org-enforce-todo-dependencies t
+          org-startup-folded t
+          org-entities-user
+          '(("flat"  "\\flat" nil "" "" "266D" "♭")
+            ("sharp" "\\sharp" nil "" "" "266F" "♯"))
+          ;;      org-image-actual-width nil
+          ;;    org-imenu-depth 6
+          org-priority-faces
+          '((?A . error)
+            (?B . warning)
+            (?C . success))
+          ;;              org-startup-indented t
+          ;;            org-tags-column 0
+          ;;          org-use-sub-superscripts '{}
+          org-structure-template-alist
+          '(("s" . "src")
+            ("e" . "src emacs-lisp")
+            ("h" . "src haskell")
+            ("E" . "example")
+            ("q" . "quote")
+            ("c" . "comment")))
+    )
 
-	      org-indirect-buffer-display 'current-window
-	      org-eldoc-breadcrumb-separator " → "
-	      org-enforce-todo-dependencies t
-	      org-entities-user
-	      '(("flat"  "\\flat" nil "" "" "266D" "♭")
-		("sharp" "\\sharp" nil "" "" "266F" "♯"))
-	      org-image-actual-width nil
-	      org-imenu-depth 6
-	      org-priority-faces
-	      '((?A . error)
-		(?B . warning)
-		(?C . success))
-	      org-startup-indented t
-	      org-tags-column 0
-	      org-use-sub-superscripts '{}
-	      org-structure-template-alist
-	      '(("s" . "src")
-		("e" . "src emacs-lisp")
-		("h" . "src haskell")
-		("E" . "example")
-		("q" . "quote")
-		("c" . "comment")))
-	)
-      (setq org-refile-targets
-	    '((nil :maxlevel . 3)
-	      (org-agenda-files :maxlevel . 3))
-	    ;; Without this, completers like ivy/helm are only given the first level of
-	    ;; each outline candidates. i.e. all the candidates under the "Tasks" heading
-	    ;; are just "Tasks/". This is unhelpful. We want the full path to each refile
-	    ;; target! e.g. FILE/Tasks/heading/subheading
-	    org-refile-use-outline-path 'file
-	    org-outline-path-complete-in-steps nil)
-      (setq org-todo-keywords
-	    '((sequence
-	       "TODO(t)"  ; A task that needs doing & is ready to do
-	       "STRT(s)"  ; A task that is in progress
-	       "WAIT(w)"  ; Something external is holding up this task
-	       "HOLD(h)"  ; This task is paused/on hold because of me
-	       "IDEA(i)"  ; An unconfirmed and unapproved task or notion
-	       "|"
-	       "DONE(d)"  ; Task successfully completed
-	       "KILL(k)") ; Task was cancelled, aborted or is no longer applicable
-	      (sequence
-	       "[ ](T)"   ; A task that needs doing
-	       "[-](S)"   ; Task is in progress
-	       "[?](W)"   ; Task is being held up or paused
-	       "|"
-	       "[X](D)")  ; Task was completed
-	      (sequence
-	       "|"
-	       "OKAY(o)"
-	       "YES(y)"
-	       "NO(n)"))
-	    org-todo-keyword-faces
-	    '(("[-]"  . +org-todo-active)
-	      ("STRT" . +org-todo-active)
-	      ("[?]"  . +org-todo-onhold)
-	      ("WAIT" . +org-todo-onhold)
-	      ("HOLD" . +org-todo-onhold)
-	      ("NO"   . +org-todo-cancel)
-	      ("KILL" . +org-todo-cancel))
-	    )
-    #+end_src
+  (use-package org-modern
+    :straight t)
+#+end_src
 *** Org agenda
 #+begin_src emacs-lisp
-(use-package org-agenda
-  :straight nil
-  :bind
-  (("C-c a" . org-agenda)
-   ("C-c x" . org-capture))
-  :config
-  (setq-default org-agenda-files (list org-directory)
-                org-agenda-compact-blocks nil
-                org-agenda-window-setup 'current-window
-                org-agenda-skip-unavailable-files t
-                org-agenda-span 10
-                calendar-week-start-day 1
-                org-agenda-start-on-weekday nil
-                org-agenda-start-day "-3d"
-                org-agenda-deadline-faces
-                '((1.001 . error)
-                  (1.0 . org-warning)
-                  (0.5 . org-upcoming-deadline)
-                  (0.0 . org-upcoming-distant-deadline))
-                org-agenda-inhibit-startup t))
+  (use-package org-agenda
+    :straight nil
+    :bind
+    (("C-c a" . org-agenda)
+     ("C-c x" . org-capture))
+    :init
+    (add-hook 'org-agenda-finalize-hook (lambda () (org-modern-agenda)));13u
+    :config
+    (setq-default org-agenda-files (list org-directory)
+                  org-agenda-compact-blocks nil
+                  org-agenda-window-setup 'current-window
+                  org-agenda-skip-unavailable-files t
+                  org-agenda-span 10
+                  calendar-week-start-day 1
+                  org-agenda-start-on-weekday nil
+                  org-agenda-start-day "-3d"
+                  org-agenda-deadline-faces
+                  '((1.001 . error)
+                    (1.0 . org-warning)
+                    (0.5 . org-upcoming-deadline)
+                    (0.0 . org-upcoming-distant-deadline))
+                  org-agenda-inhibit-startup t))
 #+end_src
 *** Org capture
 #+begin_src emacs-lisp
@@ -1603,82 +1583,78 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     (require 'org-roam-dailies) ; ensure the keymap is available
     (org-roam-db-autosync-mode))
 #+end_src
-*** Org superstar
-    #+begin_src emacs-lisp
-      (use-package org-superstar)
-      (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
-    #+end_src
+
 *** Org attach
-    #+begin_src emacs-lisp
-      (use-package org-attach
-	:straight nil
-	:commands (org-attach-new
-		   org-attach-open
-		   org-attach-open-in-emacs
-		   org-attach-reveal-in-emacs
-		   org-attach-url
-		   org-attach-set-directory
-		   org-attach-sync)
-	:config
-	(unless org-attach-id-dir
-	  ;; Centralized attachments directory by default
-	  (setq-default org-attach-id-dir (expand-file-name ".attach/" org-directory)))
-	)
-    #+end_src
+#+begin_src emacs-lisp
+  (use-package org-attach
+    :straight nil
+    :commands (org-attach-new
+               org-attach-open
+               org-attach-open-in-emacs
+               org-attach-reveal-in-emacs
+               org-attach-url
+               org-attach-set-directory
+               org-attach-sync)
+    :config
+    (unless org-attach-id-dir
+      ;; Centralized attachments directory by default
+      (setq-default org-attach-id-dir (expand-file-name ".attach/" org-directory)))
+    )
+#+end_src
 *** Org cliplink
-    #+begin_src emacs-lisp
-      (use-package org-cliplink
-	:straight t
-	:config
-	(global-set-key (kbd "C-c l") 'org-cliplink))
-    #+end_src
+#+begin_src emacs-lisp
+  (use-package org-cliplink
+    :straight t
+    :config
+    (global-set-key (kbd "C-c l") 'org-cliplink))
+#+end_src
 
 ** JSON
 #+begin_src emacs-lisp
   (setq js-indent-level 2
-      typescript-indent-level 2
-      json-reformat:indent-width 2
-      css-indent-offset 2)
+        typescript-indent-level 2
+        json-reformat:indent-width 2
+        css-indent-offset 2)
 
 #+end_src
 
 ** Nix
 #+begin_src emacs-lisp
-     (use-package nix-mode
-       :mode "\\.nix\\'")
+  (use-package nix-mode
+    :mode "\\.nix\\'")
 
-     (use-package nix-drv-mode
-       :straight (nix-drv-mode
-                  :host github
-                  :repo "NixOS/nix-mode")
-       :mode "\\.drv\\'")
+  (use-package nix-drv-mode
+    :straight (nix-drv-mode
+               :host github
+               :repo "NixOS/nix-mode")
+    :mode "\\.drv\\'")
 
-     (use-package nix-update
-       :commands nix-update-fetch)
+  (use-package nix-update
+    :commands nix-update-fetch)
 #+end_src
 
 ** Terraform
-  #+begin_src emacs-lisp
-    (use-package terraform-mode
-      :straight t)
-  #+end_src
+#+begin_src emacs-lisp
+  (use-package terraform-mode
+    :straight t)
+#+end_src
 
 ** C
-  #+begin_src emacs-lisp
-    ;; (use-package cmake-mode
-    ;;  :straight nil)
-  #+end_src
+#+begin_src emacs-lisp
+  ;; (use-package cmake-mode
+  ;;  :straight nil)
+#+end_src
 
 ** Rust
 #+begin_src emacs-lisp
-    (use-package rustic
-      :straight t
-      :bind (:map rustic-mode-map
-                  ("C-c c a" . lsp-rust-analyzer-status)
-                  ("C-c c b" . rustic-cargo-build))
-      :config
-      (setq lsp-eldoc-hook nil)
-      (setq rust-format-on-save t))
+  (use-package rustic
+    :straight t
+    :bind (:map rustic-mode-map
+                ("C-c c a" . lsp-rust-analyzer-status)
+                ("C-c c b" . rustic-cargo-build))
+    :config
+    (setq lsp-eldoc-hook nil)
+    (setq rust-format-on-save t))
 #+end_src
 ** Docker
 #+begin_src emacs-lisp

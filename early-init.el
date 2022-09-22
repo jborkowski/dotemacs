@@ -11,9 +11,9 @@
 (menu-bar-mode -1)   ; disable the menu bar
 
 (if (fboundp 'tool-bar-mode)
-  (tool-bar-mode -1))         ; disable the toolbar
+    (tool-bar-mode -1))         ; disable the toolbar
 (if (fboundp 'scroll-bar-mode)
-  (scroll-bar-mode -1))       ; disable visible scrollbar
+    (scroll-bar-mode -1))       ; disable visible scrollbar
 
 (add-to-list 'default-frame-alist '(undecorated . t))
 (custom-set-variables

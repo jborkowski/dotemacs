@@ -26,9 +26,9 @@
 ;; Ensure that environment variables are the same as the user’s shell
 (when *is-a-mac*
   (use-package exec-path-from-shell
-  :straight t
-  :if (memq window-system '(mac ns x))
-  :hook (after-init . exec-path-from-shell-initialize)))
+    :straight t
+    :if (memq window-system '(mac ns x))
+    :hook (after-init . exec-path-from-shell-initialize)))
 
 (defun bore/org-babel-tangle-config ()
   "Automatically tangle Emacs.org config when saving a file."
@@ -70,7 +70,6 @@
 
 ;; Use Nord Theme
 (use-package nord-theme)
-;; (load-theme 'nord t)
 
 (use-package modues-themes
   :straight nil
@@ -89,38 +88,40 @@
         '((bg-main . "#2E3440") (fg-main . "#ECEFF4")
           (bg-dim . "#434C5E") (fg-dim . "#D8DEE9")
           (bg-alt . "#4C566A") (fg-alt . "#ECEFF4"))
-        modus-themes-org-blocks 'gray-background))
+  ;;      modus-themes-org-blocks 'gray-background
+        )
+  )
 (load-theme 'modus-vivendi)
 
 (use-package nyan-mode)
 (nyan-mode 1)
 
 (use-package ligature
-    :straight (ligature :host github
-                        :repo "mickeynp/ligature.el")
-    :config
-    ;; Enable all Recursive ligatures in programming modes
-    (ligature-set-ligatures 'prog-mode '("==" "===" "!=" "!==" "=/=" "!!" "??"
-                                         "%%" "&&" "&&&" "||" "|||" "=>" "->" "<-"
-                                         "##" "###" "####" "//" "f\"" "f'" "${"
-                                         "?." "?:" "/*" "*/" "///" "'''" "\"\"\""
-                                         "```" "<!--" "-->" ">-" "-<" "::" ">>"
-                                         ">>>" "<<" "<<<" "://" "++" "+++" "--"
-                                         "---" "**" "***" "+=" "-=" "*=" "/=" "=~"
-                                         "<*" "<*>" "<|" "|>" "<|>" "<$>" "<=>"
-                                         "<>" "<+>" ">>-" "-<<" "__" "-[ ]" "-[x]"
-                                         "\\b" "\\n" "\\r" "\\t" "\\v" "|=" "!~"
-                                         "<<~" "<<=" ">>=" "=<<"))
-    ;; Enables ligature checks globally in all buffers. You can also do it
-    ;; per mode with `ligature-mode'.
-    (global-ligature-mode t))
+  :straight (ligature :host github
+                      :repo "mickeynp/ligature.el")
+  :config
+  ;; Enable all Recursive ligatures in programming modes
+  (ligature-set-ligatures 'prog-mode '("==" "===" "!=" "!==" "=/=" "!!" "??"
+                                       "%%" "&&" "&&&" "||" "|||" "=>" "->" "<-"
+                                       "##" "###" "####" "//" "f\"" "f'" "${"
+                                       "?." "?:" "/*" "*/" "///" "'''" "\"\"\""
+                                       "```" "<!--" "-->" ">-" "-<" "::" ">>"
+                                       ">>>" "<<" "<<<" "://" "++" "+++" "--"
+                                       "---" "**" "***" "+=" "-=" "*=" "/=" "=~"
+                                       "<*" "<*>" "<|" "|>" "<|>" "<$>" "<=>"
+                                       "<>" "<+>" ">>-" "-<<" "__" "-[ ]" "-[x]"
+                                       "\\b" "\\n" "\\r" "\\t" "\\v" "|=" "!~"
+                                       "<<~" "<<=" ">>=" "=<<"))
+  ;; Enables ligature checks globally in all buffers. You can also do it
+  ;; per mode with `ligature-mode'.
+  (global-ligature-mode t))
 
 (defun bore/with-font-faces ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
     (set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'regular))
-      (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'regular))
-      (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'light))))
+    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'regular))
+    (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 24 :weight 'light))))
 
 (add-hook 'after-init-hook 'bore/with-font-faces)
 (add-hook 'server-after-make-frame-hook 'bore/with-font-faces)
@@ -136,9 +137,9 @@
 
 ;; But for sure disable line numbers in some modes
 (dolist (mode '(org-mode-hook
-		term-mode-hook
-		vterm-mode-hook
-		eshell-mode-hool))
+                term-mode-hook
+                vterm-mode-hook
+                eshell-mode-hool))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (use-package tab-bar
@@ -158,7 +159,11 @@
         tab-bar-format '(tab-bar-format-history tab-bar-format-tabs)
         ))
 
-  (tab-bar-history-mode 1)
+(tab-bar-history-mode 1)
+
+(set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+
+(setq mode-line-end-spaces nil)
 
 (setq inhibit-splash-screen t
       inhibit-startup-screen t
@@ -169,7 +174,7 @@
       password-cache-expiry nil
       custom-safe-themes t
       scroll-margin 2
-     ;; select-enable-clipboard t
+      ;; select-enable-clipboard t
       visible-bell t
       warning-minimum-level :error)
 
@@ -183,40 +188,40 @@
 (setq x-alt-keysym 'meta) ;; Alt as Meta key
 
 (use-package emacs
-      :straight nil
-      :bind
-      (("C-x K"   . bore/kill-buffer)
-       ("C-z"     . repeat)
-       ("C-c q q" . kill-emacs))
-      :init
-      ;; Add prompt indicator to `completing-read-multiple'.
-      ;; Alternatively try `consult-completing-read-multiple'.
-      (defun crm-indicator (args)
-        (cons (concat "[CRM] " (car args)) (cdr args)))
-      (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+  :straight nil
+  :bind
+  (("C-x K"   . bore/kill-buffer)
+   ("C-z"     . repeat)
+   ("C-c q q" . kill-emacs))
+  :init
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; Alternatively try `consult-completing-read-multiple'.
+  (defun crm-indicator (args)
+    (cons (concat "[CRM] " (car args)) (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-      ;; TAB cycle if there are only few candidates
-      (setq completion-cycle-threshold 3)
+  ;; TAB cycle if there are only few candidates
+  (setq completion-cycle-threshold 3)
 
-      ;; Do not allow the cursor in the minibuffer prompt
-      (setq minibuffer-prompt-properties
-            '(read-only t cursor-intangible t face minibuffer-prompt))
-      (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-      ;; Clean up whitespace, newlines and line breaks
-      (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  ;; Clean up whitespace, newlines and line breaks
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-      ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-      ;; Vertico commands are hidden in normal buffers.
-      (setq read-extended-command-predicate
-            #'command-completion-default-include-p)
+  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+  ;; Vertico commands are hidden in normal buffers.
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p)
 
-      ;; Enable recursive minibuffers
-      (setq enable-recursive-minibuffers t)
+  ;; Enable recursive minibuffers
+  (setq enable-recursive-minibuffers t)
 
-      ;; Enable indentation+completion using the TAB key.
-      ;; `completion-at-point' is often bound to M-TAB.
-      (setq tab-always-indent 'complete))
+  ;; Enable indentation+completion using the TAB key.
+  ;; `completion-at-point' is often bound to M-TAB.
+  (setq tab-always-indent 'complete))
 
 (defun bore/kill-buffer (&optional arg)
   "Kill buffer which is currently visible (ARG)."
@@ -230,26 +235,26 @@
   :bind (("C-x C-b" . ibuffer))
   :config
   (setq ibuffer-expert t
-	ibuffer-display-summary nil
-	ibuffer-use-other-window nil
-	ibuffer-show-empty-filter-groups nil
-	ibuffer-movement-cycle nil
-	ibuffer-default-sorting-mode 'filename/process
-	ibuffer-use-header-line t
-	ibuffer-default-shrink-to-minimum-size nil
-	ibuffer-formats
-	'((mark modified read-only locked " "
-		(name 40 40 :left :elide)
-		" "
-		(size 9 -1 :right)
-		" "
-		(mode 16 16 :left :elide)
-		" " filename-and-process)
-	  (mark " "
-		(name 16 -1)
-		" " filename))
-	ibuffer-saved-filter-groups nil
-	ibuffer-old-time 48)
+        ibuffer-display-summary nil
+        ibuffer-use-other-window nil
+        ibuffer-show-empty-filter-groups nil
+        ibuffer-movement-cycle nil
+        ibuffer-default-sorting-mode 'filename/process
+        ibuffer-use-header-line t
+        ibuffer-default-shrink-to-minimum-size nil
+        ibuffer-formats
+        '((mark modified read-only locked " "
+                (name 40 40 :left :elide)
+                " "
+                (size 9 -1 :right)
+                " "
+                (mode 16 16 :left :elide)
+                " " filename-and-process)
+          (mark " "
+                (name 16 -1)
+                " " filename))
+        ibuffer-saved-filter-groups nil
+        ibuffer-old-time 48)
   (add-hook 'ibuffer-mode-hook #'hl-line-mode))
 
 (use-package savehist
@@ -410,9 +415,9 @@
 ;; add evil-mc
 
 (use-package clipetty
-    :straight t
-    :unless (display-graphic-p)
-    :hook (tty-setup . global-clipetty-mode))
+  :straight t
+  :unless (display-graphic-p)
+  :hook (tty-setup . global-clipetty-mode))
 
 (use-package ispell
   :straight nil
@@ -477,21 +482,21 @@
   :magic ("%PDF" . pdf-view-mode))
 
 (use-package dired
-    :straight nil
-    :commands dired dired-jump
-    :config
-    (setq dired-kill-when-opening-new-dired-buffer t
-	  delete-by-moving-to-trash t
-	  dired-dwim-target t
-	  dired-recursive-copies 'always
-	  dired-recursive-deletes 'always))
+  :straight nil
+  :commands dired dired-jump
+  :config
+  (setq dired-kill-when-opening-new-dired-buffer t
+        delete-by-moving-to-trash t
+        dired-dwim-target t
+        dired-recursive-copies 'always
+        dired-recursive-deletes 'always))
 
 (use-package consult-dir
   :straight t
   :bind (("C-x C-d" . consult-dir)
-	 :map vertico-map
-	 ("C-x C-d" . consult-dir)
-	 ("C-x C-j" . consult-dir-jump-file)))
+         :map vertico-map
+         ("C-x C-d" . consult-dir)
+         ("C-x C-j" . consult-dir-jump-file)))
 
 (use-package project
   :straight t)
@@ -531,28 +536,28 @@
   (global-diff-hl-mode 1))
 
 (use-package eshell
-      :straight nil
-      :commands eshell
-      :bind ("C-c o E" . eshell)
-      :config
-      (setq eshell-kill-processes-on-exit t
-            eshell-highlight-prompt t
-            eshell-hist-ignoredups t
-            eshell-prompt-regexp "^.* λ "))
+  :straight nil
+  :commands eshell
+  :bind ("C-c o E" . eshell)
+  :config
+  (setq eshell-kill-processes-on-exit t
+        eshell-highlight-prompt t
+        eshell-hist-ignoredups t
+        eshell-prompt-regexp "^.* λ "))
 
-    (use-package eshell-syntax-highlighting
-      :straight t
-      :after eshell-mode
-      :config
-      (eshell-syntax-highlighting-global-mode +1))
+(use-package eshell-syntax-highlighting
+  :straight t
+  :after eshell-mode
+  :config
+  (eshell-syntax-highlighting-global-mode +1))
 
-    (use-package eshell-toggle
-      :straight t
-      :commands eshell-toggle
-      :bind ("C-c o e" . eshell-toggle)
-      :custom
-      (eshell-toggle-size-fraction 4)
-      (eshell-toggle-run-command nil))
+(use-package eshell-toggle
+  :straight t
+  :commands eshell-toggle
+  :bind ("C-c o e" . eshell-toggle)
+  :custom
+  (eshell-toggle-size-fraction 4)
+  (eshell-toggle-run-command nil))
 
 (use-package vterm
   :straight t
@@ -644,10 +649,10 @@
   :straight t
   :config
   (setq elfeed-feeds
-      '(("https://sachachua.com/blog/category/emacs/feed/" blog emacs)
-        ("https://lexi-lambda.github.io/feeds/all.atom.xml" blog haskell alexis)
-        ("https://www.stephendiehl.com/feed.rss" blog diehl haskell)
-        ("http://www.reddit.com/r/emacs/.rss" reddit emacs)))
+        '(("https://sachachua.com/blog/category/emacs/feed/" blog emacs)
+          ("https://lexi-lambda.github.io/feeds/all.atom.xml" blog haskell alexis)
+          ("https://www.stephendiehl.com/feed.rss" blog diehl haskell)
+          ("http://www.reddit.com/r/emacs/.rss" reddit emacs)))
   :bind
   ("C-x w" . elfeed))
 
@@ -705,10 +710,10 @@
                  nil
                  (window-parameters (mode-line-format . none)))))
 
-   (use-package embark-consult
-               :after (embark consult)
-               :config
-               (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
+(use-package embark-consult
+  :after (embark consult)
+  :config
+  (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
 
 (use-package consult
   :straight t
@@ -856,25 +861,25 @@
           org-msg-convert-citation t)))
 
 (use-package org-jira
-    :straight t
-    :init
-    (make-directory "~/.org-jira" 0)
-    :config
+  :straight t
+  :init
+  (make-directory "~/.org-jira" 0)
+  :config
 
-    (setq jiralib-url "https://restaumatic.atlassian.net")
+  (setq jiralib-url "https://restaumatic.atlassian.net")
 
-    (setq org-jira-custom-jqls
-          '((:jql " project IN (RS) and createdDate >= '2022-01-01' order by created DESC "
-                  :limit 10
-                  :filename "this-years-work")
-            (:jql " project IN (RS)
+  (setq org-jira-custom-jqls
+        '((:jql " project IN (RS) and createdDate >= '2022-01-01' order by created DESC "
+                :limit 10
+                :filename "this-years-work")
+          (:jql " project IN (RS)
 AND status IN ('To Do', 'In Development')
 AND (labels = EMPTY or labels NOT IN ('FutureUpdate'))
 order by priority, created DESC "
-          :limit 20
-          :filename "ex-ahu-priority-items")
-    ))
-    )
+                :limit 20
+                :filename "ex-ahu-priority-items")
+          ))
+  )
 
 (use-package envrc
   :straight t
@@ -882,10 +887,10 @@ order by priority, created DESC "
   (envrc-global-mode))
 
 (defun bore/project-override (dir)
-    (let ((override (locate-dominating-file dir ".project.el")))
-      (if override
+  (let ((override (locate-dominating-file dir ".project.el")))
+    (if override
         (cons 'vc override)
-        nil)))
+      nil)))
 (use-package project
   :config
   (add-hook 'project-find-functions #'bore/project-override))
@@ -925,13 +930,13 @@ order by priority, created DESC "
         lsp-file-watch-threshold 5000
         read-process-output-max (* 1024 1024))
   (add-hook 'lsp-completion-mode-hook
-          (lambda ()
-            (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
+            (lambda ()
+              (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
 
 
 
-  ;; (add-to-list 'lsp-server-programs '(haskell-mode . ;; ("haskell-language-server-wrapper" "--lsp")))
-  ;;(add-to-list 'lsp-server-programs '(elixir-mode  ; "~/.emacs.d/elixir-ls/release/language_server.sh"))
+;; (add-to-list 'lsp-server-programs '(haskell-mode . ;; ("haskell-language-server-wrapper" "--lsp")))
+;;(add-to-list 'lsp-server-programs '(elixir-mode  ; "~/.emacs.d/elixir-ls/release/language_server.sh"))
 
 
 (use-package lsp-haskell
@@ -950,9 +955,9 @@ order by priority, created DESC "
   (corfu-auto nil)               ; disable auto completion
   (corfu-quit-no-match t)        ; automatically quit if there is no match
   (corfu-echo-documentation nil) ; do not show documentation in the echo area
- ;; :init
- ;; (corfu-global-mode)
- )
+  ;; :init
+  ;; (corfu-global-mode)
+  )
 
 (use-package cape
   :straight t
@@ -997,17 +1002,17 @@ order by priority, created DESC "
   :hook (after-init . flymake-collection-hook-setup))
 
 (use-package reformatter
-:straight t
-:defer t)
+  :straight t
+  :defer t)
 
 (use-package agda2-mode
-    :straight t
-    :mode (("\\.agda\\'" . agda2-mode)
-           ("\\.lagda.md\\'" . agda2-mode)))
+  :straight t
+  :mode (("\\.agda\\'" . agda2-mode)
+         ("\\.lagda.md\\'" . agda2-mode)))
 
 (use-package agda-input
-    :straight
-    (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
+  :straight
+  (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
 
 (use-package haskell-mode
   :straight t
@@ -1036,31 +1041,31 @@ order by priority, created DESC "
   :lighter " fourmolu")
 
 (use-package ghcid
-:straight (:package "ghcid" :host nil :type git :repo "https://github.com/ndmitchell/ghcid" )
-:defer
-:load-path "site-lisp/"
-:bind (:map projectile-mode-map
-            ("C-c m s" . ghcid)
-            ("C-c m b" . show-ghcid-buf)
-            ("C-c m t" . set-ghcid-target))
-:custom
-(ghcid-target "")
-;;:config (setq-local default-directory projectile-project-root)
-:preface
-(use-package haskell-mode :ensure t)
-(defun show-ghcid-buf ()
-  (interactive)
-  (show-buffer ghcid-buf-name))
-(defun set-ghcid-target (ghcid-targ &optional ghcid-test-targ)
-  (interactive
-   (list
-    (completing-read "ghcid target: " (map 'list (lambda (targ) (format "%s:%s" (projectile-project-name) targ)) (haskell-cabal-enum-targets)))
-    (completing-read "ghcid --test target: " '("--test=main" "--test=Main.main" nil))))
-  (setq ghcid-target ghcid-targ)
-  (when ghcid-test-targ
-    (setq ghcid-target-test (format "%s" ghcid-test-targ)))
-  (kill-ghcid)
-  (ghcid)))
+  :straight (:package "ghcid" :host nil :type git :repo "https://github.com/ndmitchell/ghcid" )
+  :defer
+  :load-path "site-lisp/"
+  :bind (:map projectile-mode-map
+              ("C-c m s" . ghcid)
+              ("C-c m b" . show-ghcid-buf)
+              ("C-c m t" . set-ghcid-target))
+  :custom
+  (ghcid-target "")
+  ;;:config (setq-local default-directory projectile-project-root)
+  :preface
+  (use-package haskell-mode :ensure t)
+  (defun show-ghcid-buf ()
+    (interactive)
+    (show-buffer ghcid-buf-name))
+  (defun set-ghcid-target (ghcid-targ &optional ghcid-test-targ)
+    (interactive
+     (list
+      (completing-read "ghcid target: " (map 'list (lambda (targ) (format "%s:%s" (projectile-project-name) targ)) (haskell-cabal-enum-targets)))
+      (completing-read "ghcid --test target: " '("--test=main" "--test=Main.main" nil))))
+    (setq ghcid-target ghcid-targ)
+    (when ghcid-test-targ
+      (setq ghcid-target-test (format "%s" ghcid-test-targ)))
+    (kill-ghcid)
+    (ghcid)))
 
 (use-package toml-mode
   :straight t
@@ -1096,91 +1101,64 @@ order by priority, created DESC "
   :commands org-capture org-agenda
   :init
   (add-hook 'org-mode-hook
-	    (lambda ()
-	      (org-indent-mode)
-	      (variable-pitch-mode 1)
-	      (visual-line-mode 1)
-	      (local-unset-key (kbd "C-'"))))
+            (lambda ()
+              (org-indent-mode)
+              (variable-pitch-mode 1)
+              (org-modern-mode)
+              (visual-line-mode 1)
+              (local-unset-key (kbd "C-'"))))
 
   :config
   (setq org-directory "~/org/"
-	org-src-fontify-natively t
-	org-src-tab-acts-natively t
-	org-fontify-done-headline t
-	org-fontify-quote-and-verse-blocks t
-	org-fontify-whole-heading-line t
-	org-hide-emphasis-markers t
-	org-hide-leading-stars t
-	org-capture-bookmark nil
-
-	org-indirect-buffer-display 'current-window
-	org-eldoc-breadcrumb-separator " → "
-	org-enforce-todo-dependencies t
-	org-entities-user
-	'(("flat"  "\\flat" nil "" "" "266D" "♭")
-	  ("sharp" "\\sharp" nil "" "" "266F" "♯"))
-	org-image-actual-width nil
-	org-imenu-depth 6
-	org-priority-faces
-	'((?A . error)
-	  (?B . warning)
-	  (?C . success))
-	org-startup-indented t
-	org-tags-column 0
-	org-use-sub-superscripts '{}
-	org-structure-template-alist
-	'(("s" . "src")
-	  ("e" . "src emacs-lisp")
-	  ("h" . "src haskell")
-	  ("E" . "example")
-	  ("q" . "quote")
-	  ("c" . "comment")))
+        org-adapt-indentation nil
+        org-edit-src-persistent-message nil
+        org-fold-catch-invisible-edits 'show-and-error
+        org-insert-heading-respect-content t
+        org-fontify-quote-and-verse-blocks t
+        org-tags-column 0
+        org-hide-emphasis-markers t
+        org-hide-macro-markers t
+        org-hide-leading-stars nil
+        org-ellipsis "…"
+        org-capture-bookmark nil
+        org-mouse-1-follows-link t
+        org-pretty-entities t
+        org-pretty-entities-include-sub-superscripts nil
+        org-indirect-buffer-display 'current-window
+        org-eldoc-breadcrumb-separator " → "
+        org-enforce-todo-dependencies t
+        org-startup-folded t
+        org-entities-user
+        '(("flat"  "\\flat" nil "" "" "266D" "♭")
+          ("sharp" "\\sharp" nil "" "" "266F" "♯"))
+        ;;      org-image-actual-width nil
+        ;;    org-imenu-depth 6
+        org-priority-faces
+        '((?A . error)
+          (?B . warning)
+          (?C . success))
+        ;;              org-startup-indented t
+        ;;            org-tags-column 0
+        ;;          org-use-sub-superscripts '{}
+        org-structure-template-alist
+        '(("s" . "src")
+          ("e" . "src emacs-lisp")
+          ("h" . "src haskell")
+          ("E" . "example")
+          ("q" . "quote")
+          ("c" . "comment")))
   )
-(setq org-refile-targets
-      '((nil :maxlevel . 3)
-	(org-agenda-files :maxlevel . 3))
-      ;; Without this, completers like ivy/helm are only given the first level of
-      ;; each outline candidates. i.e. all the candidates under the "Tasks" heading
-      ;; are just "Tasks/". This is unhelpful. We want the full path to each refile
-      ;; target! e.g. FILE/Tasks/heading/subheading
-      org-refile-use-outline-path 'file
-      org-outline-path-complete-in-steps nil)
-(setq org-todo-keywords
-      '((sequence
-	 "TODO(t)"  ; A task that needs doing & is ready to do
-	 "STRT(s)"  ; A task that is in progress
-	 "WAIT(w)"  ; Something external is holding up this task
-	 "HOLD(h)"  ; This task is paused/on hold because of me
-	 "IDEA(i)"  ; An unconfirmed and unapproved task or notion
-	 "|"
-	 "DONE(d)"  ; Task successfully completed
-	 "KILL(k)") ; Task was cancelled, aborted or is no longer applicable
-	(sequence
-	 "[ ](T)"   ; A task that needs doing
-	 "[-](S)"   ; Task is in progress
-	 "[?](W)"   ; Task is being held up or paused
-	 "|"
-	 "[X](D)")  ; Task was completed
-	(sequence
-	 "|"
-	 "OKAY(o)"
-	 "YES(y)"
-	 "NO(n)"))
-      org-todo-keyword-faces
-      '(("[-]"  . +org-todo-active)
-	("STRT" . +org-todo-active)
-	("[?]"  . +org-todo-onhold)
-	("WAIT" . +org-todo-onhold)
-	("HOLD" . +org-todo-onhold)
-	("NO"   . +org-todo-cancel)
-	("KILL" . +org-todo-cancel))
-      )
+
+(use-package org-modern
+  :straight t)
 
 (use-package org-agenda
   :straight nil
   :bind
   (("C-c a" . org-agenda)
    ("C-c x" . org-capture))
+  :init
+  (add-hook 'org-agenda-finalize-hook (lambda () (org-modern-agenda)));13u
   :config
   (setq-default org-agenda-files (list org-directory)
                 org-agenda-compact-blocks nil
@@ -1228,18 +1206,15 @@ order by priority, created DESC "
   (require 'org-roam-dailies) ; ensure the keymap is available
   (org-roam-db-autosync-mode))
 
-(use-package org-superstar)
-(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
-
 (use-package org-attach
   :straight nil
   :commands (org-attach-new
-	     org-attach-open
-	     org-attach-open-in-emacs
-	     org-attach-reveal-in-emacs
-	     org-attach-url
-	     org-attach-set-directory
-	     org-attach-sync)
+             org-attach-open
+             org-attach-open-in-emacs
+             org-attach-reveal-in-emacs
+             org-attach-url
+             org-attach-set-directory
+             org-attach-sync)
   :config
   (unless org-attach-id-dir
     ;; Centralized attachments directory by default
@@ -1252,9 +1227,9 @@ order by priority, created DESC "
   (global-set-key (kbd "C-c l") 'org-cliplink))
 
 (setq js-indent-level 2
-    typescript-indent-level 2
-    json-reformat:indent-width 2
-    css-indent-offset 2)
+      typescript-indent-level 2
+      json-reformat:indent-width 2
+      css-indent-offset 2)
 
 (use-package nix-mode
   :mode "\\.nix\\'")

@@ -68,28 +68,30 @@
 (setq user-full-name "Jonatan Borkowski"
       user-mail-address "jonatan.borkowski@pm.me")
 
-;; Use Nord Theme
-(use-package nord-theme)
-
 (use-package modues-themes
   :straight nil
   :defer nil
   :config
-  (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs t
-        modus-themes-mixed-fonts t
-        modus-themes-scale-headings t
-        modus-themes-mode-line '(borderless)
-        modus-themes-syntax '(faint)
-        modus-themes-lang-checkers '(faint)
-        modus-themes-completions '(opinionated)
-        modus-themes-diffs 'desaturated
-        modus-themes-vivendi-color-overrides
-        '((bg-main . "#2E3440") (fg-main . "#ECEFF4")
-          (bg-dim . "#434C5E") (fg-dim . "#D8DEE9")
-          (bg-alt . "#4C566A") (fg-alt . "#ECEFF4"))
-          modus-themes-org-blocks 'gray-background
-        )
+
+  (setq modus-themes-slanted-constructs t
+	modus-themes-bold-constructs t
+	modus-themes-mixed-fonts t
+	modus-themes-scale-headings t
+	modus-themes-subtle-line-numbers t
+	modus-themes-inhibit-reload nil
+	modus-themes-mode-line '(borderless)
+	modus-themes-syntax '(faint)
+	modus-themes-lang-checkers '(faint)
+	modus-themes-completions '(opinionated)
+	modus-themes-diffs 'desaturated
+	modus-themes-operandi-color-overrides
+	'((bg-main . "#fafafa")
+	  (fg-main . "#101010"))
+	modus-themes-vivendi-color-overrides
+	'((bg-main . "#101010")
+	  (fg-main . "#fafafa"))
+	)
+
   )
 (load-theme 'modus-vivendi)
 
@@ -1005,15 +1007,6 @@ order by priority, created DESC "
   :straight t
   :defer t)
 
-(use-package agda2-mode
-  :straight t
-  :mode (("\\.agda\\'" . agda2-mode)
-         ("\\.lagda.md\\'" . agda2-mode)))
-
-(use-package agda-input
-  :straight
-  (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
-
 (use-package haskell-mode
   :straight t
   :mode (("\\.hs\\'"    . haskell-mode)
@@ -1101,52 +1094,54 @@ order by priority, created DESC "
   :commands org-capture org-agenda
   :init
   (add-hook 'org-mode-hook
-            (lambda ()
-              (org-indent-mode)
-              (variable-pitch-mode 1)
-              (org-modern-mode)
-              (visual-line-mode 1)
-              (local-unset-key (kbd "C-'"))))
-
+	    (lambda ()
+	      (variable-pitch-mode 1)
+	      (org-modern-mode)
+	      (visual-line-mode 1)))
   :config
   (setq org-directory "~/org/"
-        org-adapt-indentation nil
-        org-edit-src-persistent-message nil
-        org-fold-catch-invisible-edits 'show-and-error
-        org-insert-heading-respect-content t
-        org-fontify-quote-and-verse-blocks t
-        org-tags-column 0
-        org-hide-emphasis-markers t
-        org-hide-macro-markers t
-        org-hide-leading-stars nil
-        org-ellipsis "…"
-        org-capture-bookmark nil
-        org-mouse-1-follows-link t
-        org-pretty-entities t
-        org-pretty-entities-include-sub-superscripts nil
-        org-indirect-buffer-display 'current-window
-        org-eldoc-breadcrumb-separator " → "
-        org-enforce-todo-dependencies t
-        org-startup-folded t
-        org-entities-user
-        '(("flat"  "\\flat" nil "" "" "266D" "♭")
-          ("sharp" "\\sharp" nil "" "" "266F" "♯"))
-        ;;      org-image-actual-width nil
-        ;;    org-imenu-depth 6
-        org-priority-faces
-        '((?A . error)
-          (?B . warning)
-          (?C . success))
-        ;;              org-startup-indented t
-        ;;            org-tags-column 0
-        ;;          org-use-sub-superscripts '{}
-        org-structure-template-alist
-        '(("s" . "src")
-          ("e" . "src emacs-lisp")
-          ("h" . "src haskell")
-          ("E" . "example")
-          ("q" . "quote")
-          ("c" . "comment")))
+	org-adapt-indentation nil
+	org-edit-src-persistent-message nil
+	org-fold-catch-invisible-edits 'show-and-error
+	org-insert-heading-respect-content t
+	org-fontify-quote-and-verse-blocks t
+	org-tags-column 0
+	org-hide-emphasis-markers t
+	org-hide-macro-markers t
+	org-hide-leading-stars nil
+	org-ellipsis "…"
+	org-capture-bookmark nil
+	org-mouse-1-follows-link t
+	org-pretty-entities t
+	org-pretty-entities-include-sub-superscripts nil
+	org-indirect-buffer-display 'current-window
+	org-eldoc-breadcrumb-separator " → "
+	org-enforce-todo-dependencies t
+	org-startup-folded t
+	org-use-sub-superscripts '{}
+	org-src-fontify-natively t
+	org-src-tab-acts-natively t
+	org-fontify-done-headline t
+	org-fontify-quote-and-verse-blocks t
+	org-fontify-whole-heading-line t
+	org-capture-bookmark nil
+	org-priority-faces
+	'((?A . error)
+	  (?B . warning)
+	  (?C . success))
+
+	org-entities-user
+	'(("flat"  "\\flat" nil "" "" "266D" "♭")
+	  ("sharp" "\\sharp" nil "" "" "266F" "♯"))
+
+	org-imenu-depth 6
+	org-structure-template-alist
+	'(("s" . "src")
+	  ("e" . "src emacs-lisp")
+	  ("h" . "src haskell")
+	  ("E" . "example")
+	  ("q" . "quote")
+	  ("c" . "comment")))
   )
 
 (use-package org-modern

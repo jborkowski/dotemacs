@@ -168,6 +168,9 @@
 
 (setq mode-line-end-spaces nil)
 
+(use-package power-mode
+  :straight t)
+
 (setq inhibit-splash-screen t
       inhibit-startup-screen t
       inhibit-startup-message t
@@ -1148,13 +1151,45 @@ order by priority, created DESC "
 (use-package org-modern
   :straight t)
 
+(use-package denote
+  :straight t
+  :bind
+  (("C-c n j" . bore/journal)
+   ("C-c n f" . consult-notes))
+  :custom
+  (setq denote-directory (expand-file-name "~/org/notes/")
+	denote-known-keywords '("linux" "journal" "emacs" "embedded" "hobby")
+	denote-infer-keywords t
+	denote-sort-keywords tsetq
+	denote-prompt '(title keywords)
+	denote-front-matter-date-format 'org-timestamp
+	denote-templates '((todo . "* Tasks:\n\n"))))
+
+  (defun bore/journal ()
+    "Create an entry tagged 'journal' with the date as its title"
+    (interactive)
+    (denote
+     (format-time-string "%A %e %B %Y")
+     '("journal")))
+
+  (use-package consult-notes
+    :straight (:type git :host github :repo "mclear-tools/consult-notes")
+    :commands (consult-notes
+	       consult-notes-search-in-all-notes
+	       consult-notes-org-roam-find-node
+	       consult-notes-org-roam-find-node-relation)
+    :config
+    (setq consult-notes-sources
+    `(("Notes"  ?n "~/org/notes")
+      ("Roam"  ?r "~/org/roam"))))
+
 (use-package org-agenda
   :straight nil
   :bind
   (("C-c a" . org-agenda)
    ("C-c x" . org-capture))
   :init
-  (add-hook 'org-agenda-finalize-hook (lambda () (org-modern-agenda)));13u
+  (add-hook 'org-agenda-finalize-hook (lambda () (org-modern-agenda)))
   :config
   (setq-default org-agenda-files (list org-directory)
                 org-agenda-compact-blocks nil
@@ -1172,50 +1207,10 @@ order by priority, created DESC "
                 org-agenda-inhibit-startup t))
 
 (setq org-capture-templates
-      '(
-        ("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
-         "* TODO %? \n%U" :empty-lines 1)
-        ("w" "Work Issues" entry (file+headline "~/org/work.org" "Issues")
-         "* TODO %?\n  %i\n  %a" :empty-line 1)
-        ("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
-         "** %? \n %^T\n%U" :empty-lines 1))
-      )
-
-(use-package org-roam
-  :straight t
-  :init
-  (setq org-roam-v2-ack t)
-  :custom
-  (org-roam-directory "~/org/roam")
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n i" . org-roam-node-insert)
-         ("C-c n g" . org-roam-graph)
-         :map org-mode-map
-         ("C-M-i"    . completion-at-point)
-         :map org-roam-dailies-map
-         ("Y" . org-roam-dailies-capture-yesterday)
-         ("T" . org-roam-dailies-capture-tomorrow))
-  :bind-keymap
-  ("C-c n d" . org-roam-dailies-map)
-  :config
-  (require 'org-roam-dailies) ; ensure the keymap is available
-  (org-roam-db-autosync-mode))
-
-(use-package org-attach
-  :straight nil
-  :commands (org-attach-new
-             org-attach-open
-             org-attach-open-in-emacs
-             org-attach-reveal-in-emacs
-             org-attach-url
-             org-attach-set-directory
-             org-attach-sync)
-  :config
-  (unless org-attach-id-dir
-    ;; Centralized attachments directory by default
-    (setq-default org-attach-id-dir (expand-file-name ".attach/" org-directory)))
-  )
+      '(("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
+	 "* TODO %? \n%U" :empty-lines 1)
+	("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
+	 "** %? \n %^T\n%U" :empty-lines 1)))
 
 (use-package org-cliplink
   :straight t
@@ -1227,23 +1222,8 @@ order by priority, created DESC "
       json-reformat:indent-width 2
       css-indent-offset 2)
 
-(use-package nix-mode
-  :mode "\\.nix\\'")
-
-(use-package nix-drv-mode
-  :straight (nix-drv-mode
-             :host github
-             :repo "NixOS/nix-mode")
-  :mode "\\.drv\\'")
-
-(use-package nix-update
-  :commands nix-update-fetch)
-
 (use-package terraform-mode
   :straight t)
-
-;; (use-package cmake-mode
-;;  :straight nil)
 
 (use-package rustic
   :straight t
@@ -1257,16 +1237,6 @@ order by priority, created DESC "
 (use-package docker
   :straight t)
 (use-package dockerfile-mode
-  :straight t)
-
-(use-package elixir-mode
-  :straight t
-  :init
-  (provide 'smartparens-elixir)
-  )
-(use-package alchemist
-  :straight t)
-(use-package exunit
   :straight t)
 
 (use-package js2-mode

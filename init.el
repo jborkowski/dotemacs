@@ -71,8 +71,9 @@
 (use-package modues-themes
   :straight nil
   :defer nil
+  :bind
+  (("C-c t t" . modus-themes-toggle))
   :config
-
   (setq modus-themes-slanted-constructs t
 	modus-themes-bold-constructs t
 	modus-themes-mixed-fonts t

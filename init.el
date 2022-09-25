@@ -1011,6 +1011,14 @@ order by priority, created DESC "
   :straight t
   :defer t)
 
+(use-package agda2-mode
+  :straight t
+  :mode (("\\.agda\\'" . agda2-mode)
+	 ("\\.lagda.md\\'" . agda2-mode)))
+
+(use-package agda-input
+  :straight (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
+
 (use-package haskell-mode
   :straight t
   :mode (("\\.hs\\'"    . haskell-mode)

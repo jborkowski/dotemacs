@@ -1336,6 +1336,16 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :defer t)
 #+end_src
 * Lang
+** Agda
+#+begin_src emacs-lisp
+  (use-package agda2-mode
+    :straight t
+    :mode (("\\.agda\\'" . agda2-mode)
+	   ("\\.lagda.md\\'" . agda2-mode)))
+
+  (use-package agda-input
+    :straight (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
+#+end_src
 ** Haskell
 
 #+begin_src emacs-lisp

@@ -1163,15 +1163,14 @@ order by priority, created DESC "
   :bind
   (("C-c n n" . denote)
    ("C-c n j" . bore/journal)
-   ("C-c n f" . consult-notes))
-  :custom
-  (setq denote-directory (expand-file-name "~/org/notes/")
-	denote-known-keywords '("linux" "journal" "emacs" "embedded" "hobby")
-	denote-infer-keywords t
-	denote-sort-keywords tsetq
-	denote-prompt '(title keywords)
-	denote-front-matter-date-format 'org-timestamp
-	denote-templates '((todo . "* Tasks:\n\n"))))
+   ("C-c n f" . consult-notes)))
+ (setq denote-directory (expand-file-name "~/org/notes/")
+       denote-known-keywords '("linux" "journal" "emacs" "embedded" "hobby")
+       denote-infer-keywords t
+       denote-sort-keywords t
+       denote-prompt '(title keywords)
+       denote-front-matter-date-format 'org-timestamp
+       denote-templates '((todo . "* Tasks:\n\n")))
 
   (defun bore/journal ()
     "Create an entry tagged 'journal' with the date as its title"

@@ -201,7 +201,6 @@
    ("C-c q q" . kill-emacs))
   :init
   ;; Add prompt indicator to `completing-read-multiple'.
-  ;; Alternatively try `consult-completing-read-multiple'.
   (defun crm-indicator (args)
     (cons (concat "[CRM] " (car args)) (cdr args)))
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
@@ -725,53 +724,53 @@
   :straight t
   :defer t
   :bind (
-         ;; C-x bindings (ctl-x-map)
-         ("C-x C-r" . consult-recent-file)
-         ("C-x M-:" . consult-complex-command)     ; orig. repeat-complex-command
-         ("C-x b"   . consult-buffer)              ; orig. switch-to-buffer
-         ("C-x M-k" . consult-kmacro)
-         ("C-x M-m" . consult-minor-mode-menu)
-         ("C-x r b" . consult-bookmark)            ; override bookmark-jump
-         ("C-x 4 b" . consult-buffer-other-window) ; orig. switch-to-buffer-other-window
-         ("C-x 5 b" . consult-buffer-other-frame)  ; orig. switch-to-buffer-other-frame
-         ;; Other custom bindings
-         ("M-y" . consult-yank-pop)                ; orig. yank-pop
-         ("<help> a" . consult-apropos)            ; orig. apropos-command
-         ;; M-g bindings (goto-map)
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flycheck)               ; Alternative: consult-flycheck
-         ("M-g g" . consult-goto-line)             ; orig. goto-line
-         ("M-g M-g" . consult-goto-line)           ; orig. goto-line
-         ("M-g o" . consult-outline)               ; Alternative: consult-org-heading
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ;; M-s bindings (search-map)
-         ("M-s f" . consult-find)
-         ("M-s F" . consult-locate)
-         ("M-s g" . consult-grep)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s m" . consult-multi-occur)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
-         ;; Isearch integration
-         ("M-s e" . consult-isearch-history)
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history)          ; orig. isearch-edit-string
-         ("M-s e" . consult-isearch-history))       ; orig. isearch-edit-string
+	 ;; C-x bindings (ctl-x-map)
+	 ("C-x C-r" . consult-recent-file)
+	 ("C-x M-:" . consult-complex-command)     ; orig. repeat-complex-command
+	 ("C-x b"   . consult-buffer)              ; orig. switch-to-buffer
+	 ("C-x M-k" . consult-kmacro)
+	 ("C-x M-m" . consult-minor-mode-menu)
+	 ("C-x r b" . consult-bookmark)            ; override bookmark-jump
+	 ("C-x 4 b" . consult-buffer-other-window) ; orig. switch-to-buffer-other-window
+	 ("C-x 5 b" . consult-buffer-other-frame)  ; orig. switch-to-buffer-other-frame
+	 ;; Other custom bindings
+	 ("M-y" . consult-yank-pop)                ; orig. yank-pop
+	 ("<help> a" . consult-apropos)            ; orig. apropos-command
+	 ;; M-g bindings (goto-map)
+	 ("M-g e" . consult-compile-error)
+	 ("M-g f" . consult-flycheck)               ; Alternative: consult-flycheck
+	 ("M-g g" . consult-goto-line)             ; orig. goto-line
+	 ("M-g M-g" . consult-goto-line)           ; orig. goto-line
+	 ("M-g o" . consult-outline)               ; Alternative: consult-org-heading
+	 ("M-g m" . consult-mark)
+	 ("M-g k" . consult-global-mark)
+	 ("M-g i" . consult-imenu)
+	 ("M-g I" . consult-imenu-multi)
+	 ;; M-s bindings (search-map)
+	 ("M-s f" . consult-find)
+	 ("M-s F" . consult-locate)
+	 ("M-s g" . consult-grep)
+	 ("M-s G" . consult-git-grep)
+	 ("M-s r" . consult-ripgrep)
+	 ("M-s l" . consult-line)
+	 ("M-s L" . consult-line-multi)
+	 ("M-s m" . consult-multi-occur)
+	 ("M-s k" . consult-keep-lines)
+	 ("M-s u" . consult-focus-lines)
+	 ;; Isearch integration
+	 ("M-s e" . consult-isearch-history)
+	 :map isearch-mode-map
+	 ("M-e" . consult-isearch-history)          ; orig. isearch-edit-string
+	 ("M-s e" . consult-isearch-history))       ; orig. isearch-edit-string
 
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
   (setq register-preview-delay 0
-        register-preview-function #'consult-register-format)
+	register-preview-function #'consult-register-format)
   (advice-add #'register-preview :override #'consult-register-window)
-  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
   (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
+	xref-show-definitions-function #'consult-xref)
   :config
   (consult-customize
    consult-theme
@@ -782,16 +781,16 @@
    :preview-key (kbd "M-."))
 
   (setq consult-narrow-key "<"
-        consult-line-numbers-widen t
-        consult-async-min-input 2
-        consult-async-refresh-delay  0.15
-        consult-async-input-throttle 0.2
-        consult-async-input-debounce 0.1)
+	consult-line-numbers-widen t
+	consult-async-min-input 2
+	consult-async-refresh-delay  0.15
+	consult-async-input-throttle 0.2
+	consult-async-input-debounce 0.1)
 
   (setq consult-project-root-function
-        (lambda ()
-          (when-let (project (project-current))
-            (car (project-roots project))))))
+	(lambda ()
+	  (when-let (project (project-current))
+	    (car (project-roots project))))))
 
 (when *is-a-linux*
   (use-package mu4e

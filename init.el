@@ -1162,7 +1162,8 @@ order by priority, created DESC "
 (use-package denote
   :straight t
   :bind
-  (("C-c n j" . bore/journal)
+  (("C-c n n" . denote)
+   ("C-c n j" . bore/journal)
    ("C-c n f" . consult-notes))
   :custom
   (setq denote-directory (expand-file-name "~/org/notes/")

@@ -1530,7 +1530,8 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
   (use-package denote
     :straight t
     :bind
-    (("C-c n j" . bore/journal)
+    (("C-c n n" . denote)
+     ("C-c n j" . bore/journal)
      ("C-c n f" . consult-notes))
     :custom
     (setq denote-directory (expand-file-name "~/org/notes/")

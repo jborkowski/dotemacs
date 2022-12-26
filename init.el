@@ -665,14 +665,16 @@
 
 (use-package elfeed
   :straight t
-  :config
-  (setq elfeed-feeds
-        '(("https://sachachua.com/blog/category/emacs/feed/" blog emacs)
-          ("https://lexi-lambda.github.io/feeds/all.atom.xml" blog haskell alexis)
-          ("https://www.stephendiehl.com/feed.rss" blog diehl haskell)
-          ("http://www.reddit.com/r/emacs/.rss" reddit emacs)))
   :bind
   ("C-x w" . elfeed))
+
+(use-package elfeed-org
+  :straight t
+  :config
+  (elfeed-org)
+  (setq rmh-elfeed-org-files (list "~/org/elfeed.org")))
+(use-package elfeed-goodies
+  :straight t)
 
 ;; Enable vertigo
 (use-package vertico

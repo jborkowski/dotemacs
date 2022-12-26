@@ -664,17 +664,17 @@
   )
 
 (use-package elfeed
-  :straight t
-  :bind
-  ("C-x w" . elfeed))
+    :straight t
+    :bind
+    ("C-x w" . elfeed))
 
-(use-package elfeed-org
-  :straight t
-  :config
-  (elfeed-org)
-  (setq rmh-elfeed-org-files (list "~/org/elfeed.org")))
-(use-package elfeed-goodies
-  :straight t)
+  (use-package elfeed-org
+    :straight t
+    :config
+    (elfeed-org)
+    (setq rmh-elfeed-org-files (list "~/org/elfeed.org")))
+;;  (use-package elfeed-goodies
+;;   :straight t)
 
 ;; Enable vertigo
 (use-package vertico
@@ -1015,17 +1015,25 @@ order by priority, created DESC "
   :straight nil
   :hook (prog-mode . flymake-mode)
   :bind (("M-n" . flymake-goto-next-error)
-         ("M-p"  . flymake-goto-prev-error))
+	 ("M-p"  . flymake-goto-prev-error))
   :config
   (setq flymake-suppress-zero-counters t)
   (setq flymake-mode-line-counter-format
-        '(" " flymake-mode-line-error-counter
-          flymake-mode-line-warning-counter
-          flymake-mode-line-note-counter "")))
+	'(" " flymake-mode-line-error-counter
+	  flymake-mode-line-warning-counter
+	  flymake-mode-line-note-counter "")))
 
 (use-package flymake-collection
   :straight t
   :hook (after-init . flymake-collection-hook-setup))
+
+(use-package flymake-grammarly
+    :straight t)
+(add-hook 'text-mode-hook 'flymake-grammarly-load)
+(add-hook 'latex-mode-hook 'flymake-grammarly-load)
+(add-hook 'org-mode-hook 'flymake-grammarly-load)
+(add-hook 'markdown-mode-hook 'flymake-grammarly-load)
+(add-hook 'magit-message 'flymake-grammarly-load)
 
 (use-package reformatter
   :straight t

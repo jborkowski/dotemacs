@@ -135,9 +135,9 @@
 (defun bore/with-font-faces ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
-    (set-face-attribute 'default nil :font (font-spec :family "Liga SFMono Nerd Font" :size 14 :weight 'regular))
-    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 14 :weight 'regular))
-    (set-face-attribute 'variable-pitch nil :font (font-spec :family "Liga SFMono Nerd Font" :size 14 :weight 'light))))
+    (set-face-attribute 'default nil :font (font-spec :family "Iosevka" :size 14 :weight 'regular))
+    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Iosevka" :size 14 :weight 'regular))
+    (set-face-attribute 'variable-pitch nil :font (font-spec :family "Iosevka Aile" :size 14 :weight 'regular))))
 
 (add-hook 'after-init-hook 'bore/with-font-faces)
 (add-hook 'server-after-make-frame-hook 'bore/with-font-faces)
@@ -664,17 +664,15 @@
   )
 
 (use-package elfeed
-    :straight t
-    :bind
-    ("C-x w" . elfeed))
+  :straight t
+  :bind
+  ("C-x w" . elfeed))
 
-  (use-package elfeed-org
-    :straight t
-    :config
-    (elfeed-org)
-    (setq rmh-elfeed-org-files (list "~/org/elfeed.org")))
-;;  (use-package elfeed-goodies
-;;   :straight t)
+(use-package elfeed-org
+  :straight t
+  :config
+  (elfeed-org)
+  (setq rmh-elfeed-org-files (list "~/org/elfeed.org")))
 
 ;; Enable vertigo
 (use-package vertico
@@ -1184,16 +1182,34 @@ order by priority, created DESC "
 	  ("h" . "src haskell")
 	  ("E" . "example")
 	  ("q" . "quote")
-	  ("c" . "comment")))
-  )
+	  ("c" . "comment")))      )
 
 (use-package org-modern
-  :straight t)
+  :straight t
+  :config
+  (set-face-attribute 'org-document-title nil :font "Iosevka Aile" :weight 'bold :height 1.2)
+  (dolist (face '((org-level-1 . 1.15)
+		  (org-level-2 . 1.10)
+		  (org-level-3 . 1.05)
+		  (org-level-4 . 1.0)
+		  (org-level-5 . 1.1)
+		  (org-level-6 . 1.1)
+		  (org-level-7 . 1.1)
+		  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :font "Iosevka Aile" :weight 'medium :height (cdr face)))
+  (set-face-attribute 'org-document-title nil :font "Iosevka Aile" :weight 'bold :height 1.2)
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
 (use-package denote
   :straight t
   :bind
   (("C-c n n" . denote)
+   ("C-c n i" . denote-link)
+   ("C-c n b" . denote-link-backlinks)
+   ("C-c n l" . denote-link-find-file)
+   ("C-c n r" . denote-rename-file)
    ("C-c n j" . bore/journal)
    ("C-c n f" . consult-notes)))
  (setq denote-directory (expand-file-name "~/org/notes/")

@@ -214,8 +214,14 @@
    ("C-c q q" . kill-emacs))
   :init
   ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
   (defun crm-indicator (args)
-    (cons (concat "[CRM] " (car args)) (cdr args)))
+    (cons (format "[CRM%s] %s"
+		  (replace-regexp-in-string
+		   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+		   crm-separator)
+		  (car args))
+	  (cdr args)))
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
   ;; TAB cycle if there are only few candidates
@@ -223,7 +229,7 @@
 
   ;; Do not allow the cursor in the minibuffer prompt
   (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt))
+	'(read-only t cursor-intangible t face minibuffer-prompt))
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
   ;; Clean up whitespace, newlines and line breaks
@@ -231,8 +237,8 @@
 
   ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
   ;; Vertico commands are hidden in normal buffers.
-  (setq read-extended-command-predicate
-        #'command-completion-default-include-p)
+  ;;(setq read-extended-command-predicate
+  ;;      #'command-completion-default-include-p)
 
   ;; Enable recursive minibuffers
   (setq enable-recursive-minibuffers t)
@@ -638,7 +644,7 @@
 ;; Configure Tempel
 (use-package tempel
   :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
-         ("M-*" . tempel-insert))
+	 ("M-*" . tempel-insert))
 
   :init
 
@@ -651,11 +657,12 @@
     ;; NOTE: We add `tempel-expand' *before* the main programming mode Capf,
     ;; such that it will be tried first.
     (setq-local completion-at-point-functions
-                (cons #'tempel-expand
-                      completion-at-point-functions)))
+		(cons #'tempel-expand
+		      completion-at-point-functions)))
 
   (add-hook 'prog-mode-hook 'tempel-setup-capf)
   (add-hook 'text-mode-hook 'tempel-setup-capf)
+  (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
 
   ;; Optionally make the Tempel templates available to Abbrev,
   ;; either locally or globally. `expand-abbrev' is bound to C-x '.
@@ -680,14 +687,14 @@
   :init
   (vertico-mode)
   (setq vertico-resize t
-        vertico-cycle t
-        vertico-count 17
-        completion-in-region-function
-        (lambda (&rest args)
-          (apply (if vertico-mode
-                     #'consult-completion-in-region
-                   #'completion--in-region)
-                 args))))
+	vertico-cycle t
+	vertico-count 17
+	completion-in-region-function
+	(lambda (&rest args)
+	  (apply (if vertico-mode
+		     #'consult-completion-in-region
+		   #'completion--in-region)
+		 args))))
 
 ;; Use the orderless completion style
 (use-package orderless
@@ -790,7 +797,7 @@
    :preview-key '(:debounce 0.5 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
-   ;; consult--source-file consult--source-project-file consult--source-bookmark
+   consult--source-project-buffer consult--source-bookmark
    :preview-key (kbd "M-."))
 
   (setq consult-narrow-key "<"
@@ -958,10 +965,6 @@ order by priority, created DESC "
   (add-hook 'lsp-completion-mode-hook
 	    (lambda ()
 	      (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
-
-
-(add-to-list 'tramp-remote-path 'tramp-sown-remote-path)
-(add-to-list 'tramp-remote-path "~/.ghcup/bin")
 
 (use-package lsp-haskell
   :straight t
@@ -1212,31 +1215,34 @@ order by priority, created DESC "
    ("C-c n r" . denote-rename-file)
    ("C-c n j" . bore/journal)
    ("C-c n f" . consult-notes)))
- (setq denote-directory (expand-file-name "~/org/notes/")
-       denote-known-keywords '("linux" "journal" "emacs" "embedded" "hobby")
-       denote-infer-keywords t
-       denote-sort-keywords t
-       denote-prompt '(title keywords)
-       denote-front-matter-date-format 'org-timestamp
-       denote-templates '((todo . "* Tasks:\n\n")))
+(setq denote-directory (expand-file-name "~/org/notes/")
+      denote-known-keywords '("linux" "journal" "emacs" "embedded" "hobby")
+      denote-infer-keywords t
+      denote-sort-keywords t
+      denote-prompt '(title keywords)
+      denote-front-matter-date-format 'org-timestamp
+      denote-templates '((todo . "* Tasks:\n\n")))
 
-  (defun bore/journal ()
-    "Create an entry tagged 'journal' with the date as its title"
-    (interactive)
-    (denote
-     (format-time-string "%A %e %B %Y")
-     '("journal")))
+;; Register Denote's Org dynamic blocks
+(require 'denote-org-dblock)
 
-  (use-package consult-notes
-    :straight (:type git :host github :repo "mclear-tools/consult-notes")
-    :commands (consult-notes
-	       consult-notes-search-in-all-notes
-	       consult-notes-org-roam-find-node
-	       consult-notes-org-roam-find-node-relation)
-    :config
-    (setq consult-notes-sources
-    `(("Notes"  ?n "~/org/notes")
-      ("Roam"  ?r "~/org/roam"))))
+(defun bore/journal ()
+  "Create an entry tagged 'journal' with the date as its title"
+  (interactive)
+  (denote
+   (format-time-string "%A %e %B %Y")
+   '("journal")))
+
+(use-package consult-notes
+  :straight (:type git :host github :repo "mclear-tools/consult-notes")
+  :commands (consult-notes
+	     consult-notes-search-in-all-notes
+	     consult-notes-org-roam-find-node
+	     consult-notes-org-roam-find-node-relation)
+  :config
+  (setq consult-notes-sources
+	`(("Notes"  ?n "~/org/notes")
+	  ("Roam"  ?r "~/org/roam"))))
 
 (use-package org-agenda
   :straight nil
@@ -1262,7 +1268,9 @@ order by priority, created DESC "
                 org-agenda-inhibit-startup t))
 
 (setq org-capture-templates
-      '(("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
+      '(("t" "Todo" entry (file+headline "~/org/inbox.org" "True Life Tasks")
+	 "* TODO %? \n%U" :empty-lines 1)
+	("w" "Todo (work)" entry (file+headline "~/org/inbox.org" "Work Tasks")
 	 "* TODO %? \n%U" :empty-lines 1)
 	("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
 	 "** %? \n %^T\n%U" :empty-lines 1)))

@@ -164,16 +164,15 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 #+begin_src emacs-lisp
 
   (setq user-full-name "Jonatan Borkowski"
-        user-mail-address "jonatan.borkowski@pm.me")
+	user-mail-address "jonatan.borkowski@pm.me")
 
 #+end_src
 
 * Appearance
 ** Modus Themes
 #+begin_src emacs-lisp
-  (use-package modues-themes
+  (use-package emacs
     :straight nil
-    :defer nil
     :bind
     (("C-c t t" . modus-themes-toggle))
     :config
@@ -187,17 +186,8 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 	  modus-themes-syntax '(faint)
 	  modus-themes-lang-checkers '(faint)
 	  modus-themes-completions '(opinionated)
-	  modus-themes-diffs 'desaturated
-	  modus-themes-operandi-color-overrides
-	  '((bg-main . "#fafafa")
-	    (fg-main . "#101010"))
-	  modus-themes-vivendi-color-overrides
-	  '((bg-main . "#101010")
-	    (fg-main . "#fafafa"))
-	  )
-
-    )
-  (load-theme 'modus-vivendi)
+	  modus-themes-diffs 'desaturated)
+    (load-theme 'modus-vivendi))
 #+end_src
 ** Nyan Cat
 #+begin_src emacs-lisp
@@ -234,15 +224,28 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 ** Fonts
 #+begin_src emacs-lisp
-  (defun bore/with-font-faces ()
+  (defun bore/with-font-faces-mac ()
     "Setup all Emacs font faces."
     (when (display-graphic-p)
       (set-face-attribute 'default nil :font (font-spec :family "Iosevka" :size 14 :weight 'regular))
       (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Iosevka" :size 14 :weight 'regular))
       (set-face-attribute 'variable-pitch nil :font (font-spec :family "Iosevka Aile" :size 14 :weight 'regular))))
 
-  (add-hook 'after-init-hook 'bore/with-font-faces)
-  (add-hook 'server-after-make-frame-hook 'bore/with-font-faces)
+  (defun bore/with-font-faces-linux ()
+    "Setup all Emacs font faces."
+    (when (display-graphic-p)
+      (set-face-attribute 'default nil :font (font-spec :family "Iosevka Etoile" :size 20 :weight 'regular))
+      (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Iosevka Etoile" :size 20 :weight 'regular))
+      (set-face-attribute 'variable-pitch nil :font (font-spec :family "Iosevka Aile" :size 20 :weight 'regular))))
+
+  (when *is-a-mac*
+    (add-hook 'after-init-hook 'bore/with-font-faces-mac)
+    (add-hook 'server-after-make-frame-hook 'bore/with-font-faces))
+
+
+  (when *is-a-linux*
+    (add-hook 'after-init-hook 'bore/with-font-faces-linux)
+    (add-hook 'server-after-make-frame-hook 'bore/with-font-linux))
 
   ;; Make those lambdas pretty again
   (global-prettify-symbols-mode t)
@@ -1595,7 +1598,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 	denote-templates '((todo . "* Tasks:\n\n")))
 
   ;; Register Denote's Org dynamic blocks
-  (require 'denote-org-dblock)
+;;  (require 'denote-org-dblock)
 
   (defun bore/journal ()
     "Create an entry tagged 'journal' with the date as its title"

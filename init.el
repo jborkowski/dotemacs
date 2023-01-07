@@ -81,9 +81,8 @@
 (setq user-full-name "Jonatan Borkowski"
       user-mail-address "jonatan.borkowski@pm.me")
 
-(use-package modues-themes
+(use-package emacs
   :straight nil
-  :defer nil
   :bind
   (("C-c t t" . modus-themes-toggle))
   :config
@@ -97,17 +96,8 @@
 	modus-themes-syntax '(faint)
 	modus-themes-lang-checkers '(faint)
 	modus-themes-completions '(opinionated)
-	modus-themes-diffs 'desaturated
-	modus-themes-operandi-color-overrides
-	'((bg-main . "#fafafa")
-	  (fg-main . "#101010"))
-	modus-themes-vivendi-color-overrides
-	'((bg-main . "#101010")
-	  (fg-main . "#fafafa"))
-	)
-
-  )
-(load-theme 'modus-vivendi)
+	modus-themes-diffs 'desaturated)
+  (load-theme 'modus-vivendi))
 
 (use-package nyan-mode)
 (nyan-mode 1)
@@ -132,15 +122,28 @@
   ;; per mode with `ligature-mode'.
   (global-ligature-mode t))
 
-(defun bore/with-font-faces ()
+(defun bore/with-font-faces-mac ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
     (set-face-attribute 'default nil :font (font-spec :family "Iosevka" :size 14 :weight 'regular))
     (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Iosevka" :size 14 :weight 'regular))
     (set-face-attribute 'variable-pitch nil :font (font-spec :family "Iosevka Aile" :size 14 :weight 'regular))))
 
-(add-hook 'after-init-hook 'bore/with-font-faces)
-(add-hook 'server-after-make-frame-hook 'bore/with-font-faces)
+(defun bore/with-font-faces-linux ()
+  "Setup all Emacs font faces."
+  (when (display-graphic-p)
+    (set-face-attribute 'default nil :font (font-spec :family "Iosevka Etoile" :size 20 :weight 'regular))
+    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Iosevka Etoile" :size 20 :weight 'regular))
+    (set-face-attribute 'variable-pitch nil :font (font-spec :family "Iosevka Aile" :size 20 :weight 'regular))))
+
+(when *is-a-mac*
+  (add-hook 'after-init-hook 'bore/with-font-faces-mac)
+  (add-hook 'server-after-make-frame-hook 'bore/with-font-faces))
+
+
+(when *is-a-linux*
+  (add-hook 'after-init-hook 'bore/with-font-faces-linux)
+  (add-hook 'server-after-make-frame-hook 'bore/with-font-linux))
 
 ;; Make those lambdas pretty again
 (global-prettify-symbols-mode t)
@@ -1206,43 +1209,43 @@ order by priority, created DESC "
   (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
 (use-package denote
-  :straight t
-  :bind
-  (("C-c n n" . denote)
-   ("C-c n i" . denote-link)
-   ("C-c n b" . denote-link-backlinks)
-   ("C-c n l" . denote-link-find-file)
-   ("C-c n r" . denote-rename-file)
-   ("C-c n j" . bore/journal)
-   ("C-c n f" . consult-notes)))
-(setq denote-directory (expand-file-name "~/org/notes/")
-      denote-known-keywords '("linux" "journal" "emacs" "embedded" "hobby")
-      denote-infer-keywords t
-      denote-sort-keywords t
-      denote-prompt '(title keywords)
-      denote-front-matter-date-format 'org-timestamp
-      denote-templates '((todo . "* Tasks:\n\n")))
+    :straight t
+    :bind
+    (("C-c n n" . denote)
+     ("C-c n i" . denote-link)
+     ("C-c n b" . denote-link-backlinks)
+     ("C-c n l" . denote-link-find-file)
+     ("C-c n r" . denote-rename-file)
+     ("C-c n j" . bore/journal)
+     ("C-c n f" . consult-notes)))
+  (setq denote-directory (expand-file-name "~/org/notes/")
+	denote-known-keywords '("linux" "journal" "emacs" "embedded" "hobby")
+	denote-infer-keywords t
+	denote-sort-keywords t
+	denote-prompt '(title keywords)
+	denote-front-matter-date-format 'org-timestamp
+	denote-templates '((todo . "* Tasks:\n\n")))
 
-;; Register Denote's Org dynamic blocks
-(require 'denote-org-dblock)
+  ;; Register Denote's Org dynamic blocks
+;;  (require 'denote-org-dblock)
 
-(defun bore/journal ()
-  "Create an entry tagged 'journal' with the date as its title"
-  (interactive)
-  (denote
-   (format-time-string "%A %e %B %Y")
-   '("journal")))
+  (defun bore/journal ()
+    "Create an entry tagged 'journal' with the date as its title"
+    (interactive)
+    (denote
+     (format-time-string "%A %e %B %Y")
+     '("journal")))
 
-(use-package consult-notes
-  :straight (:type git :host github :repo "mclear-tools/consult-notes")
-  :commands (consult-notes
-	     consult-notes-search-in-all-notes
-	     consult-notes-org-roam-find-node
-	     consult-notes-org-roam-find-node-relation)
-  :config
-  (setq consult-notes-sources
-	`(("Notes"  ?n "~/org/notes")
-	  ("Roam"  ?r "~/org/roam"))))
+  (use-package consult-notes
+    :straight (:type git :host github :repo "mclear-tools/consult-notes")
+    :commands (consult-notes
+	       consult-notes-search-in-all-notes
+	       consult-notes-org-roam-find-node
+	       consult-notes-org-roam-find-node-relation)
+    :config
+    (setq consult-notes-sources
+	  `(("Notes"  ?n "~/org/notes")
+	    ("Roam"  ?r "~/org/roam"))))
 
 (use-package org-agenda
   :straight nil

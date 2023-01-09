@@ -216,8 +216,7 @@
    ("C-z"     . repeat)
    ("C-c q q" . kill-emacs))
   :init
-  ;; Add prompt indicator to `completing-read-multiple'.
-  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+
   (defun crm-indicator (args)
     (cons (format "[CRM%s] %s"
 		  (replace-regexp-in-string
@@ -233,15 +232,11 @@
   ;; Do not allow the cursor in the minibuffer prompt
   (setq minibuffer-prompt-properties
 	'(read-only t cursor-intangible t face minibuffer-prompt))
+
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
   ;; Clean up whitespace, newlines and line breaks
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-  ;; Vertico commands are hidden in normal buffers.
-  ;;(setq read-extended-command-predicate
-  ;;      #'command-completion-default-include-p)
 
   ;; Enable recursive minibuffers
   (setq enable-recursive-minibuffers t)
@@ -513,17 +508,17 @@
   :commands dired dired-jump
   :config
   (setq dired-kill-when-opening-new-dired-buffer t
-        delete-by-moving-to-trash t
-        dired-dwim-target t
-        dired-recursive-copies 'always
-        dired-recursive-deletes 'always))
+	delete-by-moving-to-trash t
+	dired-dwim-target t
+	dired-recursive-copies 'always
+	dired-recursive-deletes 'always))
 
 (use-package consult-dir
   :straight t
   :bind (("C-x C-d" . consult-dir)
-         :map vertico-map
-         ("C-x C-d" . consult-dir)
-         ("C-x C-j" . consult-dir-jump-file)))
+	 :map vertico-map
+	 ("C-x C-d" . consult-dir)
+	 ("C-x C-j" . consult-dir-jump-file)))
 
 (use-package project
   :straight t)
@@ -617,15 +612,16 @@
   :straight t
   :bind
   (("C-." . embark-act)
+   ("C-;" . embark-dwim)        ;; good alternative: M-.
    ("C-h B" . embark-bindings))
   :init
   (setq prefix-help-command #'embark-prefix-help-command)
   :config
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
-                 (window-parameters (mode-line-format . none)))))
+	     '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+	       nil
+	       (window-parameters (mode-line-format . none)))))
 
 (use-package embark-consult
   :straight t
@@ -691,8 +687,9 @@
   (vertico-mode)
   (setq vertico-resize t
 	vertico-cycle t
-	vertico-count 17
-	completion-in-region-function
+	vertico-count 17)
+
+  (setq completion-in-region-function
 	(lambda (&rest args)
 	  (apply (if vertico-mode
 		     #'consult-completion-in-region
@@ -703,9 +700,10 @@
 (use-package orderless
   :straight t
   :init
-  (setq completion-styles '(orderless)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+
+  (setq completion-styles '(orderless basic)
+      completion-category-defaults nil
+      completion-category-overrides '((file (styles . (partial-completion))))))
 
 ;; I want to know every detail... one the margin
 (use-package marginalia
@@ -723,6 +721,7 @@
 
   :bind
   (("C-." . embark-act)
+   ("C-;" . embark-dwim)
    ("C-h B" . embark-bindings))
 
   :init
@@ -734,14 +733,14 @@
 
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
-                 (window-parameters (mode-line-format . none)))))
+	       '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+		 nil
+		 (window-parameters (mode-line-format . none)))))
 
 (use-package embark-consult
   :after (embark consult)
-  :config
-  (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package consult
   :straight t
@@ -792,6 +791,7 @@
 	register-preview-function #'consult-register-format)
   (advice-add #'register-preview :override #'consult-register-window)
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
   (setq xref-show-xrefs-function #'consult-xref
 	xref-show-definitions-function #'consult-xref)
   :config
@@ -925,6 +925,7 @@ order by priority, created DESC "
 
 (use-package lsp-mode
   :straight t
+
   :hook ((c-mode
 	  c++-mode
 	  c-or-c++-mode
@@ -956,18 +957,16 @@ order by priority, created DESC "
 	lsp-modeline-workspace-status-enable nil
 	lsp-enable-file-watchers nil
 	lsp-file-watch-threshold 5000
-	read-process-output-max (* 1024 1024))
+	read-process-output-max (* 1024 1024)
+	lsp-log-io t))
 
-  (with-eval-after-load "lsp-haskell"
-    (lsp-register-client
-     (make-lsp-client
-      :new-connection (lsp-tramp-connection "haskell-language-server-wrapper")
-      :remote? t
-      :major-modes '(haskell-mode)
-      :server-id 'haskell-mode-remote)))
+
   (add-hook 'lsp-completion-mode-hook
 	    (lambda ()
-	      (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
+	      (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
+
+(add-to-list 'tramp-remote-path "~/.ghcup/bin")
+(add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 
 (use-package lsp-haskell
   :straight t
@@ -982,11 +981,12 @@ order by priority, created DESC "
   :straight t
   :custom
   (corfu-cycle t)                ; enable cycling for `corfu-next/previous'
-  (corfu-auto nil)               ; disable auto completion
+  (corfu-auto t)                 ; enable auto completion
   (corfu-quit-no-match t)        ; automatically quit if there is no match
   (corfu-echo-documentation nil) ; do not show documentation in the echo area
-  ;; :init
-  ;; (corfu-global-mode)
+   ;; This is recommended since Dabbrev can be used globally (M-/).
+  :init
+  (global-corfu-mode)
   )
 
 (use-package cape
@@ -1202,50 +1202,51 @@ order by priority, created DESC "
 		  (org-level-6 . 1.1)
 		  (org-level-7 . 1.1)
 		  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Iosevka Aile" :weight 'medium :height (cdr face)))
+  (set-face-attribute (car face) nil :font "Iosevka Aile" :weight 'medium :height (cdr face))
   (set-face-attribute 'org-document-title nil :font "Iosevka Aile" :weight 'bold :height 1.2)
   (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)))
 
 (use-package denote
-    :straight t
-    :bind
-    (("C-c n n" . denote)
-     ("C-c n i" . denote-link)
-     ("C-c n b" . denote-link-backlinks)
-     ("C-c n l" . denote-link-find-file)
-     ("C-c n r" . denote-rename-file)
-     ("C-c n j" . bore/journal)
-     ("C-c n f" . consult-notes)))
+  :straight t
+  :bind
+  (("C-c n n" . denote)
+   ("C-c n i" . denote-link)
+   ("C-c n b" . denote-link-backlinks)
+   ("C-c n l" . denote-link-find-file)
+   ("C-c n r" . denote-rename-file)
+   ("C-c n j" . bore/journal)
+   ("C-c n f" . consult-notes))
+  :config
+
   (setq denote-directory (expand-file-name "~/org/notes/")
 	denote-known-keywords '("linux" "journal" "emacs" "embedded" "hobby")
 	denote-infer-keywords t
 	denote-sort-keywords t
 	denote-prompt '(title keywords)
 	denote-front-matter-date-format 'org-timestamp
-	denote-templates '((todo . "* Tasks:\n\n")))
+	denote-templates '((todo . "* Tasks:\n\n"))))
 
-  ;; Register Denote's Org dynamic blocks
-;;  (require 'denote-org-dblock)
+(defun bore/journal ()
+  "Create an entry tagged 'journal' with the date as its title"
+  (interactive)
+  (denote
+   (format-time-string "%A %e %B %Y")
+   '("journal")))
 
-  (defun bore/journal ()
-    "Create an entry tagged 'journal' with the date as its title"
-    (interactive)
-    (denote
-     (format-time-string "%A %e %B %Y")
-     '("journal")))
-
-  (use-package consult-notes
-    :straight (:type git :host github :repo "mclear-tools/consult-notes")
-    :commands (consult-notes
-	       consult-notes-search-in-all-notes
-	       consult-notes-org-roam-find-node
-	       consult-notes-org-roam-find-node-relation)
-    :config
-    (setq consult-notes-sources
-	  `(("Notes"  ?n "~/org/notes")
-	    ("Roam"  ?r "~/org/roam"))))
+(use-package consult-notes
+  :straight (:type git :host github :repo "mclear-tools/consult-notes")
+  :commands (consult-notes
+	     consult-notes-search-in-all-notes
+	     consult-notes-org-roam-find-node
+	     consult-notes-org-roam-find-node-relation)
+  :config
+  (setq consult-notes-file-dir-sources
+	`(("Notes" ?n "~/org/notes")
+	  ("Roam"  ?r "~/org/roam")))
+  (when (locate-library "denote")
+    (consult-notes-denote-mode)))
 
 (use-package org-agenda
   :straight nil

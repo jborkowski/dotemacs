@@ -1660,13 +1660,27 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :config
     (global-set-key (kbd "C-c l") 'org-cliplink))
 #+end_src
+*** Org Babel langs
+#+begin_src emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((scheme . t)
+     (emacs-lisp . t)))
+#+end_src
+*** Org Mark
+#+begin_src emacs-lisp
+  (when *is-a-mac*
+    (use-package orgmark
+	  :straight (orgmark :host github
+			     :repo "casouri/OrgMark")))
+#+end_src
+
 ** JSON
 #+begin_src emacs-lisp
   (setq js-indent-level 2
         typescript-indent-level 2
         json-reformat:indent-width 2
         css-indent-offset 2)
-
 #+end_src
 ** Terraform
 #+begin_src emacs-lisp
@@ -1725,7 +1739,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
                 ("C-c C-f"  . prettier-format-buffer))
     :config (setq typescript-indent-level 2))
 #+end_src
-** PureScrpit
+** PureScript
 #+begin_src emacs-lisp
   (use-package purescript-mode
     :straight t
@@ -1735,6 +1749,11 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :bind (:map purescript-mode-map
                 ("C-c c f"  . purs-tidy-format-buffer)))
 
+#+end_src
+** Scheme
+#+begin_src emacs-lisp
+  (use-package geiser-mit
+    :straight t)
 #+end_src
 * The End
 #+begin_src emacs-lisp

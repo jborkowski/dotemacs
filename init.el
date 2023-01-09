@@ -1283,6 +1283,16 @@ order by priority, created DESC "
   :config
   (global-set-key (kbd "C-c l") 'org-cliplink))
 
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((scheme . t)
+   (emacs-lisp . t)))
+
+(when *is-a-mac*
+  (use-package orgmark
+	:straight (orgmark :host github
+			   :repo "casouri/OrgMark")))
+
 (setq js-indent-level 2
       typescript-indent-level 2
       json-reformat:indent-width 2
@@ -1344,5 +1354,8 @@ order by priority, created DESC "
          (purescript-mode . purs-tidy-format-on-save-mode))
   :bind (:map purescript-mode-map
               ("C-c c f"  . purs-tidy-format-buffer)))
+
+(use-package geiser-mit
+  :straight t)
 
 ;;; init.el ends here

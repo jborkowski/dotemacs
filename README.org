@@ -1261,8 +1261,8 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 	      (lambda ()
 		(setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
 
-  (add-to-list 'tramp-remote-path "~/.ghcup/bin")
-  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+;;  (add-to-list 'tramp-remote-path "~/.ghcup/bin")
+;;  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 
   (use-package lsp-haskell
     :straight t

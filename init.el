@@ -924,57 +924,57 @@ order by priority, created DESC "
   (add-hook 'project-find-functions #'bore/project-override))
 
 (use-package lsp-mode
-  :straight t
+    :straight t
 
-  :hook ((c-mode
-	  c++-mode
-	  c-or-c++-mode
-	  js-mode
-	  rust-mode
-	  typescript-mode
-	  purescript-mode
-	  haskell-mode
-	  elixir-mode) . lsp-deferred)
-  :bind (:map lsp-mode-map
-	      ("C-c c d" . lsp-describe-thing-at-point)
-	      ("C-c c s" . consult-lsp-symbols)
-	      ("C-c c t" . lsp-goto-type-definition)
-	      ("M-," . lsp-find-references)
-	      ("M-." . lsp-find-definition)
-	      ("C-c c f" . lsp-format-buffer)
-	      ("C-c c x" . lsp-execute-code-action)
-	      ("C-c c r" . lsp-rename)
-	      ("C-c c j" . consult-lsp-symbols))
-  :commands lsp lsp-deferred
+    :hook ((c-mode
+	    c++-mode
+	    c-or-c++-mode
+	    js-mode
+	    rust-mode
+	    typescript-mode
+	    purescript-mode
+	    haskell-mode
+	    elixir-mode) . lsp-deferred)
+    :bind (:map lsp-mode-map
+		("C-c c d" . lsp-describe-thing-at-point)
+		("C-c c s" . consult-lsp-symbols)
+		("C-c c t" . lsp-goto-type-definition)
+		("M-," . lsp-find-references)
+		("M-." . lsp-find-definition)
+		("C-c c f" . lsp-format-buffer)
+		("C-c c x" . lsp-execute-code-action)
+		("C-c c r" . lsp-rename)
+		("C-c c j" . consult-lsp-symbols))
+    :commands lsp lsp-deferred
 
-  :config
-  (setq lsp-idle-delay 0.5
-	lsp-diagnostics-provider t
-	lsp-keep-workspace-alive nil
-	lsp-headerline-breadcrumb-enable nil
-	lsp-modeline-code-actions-enable nil
-	lsp-modeline-diagnostics-enable nil
-	lsp-modeline-workspace-status-enable nil
-	lsp-enable-file-watchers nil
-	lsp-file-watch-threshold 5000
-	read-process-output-max (* 1024 1024)
-	lsp-log-io t))
+    :config
+    (setq lsp-idle-delay 0.5
+	  lsp-diagnostics-provider t
+	  lsp-keep-workspace-alive nil
+	  lsp-headerline-breadcrumb-enable nil
+	  lsp-modeline-code-actions-enable nil
+	  lsp-modeline-diagnostics-enable nil
+	  lsp-modeline-workspace-status-enable nil
+	  lsp-enable-file-watchers nil
+	  lsp-file-watch-threshold 5000
+	  read-process-output-max (* 1024 1024)
+	  lsp-log-io t))
 
 
-  (add-hook 'lsp-completion-mode-hook
-	    (lambda ()
-	      (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
+    (add-hook 'lsp-completion-mode-hook
+	      (lambda ()
+		(setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
 
-(add-to-list 'tramp-remote-path "~/.ghcup/bin")
-(add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+;;  (add-to-list 'tramp-remote-path "~/.ghcup/bin")
+;;  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 
-(use-package lsp-haskell
-  :straight t
-  :after (lsp haskell-mode))
+  (use-package lsp-haskell
+    :straight t
+    :after (lsp haskell-mode))
 
-(use-package consult-lsp
-  :straight t
-  :after lsp-mode)
+  (use-package consult-lsp
+    :straight t
+    :after lsp-mode)
 
 (use-package corfu
   ;; Optional customizations

@@ -81,23 +81,33 @@
 (setq user-full-name "Jonatan Borkowski"
       user-mail-address "jonatan.borkowski@pm.me")
 
-(use-package emacs
-  :straight nil
+(use-package modus-themes
+  :straight t
   :bind
   (("C-c t t" . modus-themes-toggle))
   :config
-  (setq modus-themes-slanted-constructs t
-	modus-themes-bold-constructs t
-	modus-themes-mixed-fonts t
-	modus-themes-scale-headings t
-	modus-themes-subtle-line-numbers t
-	modus-themes-inhibit-reload nil
-	modus-themes-mode-line '(borderless)
-	modus-themes-syntax '(faint)
-	modus-themes-lang-checkers '(faint)
-	modus-themes-completions '(opinionated)
-	modus-themes-diffs 'desaturated)
-  (load-theme 'modus-vivendi))
+  (setq modus-themes-common-palette-overrides
+	'((prose-done green-intense)
+	  (prose-todo red-intense)))
+
+  ;; Tone down almost all colors.
+  (setq modus-themes-common-palette-overrides
+	modus-themes-preset-overrides-faint))
+
+ (use-package solar
+   :straight nil
+   :config
+   (setq custom-safe-themes t
+	 calendar-latitude 52.43152
+	 calendar-longitude 21.03212))
+
+(use-package circadian
+  :straight t
+  :after solar
+  :config
+  (setq circadian-themes '((:sunrise . modus-operandi-deuteranopia)
+			       (:sunset  . modus-vivendi-deuteranopia)))
+  (circadian-setup))
 
 (use-package nyan-mode)
 (nyan-mode 1)
@@ -607,29 +617,6 @@
 (setq visible-cursor nil)
 ;; Enable the mouse in terminal Emacs
 (add-hook 'tty-setup-hook #'xterm-mouse-mode)
-
-(use-package embark
-  :straight t
-  :bind
-  (("C-." . embark-act)
-   ("C-;" . embark-dwim)        ;; good alternative: M-.
-   ("C-h B" . embark-bindings))
-  :init
-  (setq prefix-help-command #'embark-prefix-help-command)
-  :config
-  ;; Hide the mode line of the Embark live/completions buffers
-  (add-to-list 'display-buffer-alist
-	     '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-	       nil
-	       (window-parameters (mode-line-format . none)))))
-
-(use-package embark-consult
-  :straight t
-  :after (embark consult)
-  :demand t ; only necessary if you have the hook below
-  ;; auto-updating embark collect buffer
-  :hook
-  (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package yasnippet
   :straight t

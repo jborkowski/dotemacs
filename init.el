@@ -611,7 +611,24 @@
   :straight t
   :commands olivetti-mode
   :config
-  (setq olivetti-body-width 100))
+  (setq olivetti-body-width 120))
+
+(use-package logos
+  :straight t
+  :after (outline)
+  :bind
+  ([remap narrow-to-region] . logos-narrow-dwim)
+  ([remap forward-page]     . logos-forward-page-dwim)
+  ([remap backward-page]   . logos-backward-page-dwim)
+  ("C-c F"                      . logos-focus-mode)
+  :custom
+  (logos-outlines-are-pages t)
+  (logos-hide-mode-line t)
+  (logos-scroll-lock nil)
+  (logos-variable-pitch nil)
+  (logos-indicate-buffer-boundaries nil)
+  (logos-buffer-read-only nil)
+  (logos-olivetti t))
 
 (setq xterm-set-window-title t)
 (setq visible-cursor nil)

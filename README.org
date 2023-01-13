@@ -196,7 +196,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :after solar
     :config
     (setq circadian-themes '((:sunrise . modus-operandi-deuteranopia)
-			         (:sunset  . modus-vivendi-deuteranopia)))
+				 (:sunset  . modus-vivendi-deuteranopia)))
     (circadian-setup))
 #+end_src
 ** Nyan Cat
@@ -250,12 +250,12 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
   (when *is-a-mac*
     (add-hook 'after-init-hook 'bore/with-font-faces-mac)
-    (add-hook 'server-after-make-frame-hook 'bore/with-font-faces))
+    (add-hook 'server-after-make-frame-hook 'bore/with-font-faces-mac))
 
 
   (when *is-a-linux*
     (add-hook 'after-init-hook 'bore/with-font-faces-linux)
-    (add-hook 'server-after-make-frame-hook 'bore/with-font-linux))
+    (add-hook 'server-after-make-frame-hook 'bore/with-font-faces-linux))
 
   ;; Make those lambdas pretty again
   (global-prettify-symbols-mode t)

@@ -148,12 +148,12 @@
 
 (when *is-a-mac*
   (add-hook 'after-init-hook 'bore/with-font-faces-mac)
-  (add-hook 'server-after-make-frame-hook 'bore/with-font-faces))
+  (add-hook 'server-after-make-frame-hook 'bore/with-font-faces-mac))
 
 
 (when *is-a-linux*
   (add-hook 'after-init-hook 'bore/with-font-faces-linux)
-  (add-hook 'server-after-make-frame-hook 'bore/with-font-linux))
+  (add-hook 'server-after-make-frame-hook 'bore/with-font-faces-linux))
 
 ;; Make those lambdas pretty again
 (global-prettify-symbols-mode t)

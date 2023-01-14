@@ -1363,4 +1363,9 @@ order by priority, created DESC "
 (use-package geiser-mit
   :straight t)
 
+(use-package slime
+  :straight t
+  :config
+  (setq inferior-lisp-program "sbcl"))
+
 ;;; init.el ends here

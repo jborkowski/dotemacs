@@ -1758,6 +1758,15 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
   (use-package geiser-mit
     :straight t)
 #+end_src
+
+** Common Lisp
+#+begin_src emacs-lisp
+  (use-package slime
+    :straight t
+    :config
+    (setq inferior-lisp-program "sbcl"))
+#+end_src
+
 * The End
 #+begin_src emacs-lisp
 

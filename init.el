@@ -472,18 +472,18 @@
   :straight nil
   :config
   (setq browse-url-secondary-browser-function 'eww-browse-url
-        browse-url-browser-function 'browse-url-default-browser))
+	browse-url-browser-function 'browse-url-default-browser))
 
 (use-package shr
   :straight nil
   :config
   (setq shr-use-colors nil             ; t is bad for accessibility
-        shr-use-fonts nil              ; t is not for me
-        shr-max-image-proportion 0.6
-        shr-image-animate nil          ; No GIFs, thank you!
-        shr-width nil
-        shr-discard-aria-hidden t
-        shr-cookie-policy nil))
+	shr-use-fonts nil              ; t is not for me
+	shr-max-image-proportion 0.6
+	shr-image-animate nil          ; No GIFs, thank you!
+	shr-width nil
+	shr-discard-aria-hidden t
+	shr-cookie-policy nil))
 
 (use-package url-cookie
   :straight nil
@@ -494,20 +494,20 @@
   :bind ("C-c o b" . eww)
   :config
   (setq eww-restore-desktop t
-        eww-desktop-remove-duplicates t
-        eww-header-line-format nil
-        eww-search-prefix "https://duckduckgo.com/?ia="
-        eww-download-directory (expand-file-name "~/Downloads")
-        eww-suggest-uris
-        '(eww-links-at-point
-          thing-at-point-url-at-point)
-        eww-history-limit 150
-        eww-use-external-browser-for-content-type
-        "\\`\\(video/\\|audio\\)"
-        eww-browse-url-new-window-is-tab nil
-        eww-form-checkbox-selected-symbol "[X]"
-        eww-form-checkbox-symbol "[ ]"
-        eww-retrieve-command nil))
+	eww-desktop-remove-duplicates t
+	eww-header-line-format nil
+	eww-search-prefix "https://html.duckduckgo.com/html/?q="
+	eww-download-directory (expand-file-name "~/Downloads")
+	eww-suggest-uris
+	'(eww-links-at-point
+	  thing-at-point-url-at-point)
+	eww-history-limit 150
+	eww-use-external-browser-for-content-type
+	"\\`\\(video/\\|audio\\)"
+	eww-browse-url-new-window-is-tab nil
+	eww-form-checkbox-selected-symbol "[X]"
+	eww-form-checkbox-symbol "[ ]"
+	eww-retrieve-command nil))
 
 (use-package pdf-tools
   :mode ("\\.pdf\\'" . pdf-view-mode)
@@ -611,7 +611,8 @@
   :straight t
   :commands olivetti-mode
   :config
-  (setq olivetti-body-width 120))
+
+  (setq olivetti-body-width 180))
 
 (use-package logos
   :straight t

@@ -79,7 +79,7 @@
 (use-package no-littering)
 
 (setq user-full-name "Jonatan Borkowski"
-      user-mail-address "jonatan.borkowski@pm.me")
+      user-mail-address "jonatan@thebo.me")
 
 (use-package modus-themes
   :straight t
@@ -468,26 +468,16 @@
   (setq flyspell-issue-welcome-flag nil
         flyspell-issue-message-flag nil))
 
-(use-package browse-url
-  :straight nil
-  :config
-  (setq browse-url-secondary-browser-function 'eww-browse-url
-	browse-url-browser-function 'browse-url-default-browser))
-
 (use-package shr
   :straight nil
   :config
-  (setq shr-use-colors nil             ; t is bad for accessibility
-	shr-use-fonts nil              ; t is not for me
+  (setq shr-use-colors nil
+	shr-use-fonts nil
 	shr-max-image-proportion 0.6
-	shr-image-animate nil          ; No GIFs, thank you!
+	shr-image-animate nil
 	shr-width nil
 	shr-discard-aria-hidden t
 	shr-cookie-policy nil))
-
-(use-package url-cookie
-  :straight nil
-  :config (setq url-cookie-untrusted-urls '(".*")))
 
 (use-package eww
   :straight nil
@@ -681,6 +671,7 @@
 
 (use-package elfeed-org
   :straight t
+  :after elfeed
   :config
   (elfeed-org)
   (setq rmh-elfeed-org-files (list "~/org/elfeed.org")))
@@ -893,27 +884,6 @@
                                          (reply-to-html . (utf-8 html)))
           org-msg-convert-citation t)))
 
-(use-package org-jira
-  :straight t
-  :init
-  (make-directory "~/.org-jira" 0)
-  :config
-
-  (setq jiralib-url "https://restaumatic.atlassian.net")
-
-  (setq org-jira-custom-jqls
-        '((:jql " project IN (RS) and createdDate >= '2022-01-01' order by created DESC "
-                :limit 10
-                :filename "this-years-work")
-          (:jql " project IN (RS)
-AND status IN ('To Do', 'In Development')
-AND (labels = EMPTY or labels NOT IN ('FutureUpdate'))
-order by priority, created DESC "
-                :limit 20
-                :filename "ex-ahu-priority-items")
-          ))
-  )
-
 (use-package envrc
   :straight t
   :config
@@ -1056,9 +1026,6 @@ order by priority, created DESC "
 (use-package agda-input
   :straight (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
 
-(use-package idris2-mode
-  :straight (:package "idris2-mode" :type git :host github :repo "idris-community/idris2-mode"))
-
 (use-package haskell-mode
   :straight t
   :mode (("\\.hs\\'"    . haskell-mode)
@@ -1084,33 +1051,6 @@ order by priority, created DESC "
   :program "fourmolu"
   :args (list "--stdin-input-file" (buffer-file-name))
   :lighter " fourmolu")
-
-(use-package ghcid
-  :straight (:package "ghcid" :host nil :type git :repo "https://github.com/ndmitchell/ghcid" )
-  :defer
-  :load-path "site-lisp/"
-  :bind (:map projectile-mode-map
-              ("C-c m s" . ghcid)
-              ("C-c m b" . show-ghcid-buf)
-              ("C-c m t" . set-ghcid-target))
-  :custom
-  (ghcid-target "")
-  ;;:config (setq-local default-directory projectile-project-root)
-  :preface
-  (use-package haskell-mode :ensure t)
-  (defun show-ghcid-buf ()
-    (interactive)
-    (show-buffer ghcid-buf-name))
-  (defun set-ghcid-target (ghcid-targ &optional ghcid-test-targ)
-    (interactive
-     (list
-      (completing-read "ghcid target: " (map 'list (lambda (targ) (format "%s:%s" (projectile-project-name) targ)) (haskell-cabal-enum-targets)))
-      (completing-read "ghcid --test target: " '("--test=main" "--test=Main.main" nil))))
-    (setq ghcid-target ghcid-targ)
-    (when ghcid-test-targ
-      (setq ghcid-target-test (format "%s" ghcid-test-targ)))
-    (kill-ghcid)
-    (ghcid)))
 
 (use-package toml-mode
   :straight t
@@ -1197,6 +1137,7 @@ order by priority, created DESC "
 
 (use-package org-modern
   :straight t
+  :after org
   :config
   (set-face-attribute 'org-document-title nil :font "Iosevka Aile" :weight 'bold :height 1.2)
   (dolist (face '((org-level-1 . 1.15)
@@ -1289,11 +1230,6 @@ order by priority, created DESC "
   :config
   (global-set-key (kbd "C-c l") 'org-cliplink))
 
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((scheme . t)
-   (emacs-lisp . t)))
-
 (when *is-a-mac*
   (use-package orgmark
 	:straight (orgmark :host github
@@ -1315,11 +1251,6 @@ order by priority, created DESC "
   :config
   (setq lsp-eldoc-hook nil)
   (setq rust-format-on-save t))
-
-(use-package docker
-  :straight t)
-(use-package dockerfile-mode
-  :straight t)
 
 (use-package js2-mode
   :straight t
@@ -1360,9 +1291,6 @@ order by priority, created DESC "
          (purescript-mode . purs-tidy-format-on-save-mode))
   :bind (:map purescript-mode-map
               ("C-c c f"  . purs-tidy-format-buffer)))
-
-(use-package geiser-mit
-  :straight t)
 
 (use-package slime
   :straight t

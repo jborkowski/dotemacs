@@ -164,7 +164,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 #+begin_src emacs-lisp
 
   (setq user-full-name "Jonatan Borkowski"
-	user-mail-address "jonatan.borkowski@pm.me")
+	user-mail-address "jonatan@thebo.me")
 
 #+end_src
 
@@ -682,26 +682,16 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 ** Emacs Web Wowser
 #+begin_src emacs-lisp
-  (use-package browse-url
-    :straight nil
-    :config
-    (setq browse-url-secondary-browser-function 'eww-browse-url
-	  browse-url-browser-function 'browse-url-default-browser))
-
   (use-package shr
     :straight nil
     :config
-    (setq shr-use-colors nil             ; t is bad for accessibility
-	  shr-use-fonts nil              ; t is not for me
+    (setq shr-use-colors nil
+	  shr-use-fonts nil
 	  shr-max-image-proportion 0.6
-	  shr-image-animate nil          ; No GIFs, thank you!
+	  shr-image-animate nil
 	  shr-width nil
 	  shr-discard-aria-hidden t
 	  shr-cookie-policy nil))
-
-  (use-package url-cookie
-    :straight nil
-    :config (setq url-cookie-untrusted-urls '(".*")))
 
   (use-package eww
     :straight nil
@@ -936,6 +926,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
   (use-package elfeed-org
     :straight t
+    :after elfeed
     :config
     (elfeed-org)
     (setq rmh-elfeed-org-files (list "~/org/elfeed.org")))
@@ -1174,30 +1165,6 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
                                            (reply-to-html . (utf-8 html)))
             org-msg-convert-citation t)))
 #+end_src
-** JIRA
-#+begin_src emacs-lisp
-  (use-package org-jira
-    :straight t
-    :init
-    (make-directory "~/.org-jira" 0)
-    :config
-
-    (setq jiralib-url "https://restaumatic.atlassian.net")
-
-    (setq org-jira-custom-jqls
-          '((:jql " project IN (RS) and createdDate >= '2022-01-01' order by created DESC "
-                  :limit 10
-                  :filename "this-years-work")
-            (:jql " project IN (RS)
-  AND status IN ('To Do', 'In Development')
-  AND (labels = EMPTY or labels NOT IN ('FutureUpdate'))
-  order by priority, created DESC "
-                  :limit 20
-                  :filename "ex-ahu-priority-items")
-            ))
-    )
-#+end_src
-
 * Development
 ** Direnv
 
@@ -1381,11 +1348,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
   (use-package agda-input
     :straight (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
 #+end_src
-** Idris2
-#+begin_src emacs-lisp
-  (use-package idris2-mode
-    :straight (:package "idris2-mode" :type git :host github :repo "idris-community/idris2-mode"))
-#+end_src
+
 ** Haskell
 
 #+begin_src emacs-lisp
@@ -1415,36 +1378,6 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :program "fourmolu"
     :args (list "--stdin-input-file" (buffer-file-name))
     :lighter " fourmolu")
-
-#+end_src
-
-#+begin_src emacs-lisp
-  (use-package ghcid
-    :straight (:package "ghcid" :host nil :type git :repo "https://github.com/ndmitchell/ghcid" )
-    :defer
-    :load-path "site-lisp/"
-    :bind (:map projectile-mode-map
-                ("C-c m s" . ghcid)
-                ("C-c m b" . show-ghcid-buf)
-                ("C-c m t" . set-ghcid-target))
-    :custom
-    (ghcid-target "")
-    ;;:config (setq-local default-directory projectile-project-root)
-    :preface
-    (use-package haskell-mode :ensure t)
-    (defun show-ghcid-buf ()
-      (interactive)
-      (show-buffer ghcid-buf-name))
-    (defun set-ghcid-target (ghcid-targ &optional ghcid-test-targ)
-      (interactive
-       (list
-        (completing-read "ghcid target: " (map 'list (lambda (targ) (format "%s:%s" (projectile-project-name) targ)) (haskell-cabal-enum-targets)))
-        (completing-read "ghcid --test target: " '("--test=main" "--test=Main.main" nil))))
-      (setq ghcid-target ghcid-targ)
-      (when ghcid-test-targ
-        (setq ghcid-target-test (format "%s" ghcid-test-targ)))
-      (kill-ghcid)
-      (ghcid)))
 
 #+end_src
 
@@ -1563,6 +1496,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
   (use-package org-modern
     :straight t
+    :after org
     :config
     (set-face-attribute 'org-document-title nil :font "Iosevka Aile" :weight 'bold :height 1.2)
     (dolist (face '((org-level-1 . 1.15)
@@ -1664,13 +1598,6 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :config
     (global-set-key (kbd "C-c l") 'org-cliplink))
 #+end_src
-*** Org Babel langs
-#+begin_src emacs-lisp
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((scheme . t)
-     (emacs-lisp . t)))
-#+end_src
 *** Org Mark
 #+begin_src emacs-lisp
   (when *is-a-mac*
@@ -1701,13 +1628,6 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :config
     (setq lsp-eldoc-hook nil)
     (setq rust-format-on-save t))
-#+end_src
-** Docker
-#+begin_src emacs-lisp
-  (use-package docker
-    :straight t)
-  (use-package dockerfile-mode
-    :straight t)
 #+end_src
 ** JavaScript and TypeScrpt
 #+begin_src emacs-lisp
@@ -1753,11 +1673,6 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     :bind (:map purescript-mode-map
                 ("C-c c f"  . purs-tidy-format-buffer)))
 
-#+end_src
-** Scheme
-#+begin_src emacs-lisp
-  (use-package geiser-mit
-    :straight t)
 #+end_src
 
 ** Common Lisp

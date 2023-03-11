@@ -142,9 +142,9 @@
 (defun bore/with-font-faces-linux ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
-    (set-face-attribute 'default nil :font (font-spec :family "Iosevka Etoile" :size 20 :weight 'regular))
-    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "Iosevka Etoile" :size 20 :weight 'regular))
-    (set-face-attribute 'variable-pitch nil :font (font-spec :family "Iosevka Aile" :size 20 :weight 'regular))))
+    (set-face-attribute 'default nil :font (font-spec :family "JetBrainsMonoNL" :size 14 :weight 'regular))
+    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "JetBrainsMonoNL" :size 14 :weight 'regular))
+    (set-face-attribute 'variable-pitch nil :font (font-spec :family "Iosevka Aile" :size 14 :weight 'regular))))
 
 (when *is-a-mac*
   (add-hook 'after-init-hook 'bore/with-font-faces-mac)
@@ -455,7 +455,7 @@
   :straight nil
   :config
   (setq ispell-program-name "hunspell"
-        ispell-dictionary "en_US,pl_PL")
+        ispell-dictionary "en_US,pl_PL,es_ES")
   (ispell-set-spellchecker-params)
   (ispell-hunspell-add-multi-dic ispell-dictionary))
 
@@ -1232,8 +1232,25 @@
 
 (when *is-a-mac*
   (use-package orgmark
-	:straight (orgmark :host github
-			   :repo "casouri/OrgMark")))
+    :straight (orgmark
+	       :host github
+	       :repo "casouri/OrgMark")))
+
+(use-package tuareg
+  :straight t
+  :mode
+  ("\\.ml[iylp]?$" . tuareg-mode))
+
+(let ((opam-share (ignore-errors (car (process-lines "opam" "var" "share")))))
+  (when (and opam-share (file-directory-p opam-share))
+    ;; Register Merlin
+    (add-to-list 'load-path (expand-file-name "emacs/site-lisp" opam-share))
+    (autoload 'merlin-mode "merlin" nil t nil)
+    ;; Automatically start it in OCaml buffers
+    (add-hook 'tuareg-mode-hook 'merlin-mode t)
+    (add-hook 'caml-mode-hook 'merlin-mode t)
+    ;; Use opam switch to lookup ocamlmerlin binary
+    (setq merlin-command 'opam)))
 
 (setq js-indent-level 2
       typescript-indent-level 2

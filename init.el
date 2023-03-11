@@ -1052,13 +1052,17 @@
   :args (list "--stdin-input-file" (buffer-file-name))
   :lighter " fourmolu")
 
+(use-package lua-mode
+  :straight t
+  :mode "\\.lua\\'")
+
 (use-package toml-mode
   :straight t
   :mode "\\.toml\\'")
 
 (use-package yaml-mode
   :straight t
-  :mode "\\.ya?ml\\'")
+  :mode "\\.yaml\\'")
 (setq js-indent-level 2)
 
 (use-package dhall-mode

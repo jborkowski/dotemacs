@@ -1381,6 +1381,17 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 #+end_src
 
+
+** Lua
+
+#+begin_src emacs-lisp
+
+  (use-package lua-mode
+    :straight t
+    :mode "\\.lua\\'")
+
+#+end_src
+
 ** Toml
 
 #+begin_src emacs-lisp
@@ -1397,7 +1408,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
   (use-package yaml-mode
     :straight t
-    :mode "\\.ya?ml\\'")
+    :mode "\\.yaml\\'")
   (setq js-indent-level 2)
 #+end_src
 

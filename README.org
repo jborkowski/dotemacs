@@ -350,10 +350,6 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 #+begin_src emacs-lisp
   (use-package emacs
     :straight nil
-    :bind
-    (("C-x K"   . bore/kill-buffer)
-     ("C-z"     . repeat)
-     ("C-c q q" . kill-emacs))
     :init
 
     (defun crm-indicator (args)
@@ -549,17 +545,40 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 #+end_src
 
-*** Ace-window
+*** Windows
 
 #+begin_src emacs-lisp
-
-  (use-package ace-window
-    :straight t
-    :commands ace-window
-    :bind ("M-o" . ace-window)
+  (use-package window
+    :straight nil
+    :bind
+    ("C-x O"   . other-other-window)
+    ("C-x C-n" . next-buffer)
+    ("C-x C-p" . previous-buffer)
+    ("C-x k"   . kill-current-buffer)
+    ("C-x K"   . kill-buffer)
+    ("C-c q q" . kill-emacs)
+    ("C-c q r" . restart-emacs)
+    (:repeat-map other-window-repeat-map
+		 ("o" . other-window)
+		 ("O" . other-other-window))
+    :custom
+    (window-resize-pixelwise t)
+    (window-combination-resize t)
+    (recenter-positions '(top middle bottom))
+    (scroll-preserve-screen-position t)
+    (switch-to-buffer-in-dedicated-window 'pop)
     :config
-    (setq aw-keys '(?n ?e ?i ?s ?t ?r ?i ?a)))
+    (defun other-other-window ()
+      "Go to previous window."
+      (interactive)
+      (other-window -1)))
 
+  (use-package 'windmove
+    :straight nil
+    :init (windmove-default-keybindings)
+    :custom
+    (windmove-default-keybindings '(nil . (shift)))
+    (windmove-swap-states-default-keybindings '(nil . (control shift))))
 #+end_src
 
 *** Winner-mode
@@ -791,41 +810,43 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 ** Terminal
 #+begin_src emacs-lisp
-  (use-package eshell
-    :straight nil
-    :commands eshell
-    :bind ("C-c o E" . eshell)
-    :config
-    (setq eshell-kill-processes-on-exit t
-          eshell-highlight-prompt t
-          eshell-hist-ignoredups t
-          eshell-prompt-regexp "^.* λ "))
+  ;; (use-package vterm
+  ;;   :straight t
+  ;;   :bind
+  ;;   ("C-c o t" . vterm-other-window)
+  ;;   ("C-c o T" . vterm)
+  ;;   :config
+  ;;   (setq vterm-kill-buffer-on-exit t
+  ;; 	vterm-always-compile-module t
+  ;; 	vterm-max-scrollback 5000
+  ;; 	vterm-timer-delay nil
+  ;; 	vterm-shell "/bin/zsh"))
 
-  (use-package eshell-syntax-highlighting
+  (use-package eat
     :straight t
-    :after eshell-mode
-    :config
-    (eshell-syntax-highlighting-global-mode +1))
-
-  (use-package eshell-toggle
-    :straight t
-    :commands eshell-toggle
-    :bind ("C-c o e" . eshell-toggle)
-    :custom
-    (eshell-toggle-size-fraction 4)
-    (eshell-toggle-run-command nil))
-
-  (use-package vterm
-    :straight t
+    :commands (eat)
+    :hook
+    (eshell-mode . eat-eshell-mode)
+    (eshell-mode . eat-eshell-visual-command-mode)
     :bind
-    ("C-c o t" . vterm-other-window)
-    ("C-c o T" . vterm)
+    ("C-c o T" . eat-shell)
+    ("C-c o t" . eat-shell-other-window)
+    :custom
+    (eat-kill-buffer-on-exit t)
+    (eat-enable-shell-prompt-annotation nil)
     :config
-    (setq vterm-kill-buffer-on-exit t
-          vterm-always-compile-module t
-          vterm-max-scrollback 5000
-          vterm-timer-delay nil
-          vterm-shell "/bin/zsh"))
+    (defun eat-shell (&optional arg)
+      "Open shell in eat."
+      (interactive "P")
+      (eat shell-file-name arg))
+
+    (defun eat-shell-other-window (&optional arg)
+      "Open a `eat-shell' in a new window."
+      (interactive "P")
+      (let ((buf (eat-shell arg)))
+	(switch-to-buffer (other-buffer buf))
+	(switch-to-buffer-other-window buf))))
+
 
 #+end_src
 ** Rainbow mode
@@ -1177,18 +1198,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 
 #+end_src
 
-** Project custom
-#+begin_src emacs-lisp
-  (defun bore/project-override (dir)
-    (let ((override (locate-dominating-file dir ".project.el")))
-      (if override
-          (cons 'vc override)
-        nil)))
-  (use-package project
-    :config
-    (add-hook 'project-find-functions #'bore/project-override))
-#+end_src
-** Language Server Protocol
+* Language Server Protocol
 
 #+begin_src emacs-lisp
   (use-package lsp-mode
@@ -1232,9 +1242,6 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
     (add-hook 'lsp-completion-mode-hook
 	      (lambda ()
 		(setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
-
-;;  (add-to-list 'tramp-remote-path "~/.ghcup/bin")
-;;  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 
   (use-package lsp-haskell
     :straight t

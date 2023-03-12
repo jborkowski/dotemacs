@@ -221,10 +221,6 @@
 
 (use-package emacs
   :straight nil
-  :bind
-  (("C-x K"   . bore/kill-buffer)
-   ("C-z"     . repeat)
-   ("C-c q q" . kill-emacs))
   :init
 
   (defun crm-indicator (args)
@@ -369,12 +365,37 @@
         avy-timeout-seconds .3
         avy-background t))
 
-(use-package ace-window
-  :straight t
-  :commands ace-window
-  :bind ("M-o" . ace-window)
+(use-package window
+  :straight nil
+  :bind
+  ("C-x O"   . other-other-window)
+  ("C-x C-n" . next-buffer)
+  ("C-x C-p" . previous-buffer)
+  ("C-x k"   . kill-current-buffer)
+  ("C-x K"   . kill-buffer)
+  ("C-c q q" . kill-emacs)
+  ("C-c q r" . restart-emacs)
+  (:repeat-map other-window-repeat-map
+	       ("o" . other-window)
+	       ("O" . other-other-window))
+  :custom
+  (window-resize-pixelwise t)
+  (window-combination-resize t)
+  (recenter-positions '(top middle bottom))
+  (scroll-preserve-screen-position t)
+  (switch-to-buffer-in-dedicated-window 'pop)
   :config
-  (setq aw-keys '(?n ?e ?i ?s ?t ?r ?i ?a)))
+  (defun other-other-window ()
+    "Go to previous window."
+    (interactive)
+    (other-window -1)))
+
+(use-package 'windmove
+  :straight nil
+  :init (windmove-default-keybindings)
+  :custom
+  (windmove-default-keybindings '(nil . (shift)))
+  (windmove-swap-states-default-keybindings '(nil . (control shift))))
 
 ;; Allow me to undo my windows
 (use-package winner
@@ -557,41 +578,42 @@
   (setq diff-hl-draw-borders nil)
   (global-diff-hl-mode 1))
 
-(use-package eshell
-  :straight nil
-  :commands eshell
-  :bind ("C-c o E" . eshell)
-  :config
-  (setq eshell-kill-processes-on-exit t
-        eshell-highlight-prompt t
-        eshell-hist-ignoredups t
-        eshell-prompt-regexp "^.* λ "))
+;; (use-package vterm
+;;   :straight t
+;;   :bind
+;;   ("C-c o t" . vterm-other-window)
+;;   ("C-c o T" . vterm)
+;;   :config
+;;   (setq vterm-kill-buffer-on-exit t
+;; 	vterm-always-compile-module t
+;; 	vterm-max-scrollback 5000
+;; 	vterm-timer-delay nil
+;; 	vterm-shell "/bin/zsh"))
 
-(use-package eshell-syntax-highlighting
+(use-package eat
   :straight t
-  :after eshell-mode
-  :config
-  (eshell-syntax-highlighting-global-mode +1))
-
-(use-package eshell-toggle
-  :straight t
-  :commands eshell-toggle
-  :bind ("C-c o e" . eshell-toggle)
-  :custom
-  (eshell-toggle-size-fraction 4)
-  (eshell-toggle-run-command nil))
-
-(use-package vterm
-  :straight t
+  :commands (eat)
+  :hook
+  (eshell-mode . eat-eshell-mode)
+  (eshell-mode . eat-eshell-visual-command-mode)
   :bind
-  ("C-c o t" . vterm-other-window)
-  ("C-c o T" . vterm)
+  ("C-c o T" . eat-shell)
+  ("C-c o t" . eat-shell-other-window)
+  :custom
+  (eat-kill-buffer-on-exit t)
+  (eat-enable-shell-prompt-annotation nil)
   :config
-  (setq vterm-kill-buffer-on-exit t
-        vterm-always-compile-module t
-        vterm-max-scrollback 5000
-        vterm-timer-delay nil
-        vterm-shell "/bin/zsh"))
+  (defun eat-shell (&optional arg)
+    "Open shell in eat."
+    (interactive "P")
+    (eat shell-file-name arg))
+
+  (defun eat-shell-other-window (&optional arg)
+    "Open a `eat-shell' in a new window."
+    (interactive "P")
+    (let ((buf (eat-shell arg)))
+      (switch-to-buffer (other-buffer buf))
+      (switch-to-buffer-other-window buf))))
 
 (use-package rainbow-mode
   :straight t
@@ -889,67 +911,55 @@
   :config
   (envrc-global-mode))
 
-(defun bore/project-override (dir)
-  (let ((override (locate-dominating-file dir ".project.el")))
-    (if override
-        (cons 'vc override)
-      nil)))
-(use-package project
-  :config
-  (add-hook 'project-find-functions #'bore/project-override))
-
 (use-package lsp-mode
-    :straight t
+  :straight t
 
-    :hook ((c-mode
-	    c++-mode
-	    c-or-c++-mode
-	    js-mode
-	    rust-mode
-	    typescript-mode
-	    purescript-mode
-	    haskell-mode
-	    elixir-mode) . lsp-deferred)
-    :bind (:map lsp-mode-map
-		("C-c c d" . lsp-describe-thing-at-point)
-		("C-c c s" . consult-lsp-symbols)
-		("C-c c t" . lsp-goto-type-definition)
-		("M-," . lsp-find-references)
-		("M-." . lsp-find-definition)
-		("C-c c f" . lsp-format-buffer)
-		("C-c c x" . lsp-execute-code-action)
-		("C-c c r" . lsp-rename)
-		("C-c c j" . consult-lsp-symbols))
-    :commands lsp lsp-deferred
+  :hook ((c-mode
+	  c++-mode
+	  c-or-c++-mode
+	  js-mode
+	  rust-mode
+	  typescript-mode
+	  purescript-mode
+	  haskell-mode
+	  elixir-mode) . lsp-deferred)
+  :bind (:map lsp-mode-map
+	      ("C-c c d" . lsp-describe-thing-at-point)
+	      ("C-c c s" . consult-lsp-symbols)
+	      ("C-c c t" . lsp-goto-type-definition)
+	      ("M-," . lsp-find-references)
+	      ("M-." . lsp-find-definition)
+	      ("C-c c f" . lsp-format-buffer)
+	      ("C-c c x" . lsp-execute-code-action)
+	      ("C-c c r" . lsp-rename)
+	      ("C-c c j" . consult-lsp-symbols))
+  :commands lsp lsp-deferred
 
-    :config
-    (setq lsp-idle-delay 0.5
-	  lsp-diagnostics-provider t
-	  lsp-keep-workspace-alive nil
-	  lsp-headerline-breadcrumb-enable nil
-	  lsp-modeline-code-actions-enable nil
-	  lsp-modeline-diagnostics-enable nil
-	  lsp-modeline-workspace-status-enable nil
-	  lsp-enable-file-watchers nil
-	  lsp-file-watch-threshold 5000
-	  read-process-output-max (* 1024 1024)
-	  lsp-log-io t))
+  :config
+  (setq lsp-idle-delay 0.5
+	lsp-diagnostics-provider t
+	lsp-keep-workspace-alive nil
+	lsp-headerline-breadcrumb-enable nil
+	lsp-modeline-code-actions-enable nil
+	lsp-modeline-diagnostics-enable nil
+	lsp-modeline-workspace-status-enable nil
+	lsp-enable-file-watchers nil
+	lsp-file-watch-threshold 5000
+	read-process-output-max (* 1024 1024)
+	lsp-log-io t))
 
 
-    (add-hook 'lsp-completion-mode-hook
-	      (lambda ()
-		(setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
+  (add-hook 'lsp-completion-mode-hook
+	    (lambda ()
+	      (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
 
-;;  (add-to-list 'tramp-remote-path "~/.ghcup/bin")
-;;  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+(use-package lsp-haskell
+  :straight t
+  :after (lsp haskell-mode))
 
-  (use-package lsp-haskell
-    :straight t
-    :after (lsp haskell-mode))
-
-  (use-package consult-lsp
-    :straight t
-    :after lsp-mode)
+(use-package consult-lsp
+  :straight t
+  :after lsp-mode)
 
 (use-package corfu
   ;; Optional customizations

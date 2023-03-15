@@ -573,7 +573,7 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
       (interactive)
       (other-window -1)))
 
-  (use-package 'windmove
+  (use-package windmove
     :straight nil
     :init (windmove-default-keybindings)
     :custom
@@ -847,8 +847,8 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 	(switch-to-buffer (other-buffer buf))
 	(switch-to-buffer-other-window buf))))
 
-
 #+end_src
+
 ** Rainbow mode
 #+begin_src emacs-lisp
   (use-package rainbow-mode
@@ -1111,80 +1111,94 @@ Use no-littering to automatically set common paths to the new user-emacs-directo
 	      (car (project-roots project))))))
 
 #+end_src
-** Mu4e
+
+** Mail
 #+begin_src emacs-lisp
   (when *is-a-linux*
-    (use-package mu4e
+    (use-package message
       :straight nil
-      :commands mu4e mu4e-compose-new
-      :bind ("C-c o m" . mu4e)
+      :custom
+      (message-directory "~/.mail/thebo")
+      (message-kill-buffer-on-exit t)
+      (message-wide-reply-confirm-recipients t)
+      (message-sendmail-envelope-from 'header))
 
-      :config
-      (require 'mu4e-org)
+    (use-package notmuch
+      :straight t
+      :defines (notmuch-show-mode-map)
+      :hook
+      (notmuch-message-mode . turn-off-auto-fill)
+      (notmuch-message-mode . turn-on-visual-line-mode)
+      :bind
+      ("C-c o m" . notmuch)
+      (:map notmuch-show-mode-map ("o" . notmuch-show-interactively-view-part))
+      :custom
+;;      (notmuch-show-logo nil)
+      (notmuch-column-control t)
+      (notmuch-hello-auto-refresh t)
+      (notmuch-show-all-tags-list t)
+      (notmuch-show-empty-saved-searches t)
+      (notmuch-hello-recent-searches-max 20)
 
-      (setq mu4e-contexts
-            (list
-             (make-mu4e-context
-              :name "Proton"
-              :match-func
-              (lambda (msg)
-                (when msg
-                  (string-prefix-p "/Proton" (mu4e-message-field msg :maildir))))
-              :vars '((user-mail-address . "jonatan.borkowski@pm.me")
-                      (user-full-name . "Jonatan Borkowski")
-                      (user-draft-folder . "/Proton/Drafts")
-                      (mu4e-sent-folder  . "/Proton/Sent Mail")
-                      (mu4e-refile-folder  . "/Proton/All Mail")
-                      (mu4e-trash-folder  . "/Proton/Trash")))
+      ;; Search functionality
+      (notmuch-search-oldest-first nil)
+      (notmuch-search-result-format
+       '(("date" . "%12s ")
+	 ("count" . "%-7s ")
+	 ("authors" . "%-30s ")
+	 ("subject" . "%-72s ")
+	 ("tags" . "(%s)")))
+      (notmuch-saved-searches
+       '((:name "inbox"    :query "tag:inbox not tag:trash" :key "i")
+	 (:name "flagged"  :query "tag:flagged"             :key "f")
+	 (:name "sent"     :query "tag:sent"                :key "s")
+	 (:name "drafts"   :query "tag:drafts"              :key "d")
+	 (:name "archived" :query "tag:archived"            :key "a")))
 
-             ;; Work account
-             (make-mu4e-context
-              :name "Work"
-              :match-func
-              (lambda (msg)
-                (when msg
-                  (string-prefix-p "/Restamatic" (mu4e-message-field msg :maildir))))
-              :vars '((user-mail-address . "jonatan.borkowski@restaumatic.com")
-                      (user-full-name    . "Jonatan Borkowski")
-                      (mu4e-drafts-folder  . "/Restaumatic/[Gmail]/Drafts")
-                      (mu4e-sent-folder  . "/Restaumatic/[Gmail]/Sent Mail")
-                      (mu4e-refile-folder  . "/Restaumatic/[Gmail]/All Mail")
-                      (mu4e-trash-folder  . "/Restamatic/[Gmail]/Trash")))))
+      ;; Tags functionality
+      (notmuch-archive-tags '("-inbox" "-unread" "+archived"))
+      (notmuch-message-replied-tags '("+replied"))
+      (notmuch-message-forwarded-tags '("+forwarded"))
+      (notmuch-show-mark-read-tags '("-unread"))
+      (notmuch-draft-tags '("+drafts"))
+      (notmuch-tagging-keys
+       '(("u" ("+unread") "Mark as unread")
+	 ("f" ("+flag" "-unread") "Flag as important")
+	 ("r" notmuch-show-mark-read-tags "Mark as read")
+	 ("s" ("+spam" "-inbox" "-unread") "Mark as spam")
+	 ("a" notmuch-archive-tags "Archive (remove from inbox)")
+	 ("d" ("+trash" "-inbox" "-archived" "-unread"
+	       "-git" "-services" "-stores" "-networks" "-billing")
+	  "Mark for deletion")))
 
-      ;; Get mail
-      (setq mu4e-maildir "~/.mail"
-            mu4e-get-mail-command "mbsync -a"
-            mu4e-change-filenames-when-moving t   ; needed for mbsync
-            mu4e-update-interval 120)             ; update every 2 minutes
+      ;; Reading messages
+      (notmuch-show-relative-dates t)
+      (notmuch-message-headers-visible t)
 
-      ;; Send mail
-      (setq mail-specify-envelope-from t
-            message-send-mail-function 'smtpmail-send-it
-            smtpmail-auth-credentials "~/.authinfo.gpg"
-            smtpmail-smtp-server "127.0.0.1"
-            message-kill-buffer-on-exit t
-            smtpmail-stream-type 'starttls
-            smtpmail-smtp-service 1025))
+      ;; Email composition
+      (notmuch-always-prompt-for-sender t)
+      (notmuch-mua-compose-in 'current-window)
+      (notmuch-mua-user-agent-function 'notmuch-mua-user-agent-full)
+      (notmuch-mua-cite-function 'message-cite-original-without-signature)
 
-    ;; Trust certificates
-    (require 'gnutls)
-    (if (file-exists-p "~/.config/protonmail/bridge/cert.pem")
-        (add-to-list 'gnutls-trustfiles (expand-file-name "~/.config/protonmail/bridge/cert.pem")))
+      ;; Directory for sent messages
+      (notmuch-fcc-dirs "thebo/Sent"))
+
+    (use-package sendmail
+      :straight nil
+      :custom
+      (mail-specify-envelope-from t)
+      (mail-user-agent 'message-user-agent)
+      (smtpmail-smtp-server "smtp.migadu.com")
+      (smtpmail-smtp-service 465)
+      (smtpmail-stream-type 'ssl)
+      (send-mail-function 'smtpmail-send-it))
     )
 
+  (use-package org-mime
+    :after (org notmuch)
+    :custom (org-mime-library 'mml org-mime-export-ascii 'utf-8))
 
-  (when *is-a-linux*
-    (use-package org-msg
-      :after mu4e
-      :straight t
-      :config
-      (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil tex:dvipng"
-            org-msg-startup "hidestars indent inlineimages"
-            org-msg-greeting-name-limit 3
-            org-msg-default-alternatives '((new . (utf-8 html))
-                                           (reply-to-text . (utf-8))
-                                           (reply-to-html . (utf-8 html)))
-            org-msg-convert-citation t)))
 #+end_src
 * Development
 ** Direnv

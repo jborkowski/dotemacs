@@ -1,24 +1,46 @@
-;; -*- lexical-binding: t; -*-
+;;; init.el --- Init File -*- lexical-binding: t; -*-
 
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+;;; Commentary:
 
-;; Use `straight.el' for `use-package' expressions
-(straight-use-package 'use-package)
-(setq straight-use-package-by-default t)
 
-(straight-use-package 'org)
-(setenv "PATH" (concat (getenv "PATH") ":/home/jonatan/.ghcup/bin"))
+;;; Code:
+
+;;;; Setup package sources
+(require 'package)
+(setopt package-archives
+	'(("gnu"    . "https://elpa.gnu.org/packages/")
+	  ("nongnu" . "https://elpa.nongnu.org/packages/")
+	  ("melpa"  . "https://melpa.org/packages/")))
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(setopt package-native-compile t)
+
+(use-package use-package
+  :custom
+  (use-package-expand-minimally t)
+  (use-package-always-ensure t)
+  (use-package-always-defer t)
+  (use-package-enable-imenu-support t))
+
+;;;; Defaults
+
+(setopt inhibit-splash-screen t
+	inhibit-startup-screen t
+	inhibit-startup-message t
+	initial-scratch-message nil
+	kill-do-not-save-duplicates t
+	custom-safe-themes t
+	scroll-margin 2
+	select-enable-clipboard t
+	visible-bell nil
+	use-short-answers t
+	warning-minimum-level :error)
+
+(put 'suspend-frame 'disabled t)
+
+;;;; Multi OS support
 
 (defconst *is-a-mac* (eq system-type 'darwin))
 (defconst *is-a-linux* (eq system-type 'gnu/linux))
@@ -43,24 +65,6 @@
     (when (display-graphic-p)
       (ns-raise-emacs))))
 
-(defun bore/org-babel-tangle-config ()
-  "Automatically tangle Emacs.org config when saving a file."
-  (when (string-equal (file-name-directory (buffer-file-name))
-                      (expand-file-name user-emacs-directory))
-    ;; Dynamic scoping to the rescue
-    (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
-
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'bore/org-babel-tangle-config)))
-
-;; Some Garbage Collection Magic Hack
-(use-package gcmh
-  :straight t
-  :config
-  (setq gcmh-idle-delay 0.5  ; default is 15s
-        gcmh-high-cons-threshold (* 16 1024 1024))  ; 16mb
-  (gcmh-mode 1))
-
 ;; Profile emacs startup
 (add-hook 'emacs-startup-hook
           (lambda ()
@@ -70,22 +74,156 @@
                               (time-subtract after-init-time before-init-time)))
                      gcs-done)))
 
-;; Silence compiler warnings as they can be pretty disruptive
-(setq native-comp-async-report-warnings-errors nil)
+;;; Auth source
+(use-package auth-source
+  :ensure nil
+  :custom
+  (auth-sources'("~/.authinfo.gpg"))
+  (auth-source-cache-exipry nil)
+  (password-cache-expiry nil))
 
-;; Set the right directory to store the native comp cache
-(add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory))
-
-(use-package no-littering)
-
+;;; Personal information
 (setq user-full-name "Jonatan Borkowski"
       user-mail-address "jonatan@thebo.me")
 
+;;; Prohibit littering
+(use-package no-littering
+  :demand
+  :custom
+  (auto-save-file-name-transforms
+   `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+  (backup-directory-alist
+   `((".*" . ,(no-littering-expand-var-file-name "backup/")))))
+
+(setopt custom-file (make-temp-file "emacs-custom-"))
+
+;;; Recent files
+(use-package recentf
+  :ensure nil
+  :init (recentf-mode)
+  :custom
+  (recentf-max-menu-items 1000)
+  (recentf-max-saved-items 1000))
+
+;;; Autosave and backups
+(use-package files
+  :ensure nil
+  :custom
+  (auto-save-default t)
+  (auto-save-file-name-transforms `((".*" ,(expand-file-name "auto-save" user-emacs-directory) t)))
+  (make-backup-files t)
+  (backup-directory-alist `((".*" . ,(expand-file-name "backup" user-emacs-directory))))
+  (require-final-newline nil)
+  (backup-by-copying t)
+  (version-control t)
+  (delete-old-versions t)
+  (kept-new-versions 6)
+  (kept-old-versions 6)
+  (create-lockfiles nil))
+
+
+;;; Scratch buffer
+(use-package scratch-buffer
+  :ensure nil
+  :bind ("C-c o s" . scratch-buffer))
+
+
+
+;;; History
+(setq undo-limit 80000000
+      history-length 5000
+      history-delete-duplicates t)
+
+(use-package savehist
+  :ensure nil
+  :init (savehist-mode)
+  :custom
+  (savehist-save-minibuffer-history t)
+  ((savehist-additional-variables
+    '(kill-ring search-ring regexp-search-ring))))
+
+(use-package saveplace
+  :ensure nil
+  :init (save-place-mode)
+  :custom (save-place-forget-unreadable-file t))
+
+;;; Dired
+(use-package dired
+  :ensure nil
+  :hook (dired-mode . hl-line-mode)
+  :custom
+  (delete-by-moving-to-trash t)
+  (dired-listing-switches "-alGh --group-directories-first")
+  (dired-kill-when-opening-new-dired-buffer t)
+  (dired-recursive-copies 'always)
+  (dired-recursive-deletes 'always)
+  (dired-dwim-target t))
+
+;;; Helpers
+(use-package help
+  :ensure nil
+  :custom
+  (help-window-select t)
+  (help-link-key-to-documentation t))
+
+(use-package eldoc
+  :ensure nil
+  :init (global-eldoc-mode)
+  :custom
+  (eldoc-idle-delay 0.1)
+  (eldoc-mode-line-string nil)
+  (eldoc-echo-area-use-multiline-p nil)
+  (eldoc-echo-area-prefer-doc-buffer t)
+  (eldoc-echo-area-display-truncation-message nil)
+  (eldoc-documentation-function 'eldoc-documentation-compose))
+
+;;; Xref
+(use-package xref
+  :ensure nil
+  :custom
+  (xref-auto-jump-to-first-definition 'show)
+  (xref-search-program 'ripgrep))
+
+;;; Appearance
+
+;;; Vertical separator
+(set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+
+(setopt mode-line-position-line-format `(" %l:%c")
+	mode-line-position-column-line-format '(" %l,%c")
+	mode-line-end-spaces nil
+	mode-line-compact nil)
+
+(setq-default mode-line-format
+              '("%e"
+                mode-line-front-space
+                mode-line-mule-info
+                mode-line-client
+                mode-line-modified
+                mode-line-remote
+                mode-line-frame-identification
+                mode-line-buffer-identification
+                "  "
+                mode-line-position
+                "  "
+                (vc-mode vc-mode)
+                "  "
+                mode-line-modes
+                "  "
+                mode-line-misc-info
+                mode-line-end-spaces))
+
+(use-package minions
+  :functions (minions-mode)
+  :init (minions-mode)
+  :custom (minions-mode-line-lightr "..."))
+
+;;;; Theme
 (use-package modus-themes
-  :straight t
+  :pin melpa
   :bind
-  (("C-c t t" . modus-themes-toggle))
-  :config
+  ("C-c t t" . modus-themes-toggle)
+  :custom
   (setq modus-themes-common-palette-overrides
 	'((prose-done green-intense)
 	  (prose-todo red-intense)))
@@ -95,43 +233,24 @@
 	modus-themes-preset-overrides-faint))
 
  (use-package solar
-   :straight nil
-   :config
-   (setq custom-safe-themes t
-	 calendar-latitude 52.43152
-	 calendar-longitude 21.03212))
+   :ensure nil
+   :custom
+   (custom-safe-themes t)
+   (calendar-latitude 52.43152)
+   (calendar-longitude 21.03212))
 
 (use-package circadian
-  :straight t
+  :ensure t
   :after solar
-  :config
-  (setq circadian-themes '((:sunrise . modus-operandi-deuteranopia)
-			       (:sunset  . modus-vivendi-deuteranopia)))
+  :custom
+  (circadian-themes '((:sunrise . modus-operandi-deuteranopia)
+		      (:sunset  . modus-vivendi-deuteranopia)))
   (circadian-setup))
 
-(use-package nyan-mode)
-(nyan-mode 1)
+(use-package nyan-mode
+  :init (nyan-mode))
 
-(use-package ligature
-  :straight (ligature :host github
-                      :repo "mickeynp/ligature.el")
-  :config
-  ;; Enable all Recursive ligatures in programming modes
-  (ligature-set-ligatures 'prog-mode '("==" "===" "!=" "!==" "=/=" "!!" "??"
-                                       "%%" "&&" "&&&" "||" "|||" "=>" "->" "<-"
-                                       "##" "###" "####" "//" "f\"" "f'" "${"
-                                       "?." "?:" "/*" "*/" "///" "'''" "\"\"\""
-                                       "```" "<!--" "-->" ">-" "-<" "::" ">>"
-                                       ">>>" "<<" "<<<" "://" "++" "+++" "--"
-                                       "---" "**" "***" "+=" "-=" "*=" "/=" "=~"
-                                       "<*" "<*>" "<|" "|>" "<|>" "<$>" "<=>"
-                                       "<>" "<+>" ">>-" "-<<" "__" "-[ ]" "-[x]"
-                                       "\\b" "\\n" "\\r" "\\t" "\\v" "|=" "!~"
-                                       "<<~" "<<=" ">>=" "=<<"))
-  ;; Enables ligature checks globally in all buffers. You can also do it
-  ;; per mode with `ligature-mode'.
-  (global-ligature-mode t))
-
+;;;; Fonts
 (defun bore/with-font-faces-mac ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
@@ -155,14 +274,18 @@
   (add-hook 'after-init-hook 'bore/with-font-faces-linux)
   (add-hook 'server-after-make-frame-hook 'bore/with-font-faces-linux))
 
+;;;; Encoding
+
+(setq-default default-buffer-file-coding-system 'utf-8
+              buffer-file-coding-system 'utf-8)
+
 ;; Make those lambdas pretty again
 (global-prettify-symbols-mode t)
 
 ;; For the first time remember to run M-x all-the-icons-install-fonts
 (use-package all-the-icons)
 
-;; Happy people don't count numbers, they also have a small performance boost to Emacs
-(setq display-line-numbers-type nil)
+(setopt display-line-numbers-type nil)
 
 ;; But for sure disable line numbers in some modes
 (dolist (mode '(org-mode-hook
@@ -171,9 +294,33 @@
                 eshell-mode-hool))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
+
+(use-package subword
+  :ensure nil
+  :init (global-subword-mode))
+
+(use-package delete-selection
+  :ensure nil
+  :init (delete-selection-mode))
+
+(use-package whitespaces
+  :ensure nil
+  :bind
+  ("C-c w t" . whitespace-mode)
+  ("C-c w c" . whitespace-cleanup))
+
+
+;;;; Tabs
+(setq-default tab-width 2
+	      tab-always-indent 'complete
+	      indent-tabs-mode nil)
+
+
+;;;; EOD 20 march 2023
+
 (use-package tab-bar
-  :straight nil
-  :config
+  :ensure nil
+  :custom
   (setq tab-bar-close-button-show nil
         tab-bar-new-button nil
         tab-bar-separator " "
@@ -190,27 +337,12 @@
 
 (tab-bar-history-mode 1)
 
-(set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+
 
 (setq mode-line-end-spaces nil)
 
-;;(use-package power-mode
-;;  :straight t)
 
-(setq inhibit-splash-screen t
-      inhibit-startup-screen t
-      inhibit-startup-message t
-      initial-scratch-message nil
-      kill-do-not-save-duplicates t
-      require-final-newline t
-      password-cache-expiry nil
-      custom-safe-themes t
-      scroll-margin 2
-      ;; select-enable-clipboard t
-      visible-bell t
-      warning-minimum-level :error)
 
-(recentf-mode 1)
 (global-so-long-mode 1)
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-auto-revert-mode t)
@@ -284,41 +416,6 @@
         ibuffer-saved-filter-groups nil
         ibuffer-old-time 48)
   (add-hook 'ibuffer-mode-hook #'hl-line-mode))
-
-(use-package savehist
-  :straight nil
-  :config
-  (setq savehist-save-minibuffer-history t
-        savehist-autosave-interval nil
-        savehist-additional-variables
-        '(kill-ring
-          register-alist
-          mark-ring global-mark-ring
-          search-ring regexp-search-ring))
-  (savehist-mode 1))
-(setq undo-limit 80000000
-      history-limit 5000
-      history-delete-duplicates t)
-
-;; Enable autosave and backup
-(setq auto-save-default t
-      auto-save-file-name-transforms `((".*" ,(expand-file-name "auto-save" user-emacs-directory) t))
-      make-backup-files t
-      backup-directory-alist `((".*" . ,(expand-file-name "backup" user-emacs-directory)))
-      backup-by-copying t
-      version-control t
-      delete-old-versions t
-      kept-new-versions 6
-      kept-old-versions 2
-      create-lockfiles nil)
-
-(use-package recentf
-  :straight nil
-  :commands recentf-open-files
-  :config
-  (setq recentf-max-menu-items 100
-        recentf-max-saved-items 100)
-  (recentf-mode 1))
 
 (use-package paren
   :straight nil
@@ -403,32 +500,7 @@
   :hook
   (after-init . winner-mode))
 
-(setq mode-line-position-line-format `(" %l:%c"))
-(setq mode-line-position-column-line-format '(" %l,%c"))
-(setq mode-line-compact nil)
-(setq-default mode-line-format
-              '("%e"
-                mode-line-front-space
-                mode-line-mule-info
-                mode-line-client
-                mode-line-modified
-                mode-line-remote
-                mode-line-frame-identification
-                mode-line-buffer-identification
-                "  "
-                mode-line-position
-                "  "
-                (vc-mode vc-mode)
-                "  "
-                mode-line-modes
-                "  "
-                mode-line-misc-info
-                mode-line-end-spaces))
 
-(use-package minions
-  :straight t
-  :config
-  (minions-mode 1))
 
 (use-package which-key
   :straight t
@@ -523,16 +595,6 @@
 (use-package pdf-tools
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode))
-
-(use-package dired
-  :straight nil
-  :commands dired dired-jump
-  :config
-  (setq dired-kill-when-opening-new-dired-buffer t
-	delete-by-moving-to-trash t
-	dired-dwim-target t
-	dired-recursive-copies 'always
-	dired-recursive-deletes 'always))
 
 (use-package consult-dir
   :straight t

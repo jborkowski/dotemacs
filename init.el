@@ -42,6 +42,8 @@
 
 ;;;; Multi OS support
 
+(setq x-alt-keysym 'meta) ;; Alt as Meta key
+
 (defconst *is-a-mac* (eq system-type 'darwin))
 (defconst *is-a-linux* (eq system-type 'gnu/linux))
 
@@ -123,11 +125,13 @@
 
 
 ;;; Scratch buffer
-(use-package scratch-buffer
+(use-package scratch
   :ensure nil
   :bind ("C-c o s" . scratch-buffer))
 
-
+;;; Project
+(use-package project
+  :ensure nil)
 
 ;;; History
 (setq undo-limit 80000000
@@ -299,7 +303,7 @@
   :ensure nil
   :init (global-subword-mode))
 
-(use-package delete-selection
+(use-package delsel
   :ensure nil
   :init (delete-selection-mode))
 
@@ -309,14 +313,10 @@
   ("C-c w t" . whitespace-mode)
   ("C-c w c" . whitespace-cleanup))
 
-
 ;;;; Tabs
 (setq-default tab-width 2
 	      tab-always-indent 'complete
 	      indent-tabs-mode nil)
-
-
-;;;; EOD 20 march 2023
 
 (use-package tab-bar
   :ensure nil
@@ -337,133 +337,116 @@
 
 (tab-bar-history-mode 1)
 
+;;;; Formatting
 
-
-(setq mode-line-end-spaces nil)
-
-
-
-(global-so-long-mode 1)
-(fset 'yes-or-no-p 'y-or-n-p)
-(global-auto-revert-mode t)
-(set-default-coding-systems 'utf-8)
-(global-hl-line-mode 1)
-
-(setq x-alt-keysym 'meta) ;; Alt as Meta key
-
-(use-package emacs
-  :straight nil
-  :init
-
-  (defun crm-indicator (args)
-    (cons (format "[CRM%s] %s"
-		  (replace-regexp-in-string
-		   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-		   crm-separator)
-		  (car args))
-	  (cdr args)))
-  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
-  ;; TAB cycle if there are only few candidates
-  (setq completion-cycle-threshold 3)
-
-  ;; Do not allow the cursor in the minibuffer prompt
-  (setq minibuffer-prompt-properties
-	'(read-only t cursor-intangible t face minibuffer-prompt))
-
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
-  ;; Clean up whitespace, newlines and line breaks
-  (add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-  ;; Enable recursive minibuffers
-  (setq enable-recursive-minibuffers t)
-
-  ;; Enable indentation+completion using the TAB key.
-  ;; `completion-at-point' is often bound to M-TAB.
-  (setq tab-always-indent 'complete))
-
-(defun bore/kill-buffer (&optional arg)
-  "Kill buffer which is currently visible (ARG)."
-  (interactive "P")
-  (if arg
-      (call-interactively 'kill-buffer)
-    (kill-this-buffer)))
-
-(use-package ibuffer
-  :straight nil
-  :bind (("C-x C-b" . ibuffer))
-  :config
-  (setq ibuffer-expert t
-        ibuffer-display-summary nil
-        ibuffer-use-other-window nil
-        ibuffer-show-empty-filter-groups nil
-        ibuffer-movement-cycle nil
-        ibuffer-default-sorting-mode 'filename/process
-        ibuffer-use-header-line t
-        ibuffer-default-shrink-to-minimum-size nil
-        ibuffer-formats
-        '((mark modified read-only locked " "
-                (name 40 40 :left :elide)
-                " "
-                (size 9 -1 :right)
-                " "
-                (mode 16 16 :left :elide)
-                " " filename-and-process)
-          (mark " "
-                (name 16 -1)
-                " " filename))
-        ibuffer-saved-filter-groups nil
-        ibuffer-old-time 48)
-  (add-hook 'ibuffer-mode-hook #'hl-line-mode))
-
-(use-package paren
-  :straight nil
-  :config
-  (setq show-paren-delay 0
-        show-paren-highlight-openparen t
-        show-paren-when-point-inside-paren t)
-  (show-paren-mode 1))
-
-;; A little bit of rainbow here and there
-(use-package rainbow-delimiters
-  :straight t
-  :hook (prog-mode . rainbow-delimiters-mode))
-
-(use-package elec-pair
-  :straight nil
-  :config
-  (setq electric-pair-inhibit-predicate'electric-pair-conservative-inhibit
-        electric-pair-skip-self 'electric-pair-default-skip-self
-        electric-pair-skip-whitespace nil
-        electric-pair-preserve-balance t)
-  (electric-indent-mode 1)
-  (electric-pair-mode 1))
+(setq-default fill-column 80
+	      wrap-word t
+	      tuncate-lines t)
 
 (setq scroll-conservatively 101                    ; value greater than 100 gets rid of half page jumping
       mouse-wheel-scroll-amount '(3 ((shift) . 3)) ; how many lines at a time
       mouse-wheel-progressive-speed t              ; accelerate scrolling
       mouse-wheel-follow-mouse 't)                 ; scroll window under mouse
 
-(use-package isearch
-  :straight nil
-  :bind
-  :config
-  (setq isearch-lazy-count t))
 
-;; Just a thought... and you are there!
+;;;; Parentheses
+(use-package paren
+  :ensure nil
+  :init (show-paren-mode)
+  :custom
+  (show-paren-delay 0)
+  (show-paren-highlight-openparen t)
+  (show-paren-when-point-inside-paren t))
+
+;;;; Electric Behaviour
+(use-package elec-pair
+  :ensure nil
+  :init (electric-pair-mode)
+  :custom
+  (electric-pair-inhibit-predicate'electric-pair-conservative-inhibit)
+  (electric-pair-skip-self 'electric-pair-default-skip-self)
+  (electric-pair-skip-whitespace nil)
+  (electric-pair-preserve-balance t)
+  (electric-indent-mode 1))
+
+
+;;;; Rainbow
+(use-package rainbow-mode
+  :bind ("C-c r t" . rainbow-mode))
+
+;;; Search
+
+;;;; Isearch
+(use-package isearch
+  :ensure nil
+  :bind (:map isearch-mode-map ("M-/" . isearch-complete))
+  :custom
+  (isearch-lazy-count t)
+  (isearch-whitespace-regexp ".*?")
+  (isearch-allow-scroll 'unlimited))
+
+;;;; Occur
+(use-package occur
+  :ensure nil
+  :hook (occur-mode . hl-line-mode))
+
+;;;; Wgrep
+(use-package wgrep
+  :defines (grep-mode-map wgrep-mode-map)
+  :bind
+  (:map grep-mode-map
+        ("e"       . wgrep-change-to-wgrep-mode)
+        ("C-x C-q" . wgrep-change-to-wgrep-mode))
+  (:map wgrep-mode-map ("C-c C-c" . wgrep-finish-edit))
+  :custom (wgrep-auto-save-buffer t))
+
+;;;; Avy
 (use-package avy
-  :straight t
   :bind (("C-'" . avy-goto-char-timer)
          :map isearch-mode-map
          ("C-'" . avy-isearch))
-  :config
-  (setq avy-keys '(?n ?e ?i ?s ?t ?r ?i ?a)
-        avy-timeout-seconds .3
-        avy-background t))
+  :custom
+  (avy-keys '(?n ?e ?i ?s ?t ?r ?i ?a))
+  (avy-timeout-seconds .3)
+  (avy-background t))
+
+
+;;; Buffer, frames and windows
+
+;;;; Buffers
+(use-package ibuffer
+  :ensure nil
+  :bind (("C-x C-b" . ibuffer))
+  :custom
+  (ibuffer-expert t)
+  (ibuffer-display-summary nil)
+  (ibuffer-use-other-window nil)
+  (ibuffer-show-empty-filter-groups nil)
+  (ibuffer-movement-cycle nil)
+  (ibuffer-default-sorting-mode 'filename/process)
+  (ibuffer-use-header-line t)
+  (ibuffer-default-shrink-to-minimum-size nil)
+  (ibuffer-saved-filter-groups nil)
+  (ibuffer-old-time 48)
+  (add-hook 'ibuffer-mode-hook #'hl-line-mode))
+
+(use-package autorevert
+  :ensure nil
+  :init
+  (global-auto-revert-mode)
+  :custom
+  (global-auto-revert-non-file-buffers t))
+
+;;;; Frames
+(setopt frame-resize-pixelwise t
+	focus-follows-mouse t)
+
+(add-hook 'after-init-hook #'pixel-scroll-precision-mode)
+
+;;;; Windows
 
 (use-package window
-  :straight nil
+  :ensure nil
   :bind
   ("C-x O"   . other-other-window)
   ("C-x C-n" . next-buffer)
@@ -488,17 +471,200 @@
     (other-window -1)))
 
 (use-package windmove
-  :straight nil
+  :ensure nil
   :init (windmove-default-keybindings)
   :custom
   (windmove-default-keybindings '(nil . (shift)))
   (windmove-swap-states-default-keybindings '(nil . (control shift))))
 
-;; Allow me to undo my windows
+;;;; Winner
 (use-package winner
-  :straight nil
+  :ensure nil
   :hook
   (after-init . winner-mode))
+
+
+;;; Completion
+
+;;;; Minibuffer
+(use-package minibuffer
+  :ensure nil
+  :defines (crm-separator)
+  :functions (crm-indicator)
+  :hook (minibuffer-setup . cursor-intangible-mode)
+  :custom
+  (completion-ignore-case t)
+  (completion-auto-select t)
+  (completion-auto-help 'visible)
+  (completion-show-help nil)
+  (completions-detailed t)
+  (completions-header-format nil)
+  (completions-format 'one-column)
+
+  ;; Tweak minibuffer behaviour
+  (resize-mini-windows t)
+  (enable-recursive-minibuffers t)
+  (minibuffer-depth-indicate-mode t)
+  (minibuffer-electric-default-mode t)
+  (minibuffer-eldef-shorten-default t)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (minibuffer-prompt-properties
+   '(read-only t cursor-intangible t face minibuffer-prompt))
+
+  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+  (read-extended-command-predicate
+   #'command-completion-default-include-p)
+  :config
+  (defun crm-indicator (args)
+    "Add prompt indicator to `completing-read-multiple'.
+ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator))
+
+;;;; Vertico
+(use-package vertico
+  :defines (vertico-map)
+  :functions (vertico-mode)
+  :init (vertico-mode)
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
+  :bind
+  (:map vertico-map
+        ("M-j" . vertico-quick-exit))
+  :custom
+  (vertico-scroll-margin 0)
+  (vertico-resize t)
+  (vertico-cycle t)
+  (vertico-count 15))
+
+
+;;;; Orderless
+(use-package orderless
+  :custom
+  (completion-styles '(orderless flex))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles . (partial-completion))))))
+
+;;;; Marginalia
+(use-package marginalia
+  :functions (marginalia-mode)
+  :init (marginalia-mode)
+  :custom
+  (marginalia-annotators '(marginalia-annotators-heavy
+                           marginalia-annotators-light
+                           nil)))
+
+(use-package consult
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :bind
+  ("C-x C-r" . consult-recent-file)
+  ("C-x b"   . consult-buffer)
+  ("C-x r b" . consult-bookmark)
+  ("C-x 4 b" . consult-buffer-other-window)
+  ("C-x 5 b" . consult-buffer-other-frame)
+  ("C-c c x" . consult-flymake)
+
+  ("M-y"     . consult-yank-pop)
+  ("M-g e"   . consult-compile-error)
+  ("M-g f"   . consult-flycheck)
+  ("M-g g"   . consult-goto-line)
+  ("M-g M-g" . consult-goto-line)
+  ("M-g o"   . consult-outline)
+  ("M-g m"   . consult-mark)
+  ("M-g k"   . consult-global-mark)
+  ("M-g i"   . consult-imenu)
+
+  ("M-s f" . consult-find)
+  ("M-s F" . consult-locate)
+  ("M-s g" . consult-grep)
+  ("M-s G" . consult-git-grep)
+  ("M-s r" . consult-ripgrep)
+  ("M-s l" . consult-line)
+  ("M-s L" . consult-line-multi)
+  ("M-s m" . consult-multi-occur)
+  ("M-s k" . consult-keep-lines)
+  ("M-s u" . consult-focus-lines)
+
+  ("M-s e" . consult-isearch-history)
+  (:map isearch-mode-map
+	("M-e" . consult-isearch-history)          ; o
+	("M-s e" . consult-isearch-history)
+	("M-s l" . consult-line))
+
+  :custom
+  (xref-show-xrefs-function       #'consult-xref)
+  (xref-show-definitions-function #'consult-xref)
+  (completion-in-region-function  #'consult-completion-in-region)
+  (consult-preview-key "M-.")
+  (consult-narrow-key "<"))
+
+;;;; Consult Dir
+(use-package consult-dir
+  :custom (consult-dir-shadow-filenames nil)
+  :bind
+  ("C-x C-d" . consult-dir)
+  (:map vertico-map
+	("C-x C-d" . consult-dir)
+	("C-x C-j" . consult-dir-jump-file)))
+
+
+;;;; Embark
+(use-package embark
+  :bind
+  (("C-." . embark-act)
+   ("C-," . embark-dwim)
+   ("C-h B" . embark-bindings))
+
+  :init
+
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  :config
+
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+	       '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+		 nil
+		 (window-parameters (mode-line-format . none)))))
+
+(use-package embark-consult
+  :hook (embark-collect-mode . consult-preview-at-point-mode))
+
+
+
+;;;;; EOD 21 March
+
+
+
+
+
+
+
+
+
+
+
+
+(global-so-long-mode 1)
+(global-auto-revert-mode t)
+(set-default-coding-systems 'utf-8)
+(global-hl-line-mode 1)
+
+
+
+;; A little bit of rainbow here and there
+(use-package rainbow-delimiters
+  :straight t
+  :hook (prog-mode . rainbow-delimiters-mode))
+
+
+;; Just a thought... and you are there!
 
 
 
@@ -596,13 +762,6 @@
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode))
 
-(use-package consult-dir
-  :straight t
-  :bind (("C-x C-d" . consult-dir)
-	 :map vertico-map
-	 ("C-x C-d" . consult-dir)
-	 ("C-x C-j" . consult-dir-jump-file)))
-
 (use-package project
   :straight t)
 
@@ -677,9 +836,6 @@
       (switch-to-buffer (other-buffer buf))
       (switch-to-buffer-other-window buf))))
 
-(use-package rainbow-mode
-  :straight t
-  :commands rainbow-mode)
 
 (use-package olivetti
   :straight t
@@ -690,7 +846,6 @@
 
 (use-package logos
   :straight t
-  :after (outline)
   :bind
   ([remap narrow-to-region] . logos-narrow-dwim)
   ([remap forward-page]     . logos-forward-page-dwim)
@@ -760,140 +915,7 @@
   (elfeed-org)
   (setq rmh-elfeed-org-files (list "~/org/elfeed.org")))
 
-;; Enable vertigo
-(use-package vertico
-  :straight t
-  :init
-  (vertico-mode)
-  (setq vertico-resize t
-	vertico-cycle t
-	vertico-count 17)
 
-  (setq completion-in-region-function
-	(lambda (&rest args)
-	  (apply (if vertico-mode
-		     #'consult-completion-in-region
-		   #'completion--in-region)
-		 args))))
-
-;; Use the orderless completion style
-(use-package orderless
-  :straight t
-  :init
-
-  (setq completion-styles '(orderless basic)
-      completion-category-defaults nil
-      completion-category-overrides '((file (styles . (partial-completion))))))
-
-;; I want to know every detail... one the margin
-(use-package marginalia
-  :after vertico
-  :straight t
-  :custom
-  (marginalia-annotators '(marginalia-annotators-heavy
-                           marginalia-annotators-light
-                           nil))
-  :init
-  (marginalia-mode))
-
-(use-package embark
-  :ensure t
-
-  :bind
-  (("C-." . embark-act)
-   ("C-;" . embark-dwim)
-   ("C-h B" . embark-bindings))
-
-  :init
-
-  ;; Optionally replace the key help with a completing-read interface
-  (setq prefix-help-command #'embark-prefix-help-command)
-
-  :config
-
-  ;; Hide the mode line of the Embark live/completions buffers
-  (add-to-list 'display-buffer-alist
-	       '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-		 nil
-		 (window-parameters (mode-line-format . none)))))
-
-(use-package embark-consult
-  :after (embark consult)
-  :hook
-  (embark-collect-mode . consult-preview-at-point-mode))
-
-(use-package consult
-  :straight t
-  :defer t
-  :bind (
-	 ;; C-x bindings (ctl-x-map)
-	 ("C-x C-r" . consult-recent-file)
-	 ("C-x M-:" . consult-complex-command)     ; orig. repeat-complex-command
-	 ("C-x b"   . consult-buffer)              ; orig. switch-to-buffer
-	 ("C-x M-k" . consult-kmacro)
-	 ("C-x M-m" . consult-minor-mode-menu)
-	 ("C-x r b" . consult-bookmark)            ; override bookmark-jump
-	 ("C-x 4 b" . consult-buffer-other-window) ; orig. switch-to-buffer-other-window
-	 ("C-x 5 b" . consult-buffer-other-frame)  ; orig. switch-to-buffer-other-frame
-	 ;; Other custom bindings
-	 ("M-y" . consult-yank-pop)                ; orig. yank-pop
-	 ("<help> a" . consult-apropos)            ; orig. apropos-command
-	 ;; M-g bindings (goto-map)
-	 ("M-g e" . consult-compile-error)
-	 ("M-g f" . consult-flycheck)               ; Alternative: consult-flycheck
-	 ("M-g g" . consult-goto-line)             ; orig. goto-line
-	 ("M-g M-g" . consult-goto-line)           ; orig. goto-line
-	 ("M-g o" . consult-outline)               ; Alternative: consult-org-heading
-	 ("M-g m" . consult-mark)
-	 ("M-g k" . consult-global-mark)
-	 ("M-g i" . consult-imenu)
-	 ("M-g I" . consult-imenu-multi)
-	 ;; M-s bindings (search-map)
-	 ("M-s f" . consult-find)
-	 ("M-s F" . consult-locate)
-	 ("M-s g" . consult-grep)
-	 ("M-s G" . consult-git-grep)
-	 ("M-s r" . consult-ripgrep)
-	 ("M-s l" . consult-line)
-	 ("M-s L" . consult-line-multi)
-	 ("M-s m" . consult-multi-occur)
-	 ("M-s k" . consult-keep-lines)
-	 ("M-s u" . consult-focus-lines)
-	 ;; Isearch integration
-	 ("M-s e" . consult-isearch-history)
-	 :map isearch-mode-map
-	 ("M-e" . consult-isearch-history)          ; orig. isearch-edit-string
-	 ("M-s e" . consult-isearch-history))       ; orig. isearch-edit-string
-
-  :hook (completion-list-mode . consult-preview-at-point-mode)
-  :init
-  (setq register-preview-delay 0
-	register-preview-function #'consult-register-format)
-  (advice-add #'register-preview :override #'consult-register-window)
-  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
-  (setq xref-show-xrefs-function #'consult-xref
-	xref-show-definitions-function #'consult-xref)
-  :config
-  (consult-customize
-   consult-theme
-   :preview-key '(:debounce 0.5 any)
-   consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-project-buffer consult--source-bookmark
-   :preview-key (kbd "M-."))
-
-  (setq consult-narrow-key "<"
-	consult-line-numbers-widen t
-	consult-async-min-input 2
-	consult-async-refresh-delay  0.15
-	consult-async-input-throttle 0.2
-	consult-async-input-debounce 0.1)
-
-  (setq consult-project-root-function
-	(lambda ()
-	  (when-let (project (project-current))
-	    (car (project-roots project))))))
 
 (when *is-a-linux*
     (use-package message

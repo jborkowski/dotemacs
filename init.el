@@ -238,14 +238,15 @@
   :bind
   ("C-c t t" . modus-themes-toggle)
   :custom
+  (modus-themes-to-toggle
+   '(modus-operandi-deuteranopia modus-vivendi-deuteranopia))
   (modus-themes-common-palette-overrides
 	 '((prose-done green-intense)
 	   (prose-todo red-intense)))
   
   ;; Tone down almost all colors.
   (modus-themes-common-palette-overrides)
-	(modus-themes-preset-overrides-faint)
-  )
+	(modus-themes-preset-overrides-faint))
 
 
 (defun bore/os-theme ()

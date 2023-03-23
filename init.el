@@ -8,9 +8,9 @@
 ;;;; Setup package sources
 (require 'package)
 (setopt package-archives
-	'(("gnu"    . "https://elpa.gnu.org/packages/")
+	      '(("gnu"    . "https://elpa.gnu.org/packages/")
           ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-	  ("melpa"  . "https://melpa.org/packages/")))
+	        ("melpa"  . "https://melpa.org/packages/")))
 (package-initialize)
 (unless package-archive-contents
   (package-refresh-contents))
@@ -27,16 +27,16 @@
 ;;;; Defaults
 
 (setopt inhibit-splash-screen t
-	inhibit-startup-screen t
-	inhibit-startup-message t
-	initial-scratch-message nil
-	kill-do-not-save-duplicates t
-	custom-safe-themes t
-	scroll-margin 2
-	select-enable-clipboard t
-	visible-bell nil
-	use-short-answers t
-	warning-minimum-level :error)
+	      inhibit-startup-screen t
+	      inhibit-startup-message t
+	      initial-scratch-message nil
+	      kill-do-not-save-duplicates t
+	      custom-safe-themes t
+	      scroll-margin 2
+	      select-enable-clipboard t
+	      visible-bell nil
+	      use-short-answers t
+	      warning-minimum-level :error)
 
 (put 'suspend-frame 'disabled t)
 
@@ -60,8 +60,8 @@
     (defun ns-raise-emacs-with-frame (frame)
       "Raise Emacs and select the provided frame."
       (with-selected-frame frame
-	(when (display-graphic-p)
-	  (ns-raise-emacs))))
+	      (when (display-graphic-p)
+	        (ns-raise-emacs))))
     (add-hook 'after-make-frame-functions 'ns-raise-emacs-with-frame)
     (when (display-graphic-p)
       (ns-raise-emacs))))
@@ -164,7 +164,7 @@
   :hook (dired-mode . hl-line-mode)
   :custom
   (delete-by-moving-to-trash t)
-  (dired-listing-switches "-alGh --group-directories-first")
+  ;;  (dired-listing-switches "-alGh --group-directories-first")
   (dired-kill-when-opening-new-dired-buffer t)
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
@@ -198,12 +198,13 @@
 ;;; Appearance
 
 ;;; Vertical separator
+
 (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
 
 (setopt mode-line-position-line-format `(" %l:%c")
-	mode-line-position-column-line-format '(" %l,%c")
-	mode-line-end-spaces nil
-	mode-line-compact nil)
+	      mode-line-position-column-line-format '(" %l,%c")
+	      mode-line-end-spaces nil
+	      mode-line-compact nil)
 
 (setq-default mode-line-format
               '("%e"
@@ -230,33 +231,33 @@
   :custom (minions-mode-line-lightr "..."))
 
 ;;;; Theme
+(setopt custom-safe-themes t)
+
 (use-package modus-themes
   :pin melpa
   :bind
   ("C-c t t" . modus-themes-toggle)
   :custom
-  (setq modus-themes-common-palette-overrides
-	'((prose-done green-intense)
-	  (prose-todo red-intense)))
-
+  (modus-themes-common-palette-overrides
+	 '((prose-done green-intense)
+	   (prose-todo red-intense)))
+  
   ;; Tone down almost all colors.
-  (setq modus-themes-common-palette-overrides
-	modus-themes-preset-overrides-faint))
+  (modus-themes-common-palette-overrides)
+	(modus-themes-preset-overrides-faint)
+  )
 
- (use-package solar
-   :ensure nil
-   :custom
-   (custom-safe-themes t)
-   (calendar-latitude 52.43152)
-   (calendar-longitude 21.03212))
 
-(use-package circadian
-  :ensure t
-  :after solar
-  :custom
-  (circadian-themes '((:sunrise . modus-operandi-deuteranopia)
-		      (:sunset  . modus-vivendi-deuteranopia)))
-  (circadian-setup))
+(defun bore/os-theme ()
+  "Get os theme."
+  (downcase
+   (if *is-a-linux*
+       (shell-command-to-string "gsettings get org.gnome.desktop.interface color-scheme")
+     (shell-command-to-string "defaults read -g AppleInterfaceStyle"))))
+
+(if (string-match-p "dark" (bore/os-theme))
+    (load-theme 'modus-vivendi-deuteranopia)
+  (load-theme 'modus-operandi-deuteranopia))
 
 (use-package nyan-mode
   :init (nyan-mode))
@@ -322,8 +323,8 @@
 
 ;;;; Tabs
 (setq-default tab-width 2
-	      tab-always-indent 'complete
-	      indent-tabs-mode nil)
+	            tab-always-indent 'complete
+	            indent-tabs-mode nil)
 
 (use-package tab-bar
   :ensure nil
@@ -347,8 +348,8 @@
 ;;;; Formatting
 
 (setq-default fill-column 80
-	      wrap-word t
-	      tuncate-lines t)
+	            wrap-word t
+	            tuncate-lines t)
 
 (setq scroll-conservatively 101                    ; value greater than 100 gets rid of half page jumping
       mouse-wheel-scroll-amount '(3 ((shift) . 3)) ; how many lines at a time
@@ -446,7 +447,7 @@
 
 ;;;; Frames
 (setopt frame-resize-pixelwise t
-	focus-follows-mouse t)
+	      focus-follows-mouse t)
 
 (add-hook 'after-init-hook #'pixel-scroll-precision-mode)
 
@@ -463,8 +464,8 @@
   ("C-c q q" . kill-emacs)
   ("C-c q r" . restart-emacs)
   (:repeat-map other-window-repeat-map
-	       ("o" . other-window)
-	       ("O" . other-other-window))
+	             ("o" . other-window)
+	             ("O" . other-other-window))
   :custom
   (window-resize-pixelwise t)
   (window-combination-resize t)
@@ -599,9 +600,9 @@
 
   ("M-s e" . consult-isearch-history)
   (:map isearch-mode-map
-	("M-e" . consult-isearch-history)          ; o
-	("M-s e" . consult-isearch-history)
-	("M-s l" . consult-line))
+	      ("M-e" . consult-isearch-history)          ; o
+	      ("M-s e" . consult-isearch-history)
+	      ("M-s l" . consult-line))
 
   :custom
   (xref-show-xrefs-function       #'consult-xref)
@@ -616,8 +617,8 @@
   :bind
   ("C-x C-d" . consult-dir)
   (:map vertico-map
-	("C-x C-d" . consult-dir)
-	("C-x C-j" . consult-dir-jump-file)))
+	      ("C-x C-d" . consult-dir)
+	      ("C-x C-j" . consult-dir-jump-file)))
 
 
 ;;;; Embark
@@ -637,9 +638,9 @@
 
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
-	       '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-		 nil
-		 (window-parameters (mode-line-format . none)))))
+	             '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+		             nil
+		             (window-parameters (mode-line-format . none)))))
 
 (use-package embark-consult
   :hook (embark-collect-mode . consult-preview-at-point-mode))
@@ -668,7 +669,7 @@
 
 (use-package tempel
   :bind (("M-+" . tempel-complete)
-	 ("M-*" . tempel-insert)))
+	       ("M-*" . tempel-insert)))
 
 
 ;;;; Hippie-expand
@@ -756,10 +757,10 @@
   :commands org-capture org-agenda
   :init
   (add-hook 'org-mode-hook
-	    (lambda ()
-	      (variable-pitch-mode 1)
-	      (org-modern-mode)
-	      (visual-line-mode 1)))
+	          (lambda ()
+	            (variable-pitch-mode 1)
+	            (org-modern-mode)
+	            (visual-line-mode 1)))
   :custom
   (org-directory "~/org/")
   (org-adapt-indentation nil)
@@ -821,13 +822,13 @@
   :custom
   (set-face-attribute 'org-document-title nil :font "Iosevka Aile" :weight 'bold :height 1.2)
   (dolist (face '((org-level-1 . 1.15)
-		  (org-level-2 . 1.10)
-		  (org-level-3 . 1.05)
-		  (org-level-4 . 1.0)
-		  (org-level-5 . 1.1)
-		  (org-level-6 . 1.1)
-		  (org-level-7 . 1.1)
-		  (org-level-8 . 1.1)))))
+		              (org-level-2 . 1.10)
+		              (org-level-3 . 1.05)
+		              (org-level-4 . 1.0)
+		              (org-level-5 . 1.1)
+		              (org-level-6 . 1.1)
+		              (org-level-7 . 1.1)
+		              (org-level-8 . 1.1)))))
 
 
 (use-package org-appear
@@ -894,11 +895,11 @@
      '("journal"))))
 
 (use-package consult-notes
-;;  :straight (:type git :host github :repo "mclear-tools/consult-notes")
+  ;;  :straight (:type git :host github :repo "mclear-tools/consult-notes")
   :commands (consult-notes
-	     consult-notes-search-in-all-notes
-	     consult-notes-org-roam-find-node
-	     consult-notes-org-roam-find-node-relation)
+	           consult-notes-search-in-all-notes
+	           consult-notes-org-roam-find-node
+	           consult-notes-org-roam-find-node-relation)
   :custom
   (consult-notes-file-dir-sources
    `(("Notes" ?n "~/org/notes")
@@ -1087,8 +1088,8 @@
        ("s" ("+spam" "-inbox" "-unread") "Mark as spam")
        ("a" notmuch-archive-tags "Archive (remove from inbox)")
        ("d" ("+trash" "-inbox" "-archived" "-unread"
-	     "-git" "-services" "-stores" "-networks" "-billing")
-	"Mark for deletion")))
+	           "-git" "-services" "-stores" "-networks" "-billing")
+	      "Mark for deletion")))
 
     ;; Reading messages
     (notmuch-show-relative-dates t)
@@ -1207,24 +1208,24 @@
 
 (use-package lsp-mode
   :hook ((c-mode
-	  c++-mode
-	  c-or-c++-mode
-	  js-mode
-	  rust-mode
-	  typescript-mode
-	  purescript-mode
-	  haskell-mode
-	  elixir-mode) . lsp-deferred)
+	        c++-mode
+	        c-or-c++-mode
+	        js-mode
+	        rust-mode
+	        typescript-mode
+	        purescript-mode
+	        haskell-mode
+	        elixir-mode) . lsp-deferred)
   :bind (:map lsp-mode-map
-	      ("C-c c d" . lsp-describe-thing-at-point)
-	      ("C-c c s" . consult-lsp-symbols)
-	      ("C-c c t" . lsp-goto-type-definition)
-	      ("M-,"     . lsp-find-references)
-	      ("M-."     . lsp-find-definition)
-	      ("C-c c f" . lsp-format-buffer)
-	      ("C-c c x" . lsp-execute-code-action)
-	      ("C-c c r" . lsp-rename)
-	      ("C-c c j" . consult-lsp-symbols))
+	            ("C-c c d" . lsp-describe-thing-at-point)
+	            ("C-c c s" . consult-lsp-symbols)
+	            ("C-c c t" . lsp-goto-type-definition)
+	            ("M-,"     . lsp-find-references)
+	            ("M-."     . lsp-find-definition)
+	            ("C-c c f" . lsp-format-buffer)
+	            ("C-c c x" . lsp-execute-code-action)
+	            ("C-c c r" . lsp-rename)
+	            ("C-c c j" . consult-lsp-symbols))
   :commands lsp lsp-deferred
 
   :custom
@@ -1240,10 +1241,10 @@
   (read-process-output-max (* 1024 1024))
   (lsp-log-io t))
 
-  :config
-  (add-hook 'lsp-completion-mode-hook
-	    (lambda ()
-	      (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
+:config
+(add-hook 'lsp-completion-mode-hook
+	        (lambda ()
+	          (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
 
 (use-package lsp-haskell
   :after (lsp haskell-mode))
@@ -1326,7 +1327,7 @@
 
   ;; Set custom formatters for modes
   (dolist (formatter-mode '((typescript-mode . prettier-format-buffer)
-			    (emacs-lisp-mode . lisp-indent)
+			                      (emacs-lisp-mode . lisp-indent)
                             (purescript-mode . purs-tidy)
                             (haskell-mode    . fourmolu)))
     (add-to-list #'apheleia-mode-alist formatter-mode))

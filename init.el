@@ -9,7 +9,7 @@
 (require 'package)
 (setopt package-archives
 	'(("gnu"    . "https://elpa.gnu.org/packages/")
-	  ("nongnu" . "https://elpa.nongnu.org/packages/")
+          ("nongnu" . "https://elpa.nongnu.org/nongnu/")
 	  ("melpa"  . "https://melpa.org/packages/")))
 (package-initialize)
 (unless package-archive-contents
@@ -50,7 +50,6 @@
 ;; Ensure that environment variables are the same as the user’s shell
 (when *is-a-mac*
   (use-package exec-path-from-shell
-    :straight t
     :if (memq window-system '(mac ns x))
     :hook (exec-path-from-shell-initialize))
   (when (featurep 'ns)
@@ -75,6 +74,12 @@
                              (float-time
                               (time-subtract after-init-time before-init-time)))
                      gcs-done)))
+
+(when *is-a-linux*
+  (use-package exec-path-from-shell
+    :functions (exec-path-from-shell-initialize)
+    :init (exec-path-from-shell-initialize)
+    :custom (exec-path-from-shell-variables '("PATH" "SSH_AUTH_SOCK"))))
 
 ;;; Auth source
 (use-package auth-source
@@ -138,13 +143,15 @@
       history-length 5000
       history-delete-duplicates t)
 
+;;;; Savehist
+
 (use-package savehist
   :ensure nil
   :init (savehist-mode)
   :custom
   (savehist-save-minibuffer-history t)
-  ((savehist-additional-variables
-    '(kill-ring search-ring regexp-search-ring))))
+  (savehist-additional-variables
+   '(kill-ring search-ring regexp-search-ring)))
 
 (use-package saveplace
   :ensure nil
@@ -372,7 +379,7 @@
 
 ;;;; Rainbow
 (use-package rainbow-mode
-  :bind ("C-c r t" . rainbow-mode))
+  :bind ("C-c t r" . rainbow-mode))
 
 ;;; Search
 
@@ -614,6 +621,7 @@
 
 
 ;;;; Embark
+
 (use-package embark
   :bind
   (("C-." . embark-act)
@@ -637,182 +645,482 @@
   :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 
+;;;; Cape
 
-;;;;; EOD 21 March
-
-
-
-
-
-
-
-
-
-
-
-
-(global-so-long-mode 1)
-(global-auto-revert-mode t)
-(set-default-coding-systems 'utf-8)
-(global-hl-line-mode 1)
-
-
-
-;; A little bit of rainbow here and there
-(use-package rainbow-delimiters
-  :straight t
-  :hook (prog-mode . rainbow-delimiters-mode))
-
-
-;; Just a thought... and you are there!
-
-
-
-(use-package which-key
-  :straight t
-  :defer t
-  :init (which-key-mode)
+(use-package cape
+  :functions
+  (cape-file cape-dabbrev cape-keyword cape-wrap-silent cape-wrap-purify)
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-keyword)
   :config
-  (setq which-key-idle-delay 0.5))
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
 
-(use-package helpful
-  :straight t
-  :commands helpful-callable helpful-variable helpful-command helpful-key
+
+;;;; Pcmpl-args - Shell completions
+
+(use-package pcmpl-args
+  :after (vertico))
+
+;;;; Tempel
+
+(use-package tempel
+  :bind (("M-+" . tempel-complete)
+	 ("M-*" . tempel-insert)))
+
+
+;;;; Hippie-expand
+
+(use-package hippie-exp
+  :ensure nil
+  :bind ("M-/" . hippie-expand)
+  :custom
+  (hippie-expand-try-functions-list
+   '(try-expand-dabbrev-visible
+     try-expand-dabbrev
+     try-expand-dabbrev-all-buffers
+     try-expand-dabbrev-from-kill
+     try-complete-file-name-partially
+     try-complete-file-name
+     try-expand-all-abbrevs
+     try-expand-list
+     try-expand-line)))
+
+;;; Editing
+
+;;;; Olivetti
+
+(use-package olivetti
+  :bind ("C-c t o" . olivetti-mode)
+  :custom
+  (olivetti-body-width 180)
+  (olivetti-minimum-body-width 100)
+  (olivetti-recall-visual-line-mode-state t))
+
+;;;; Logos
+
+(use-package logos
+  :after (outline)
   :bind
-  ([remap describe-function] . helpful-function)
-  ([remap describe-command]  . helpful-command)
-  ([remap describe-variable] . helpful-variable)
-  ([remap describe-key]      . helpful-key))
+  ([remap narrow-to-region] . logos-narrow-dwim)
+  ([remap forward-page]     . logos-forward-page-dwim)
+  ([remap backward-page]    . logos-backward-page-dwim)
+  ("C-c F"                  . logos-focus-mode)
+  :custom
+  (logos-outlines-are-pages t)
+  (logos-hide-mode-line t)
+  (logos-scroll-lock nil)
+  (logos-variable-pitch nil)
+  (logos-indicate-buffer-boundaries nil)
+  (logos-buffer-read-only nil)
+  (logos-olivetti t))
 
-(use-package hl-todo
-  :straight t
-  :hook (prog-mode . hl-todo-mode))
-
-(use-package iedit
-  :straight t
-  :commands iedit-mode iedit-rectangle-mode
-  :bind ("C-;" . iedit-mode))
-
-(use-package evil-multiedit
-  :defer t)
-
-(use-package multiple-cursors
-  :straight t
-  :bind (("C-<" . mc/mark-previous-like-this)
-         ("C->" . mc/mark-next-like-this)
-         ("C-c C-<" . mc/mark-all-like-this)
-         ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
-
-;; add evil-mc
-
-(use-package clipetty
-  :straight t
-  :unless (display-graphic-p)
-  :hook (tty-setup . global-clipetty-mode))
+;;;; Ispell
 
 (use-package ispell
-  :straight nil
+  :ensure nil
   :config
   (setq ispell-program-name "hunspell"
         ispell-dictionary "en_US,pl_PL,es_ES")
   (ispell-set-spellchecker-params)
   (ispell-hunspell-add-multi-dic ispell-dictionary))
 
+;;;; Flyspell
 (use-package flyspell
   :hook ((message-mode git-commit-mode org-mode text-mode) . flyspell-mode)
-  :bind (:map flyspell-mode-map
-              ("C-." . nil)
-              ("C-;" . nil))
+  :bind
+  ("C-c t s" . flyspell-mode)
+  (:map flyspell-mode-map
+        ("C-." . nil)
+        ("C-;" . nil))
   :config
   (setq flyspell-issue-welcome-flag nil
         flyspell-issue-message-flag nil))
 
-(use-package shr
-  :straight nil
+
+
+;;;; Clipetty
+
+(use-package clipetty
+  :unless (display-graphic-p)
+  :hook (tty-setup . global-clipetty-mode))
+
+
+
+;;;; Org
+
+(use-package org
+  :hook (org-mode . turn-on-visual-line-mode)
+  :commands org-capture org-agenda
+  :init
+  (add-hook 'org-mode-hook
+	    (lambda ()
+	      (variable-pitch-mode 1)
+	      (org-modern-mode)
+	      (visual-line-mode 1)))
+  :custom
+  (org-directory "~/org/")
+  (org-adapt-indentation nil)
+  (org-edit-src-persistent-message nil)
+  (org-fold-catch-invisible-edits 'show-and-error)
+  (org-insert-heading-respect-content t)
+  (org-fontify-quote-and-verse-blocks t)
+  (org-tags-column 0)
+  (org-hide-emphasis-markers t)
+  (org-hide-macro-markers t)
+  (org-hide-leading-stars nil)
+  (org-ellipsis "…")
+  (org-capture-bookmark nil)
+  (org-mouse-1-follows-link t)
+  (org-pretty-entities t)
+  (org-pretty-entities-include-sub-superscripts nil)
+  (org-indirect-buffer-display 'current-window)
+  (org-eldoc-breadcrumb-separator " → ")
+  (org-enforce-todo-dependencies t)
+  (org-startup-folded t)
+  (org-use-sub-superscripts '{})
+  (org-src-fontify-natively t)
+  (org-src-tab-acts-natively t)
+  (org-fontify-done-headline t)
+  (org-fontify-quote-and-verse-blocks t)
+  (org-fontify-whole-heading-line t)
+  (org-capture-bookmark nil)
+  (org-priority-faces
+   '((?A . error)
+     (?B . warning)
+     (?C . success)))
+
+  (org-entities-user
+   '(("flat"  "\\flat" nil "" "" "266D" "♭")
+     ("sharp" "\\sharp" nil "" "" "266F" "♯")))
+
+  (org-imenu-depth 6)
+  (org-structure-template-alist
+   '(("s" . "src")
+     ("e" . "src emacs-lisp")
+     ("h" . "src haskell")
+     ("E" . "example")
+     ("q" . "quote")
+     ("c" . "comment")))
+  (org-capture-templates
+   '(("t" "Todo" entry (file+headline "~/org/inbox.org" "True Life Tasks")
+      "* TODO %? \n%U" :empty-lines 1)
+     ("w" "Todo (work)" entry (file+headline "~/org/inbox.org" "Work Tasks")
+      "* TODO %? \n%U" :empty-lines 1)
+     ("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
+      "** %? \n %^T\n%U" :empty-lines 1))))
+
+
+(use-package org-modern
+  :after (org)
+  :hook
+  (org-mode . org-modern-mode)
+  (org-agenda-finalize . org-modern-mode)
+  :custom
+  (set-face-attribute 'org-document-title nil :font "Iosevka Aile" :weight 'bold :height 1.2)
+  (dolist (face '((org-level-1 . 1.15)
+		  (org-level-2 . 1.10)
+		  (org-level-3 . 1.05)
+		  (org-level-4 . 1.0)
+		  (org-level-5 . 1.1)
+		  (org-level-6 . 1.1)
+		  (org-level-7 . 1.1)
+		  (org-level-8 . 1.1)))))
+
+
+(use-package org-appear
+  :hook (org-mode)
+  :custom
+  (org-appear-autolinks t)
+  (org-appear-autoemphasis t)
+  (org-appear-autoentities t)
+  (org-appear-autokeywords t))
+
+
+(use-package org-agenda
+  :ensure nil
+  :bind
+  ("C-c a" . org-agenda)
+  ("C-c x" . org-capture)
+  :custom
+  (org-agenda-files (list org-directory))
+  (org-agenda-compact-blocks nil)
+  (org-agenda-window-setup 'current-window)
+  (org-agenda-skip-unavailable-files t)
+  (org-agenda-span 10)
+  (calendar-week-start-day 1)
+  (org-agenda-start-on-weekday nil)
+  (org-agenda-start-day "-3d")
+  (org-agenda-deadline-faces
+   '((1.001 . error)
+     (1.0 . org-warning)
+     (0.5 . org-upcoming-deadline)
+     (0.0 . org-upcoming-distant-deadline)))
+  (org-agenda-inhibit-startup t))
+
+(use-package org-cliplink
+  :bind ("C-c l" . 'org-cliplink))
+
+;;;; Detote
+
+(use-package denote
+  :bind
+  ("C-c n n" . denote)
+  ("C-c n i" . denote-link)
+  ("C-c n b" . denote-link-backlinks)
+  ("C-c n l" . denote-link-find-file)
+  ("C-c n r" . denote-rename-file)
+  ("C-c n j" . bore/journal)
+  ("C-c n f" . consult-notes)
+  :functions (denote--title-prompt)
+  :defines (denote-directory)
+  :hook (dired-mode . denote-dired-mode-in-directories)
+  :custom
+  (denote-directory (expand-file-name "~/org/notes/"))
+  (denote-known-keywords '("linux" "journal" "emacs" "embedded" "hobby"))
+  (denote-infer-keywords t)
+  (denote-sort-keywords t)
+  (denote-prompt-for-date-return-id '(title keywords))
+  (denote-front-matter-date-format 'org-timestamp)
+  (denote-templates '((todo . "* Tasks:\n\n")))
   :config
-  (setq shr-use-colors nil
-	shr-use-fonts nil
-	shr-max-image-proportion 0.6
-	shr-image-animate nil
-	shr-width nil
-	shr-discard-aria-hidden t
-	shr-cookie-policy nil))
+  (defun bore/journal ()
+    "Create an entry tagged 'journal' with the date as its title"
+    (interactive)
+    (denote
+     (format-time-string "%A %e %B %Y")
+     '("journal"))))
+
+(use-package consult-notes
+;;  :straight (:type git :host github :repo "mclear-tools/consult-notes")
+  :commands (consult-notes
+	     consult-notes-search-in-all-notes
+	     consult-notes-org-roam-find-node
+	     consult-notes-org-roam-find-node-relation)
+  :custom
+  (consult-notes-file-dir-sources
+   `(("Notes" ?n "~/org/notes")
+     ("Roam"  ?r "~/org/roam")))
+  (when (locate-library "denote")
+    (consult-notes-denote-mode)))
+
+;; use https://tony-zorman.com/posts/vc-use-package.html
+;; (when *is-a-mac*
+;;   (use-package orgmark
+;;     :straight (orgmark
+;; 	       :host github
+;; 	       :repo "casouri/OrgMark")))
+
+;;;; Markdown
+
+(use-package markdown-mode
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'"       . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :hook (markdown-mode . turn-on-visual-line-mode)
+  :custom
+  (markdown-fontify-code-blocks-natively t))
+
+;;;; Enable focus on block with C-c '
+(use-package edit-indirect)
+
+;;;; Citar
+(use-package citar
+  :hook (org-mode  . citar-capf-setup)
+  :bind ("C-c n c" . citar-insert-citation)
+  :custom
+  (org-cite-global-bibliography '("~/org/bibliography.bib"))
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
+  (citar-bibliography org-cite-global-bibliography))
+
+(use-package citar-embark
+  :after (citar embark)
+  :functions (citar-embark-mode)
+  :init (citar-embark-mode)
+  :custom (citar-at-point-function 'embark-act))
+
+(use-package citar-denote
+  :after (citar denote)
+  :functions (citar-denote-mode)
+  :init (citar-denote-mode)
+  :custom (citar-open-always-create-notes t))
+
+
+;;; Utility
+
+(use-package which-key
+  :defer t
+  :init (which-key-mode)
+  :config
+  (setq which-key-idle-delay 0.5))
+
+(use-package proced
+  :ensure nil
+  :custom (proced-auto-update-flag t))
+
+(use-package xclip
+  :unless (display-graphic-p)
+  :hook (tty-setup)
+  :custom (xclip-method 'wl-copy))
+
+(add-hook 'tty-setup-hook #'xterm-mouse-mode)
+
+(add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
+
+(setopt vc-handled-backends '(Git)
+        vc-follow-symlinks t)
+
+(use-package hl-todo
+  :hook (prog-mode))
+
+(use-package evil-multiedit
+  :defer t)
+
+(use-package multiple-cursors
+  :bind
+  ("C-<" . mc/mark-previous-like-this)
+  ("C->" . mc/mark-next-like-this)
+  ("C-c C-<" . mc/mark-all-like-this)
+  ("C-S-<mouse-1>" . mc/add-cursor-on-click))
+
+;;; Web browsing
+
+(use-package shr
+  :ensure nil
+  :custom
+  (shr-use-colors nil)
+  (shr-use-fonts nil)
+  (shr-max-image-proportion 0.6)
+  (shr-image-animate nil)
+  (shr-width nil)
+  (shr-discard-aria-hidden t)
+  (shr-cookie-policy nil))
 
 (use-package eww
-  :straight nil
+  :ensure nil
   :bind ("C-c o b" . eww)
   :config
-  (setq eww-restore-desktop t
-	eww-desktop-remove-duplicates t
-	eww-header-line-format nil
-	eww-search-prefix "https://html.duckduckgo.com/html/?q="
-	eww-download-directory (expand-file-name "~/Downloads")
-	eww-suggest-uris
-	'(eww-links-at-point
-	  thing-at-point-url-at-point)
-	eww-history-limit 150
-	eww-use-external-browser-for-content-type
-	"\\`\\(video/\\|audio\\)"
-	eww-browse-url-new-window-is-tab nil
-	eww-form-checkbox-selected-symbol "[X]"
-	eww-form-checkbox-symbol "[ ]"
-	eww-retrieve-command nil))
+  (eww-restore-desktop t)
+  (eww-desktop-remove-duplicates t)
+  (eww-header-line-format nil)
+  (eww-search-prefix "https://html.duckduckgo.com/html/?q=")
+  (eww-download-directory (expand-file-name "~/Downloads"))
+  (eww-suggest-uris
+   '(eww-links-at-point
+     thing-at-point-url-at-point))
+  (eww-history-limit 150)
+  (eww-use-external-browser-for-content-type)
+  ("\\`\\(video/\\|audio\\)")
+  (eww-browse-url-new-window-is-tab nil)
+  (eww-form-checkbox-selected-symbol "[X]")
+  (eww-form-checkbox-symbol "[ ]")
+  (eww-retrieve-command nil))
 
-(use-package pdf-tools
-  :mode ("\\.pdf\\'" . pdf-view-mode)
-  :magic ("%PDF" . pdf-view-mode))
+;;; RSS
 
-(use-package project
-  :straight t)
+(use-package elfeed
+  :bind ("C-x w" . elfeed))
 
-(use-package magit
-  :straight t
-  :commands magit-file-delete
-  :init
-  (setq magit-auto-revert-mode nil)             ; `global-auto-revert-mode'
+(use-package elfeed-org
+  :after (elfeed)
   :config
-  (setq transient-default-level 5
-        magit-diff-refine-hunk t                ; show granular diffs in selected hunk
-        magit-save-repository-buffers nil       ; don't autosave repo buffers
-        magit-revision-insert-related-refs nil) ; don't display parent/related refs in commit buffers
+  (elfeed-org)
   :custom
-  (magit-section-visibility-indicator nil)
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  (rmh-elfeed-org-files (list "~/org/elfeed.org")))
 
-(use-package magit-todos
-  :after magit
-  :config
-  (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?") ; make colon optional
-  (define-key magit-todos-section-map "j" nil))
+;;; Email (linux only)
+
+(when *is-a-linux*
+  (use-package message
+    :ensure nil
+    :custom
+    (message-directory "~/.mail/thebo")
+    (message-kill-buffer-on-exit t)
+    (message-wide-reply-confirm-recipients t)
+    (message-sendmail-envelope-from 'header))
+
+  (use-package notmuch
+    :defines (notmuch-show-mode-map)
+    :hook
+    (notmuch-message-mode . turn-off-auto-fill)
+    (notmuch-message-mode . turn-on-visual-line-mode)
+    :bind
+    ("C-c o m" . notmuch)
+    (:map notmuch-show-mode-map ("o" . notmuch-show-interactively-view-part))
+    :custom
+    ;;      (notmuch-show-logo nil)
+    (notmuch-column-control t)
+    (notmuch-hello-auto-refresh t)
+    (notmuch-show-all-tags-list t)
+    (notmuch-show-empty-saved-searches t)
+    (notmuch-hello-recent-searches-max 20)
+
+    ;; Search functionality
+    (notmuch-search-oldest-first nil)
+    (notmuch-search-result-format
+     '(("date" . "%12s ")
+       ("count" . "%-7s ")
+       ("authors" . "%-30s ")
+       ("subject" . "%-72s ")
+       ("tags" . "(%s)")))
+    (notmuch-saved-searches
+     '((:name "inbox"    :query "tag:inbox not tag:trash" :key "i")
+       (:name "flagged"  :query "tag:flagged"             :key "f")
+       (:name "sent"     :query "tag:sent"                :key "s")
+       (:name "drafts"   :query "tag:drafts"              :key "d")
+       (:name "archived" :query "tag:archived"            :key "a")))
+
+    ;; Tags functionality
+    (notmuch-archive-tags '("-inbox" "-unread" "+archived"))
+    (notmuch-message-replied-tags '("+replied"))
+    (notmuch-message-forwarded-tags '("+forwarded"))
+    (notmuch-show-mark-read-tags '("-unread"))
+    (notmuch-draft-tags '("+drafts"))
+    (notmuch-tagging-keys
+     '(("u" ("+unread") "Mark as unread")
+       ("f" ("+flag" "-unread") "Flag as important")
+       ("r" notmuch-show-mark-read-tags "Mark as read")
+       ("s" ("+spam" "-inbox" "-unread") "Mark as spam")
+       ("a" notmuch-archive-tags "Archive (remove from inbox)")
+       ("d" ("+trash" "-inbox" "-archived" "-unread"
+	     "-git" "-services" "-stores" "-networks" "-billing")
+	"Mark for deletion")))
+
+    ;; Reading messages
+    (notmuch-show-relative-dates t)
+    (notmuch-message-headers-visible t)
+
+    ;; Email composition
+    (notmuch-always-prompt-for-sender t)
+    (notmuch-mua-compose-in 'current-window)
+    (notmuch-mua-user-agent-function 'notmuch-mua-user-agent-full)
+    (notmuch-mua-cite-function 'message-cite-original-without-signature)
+
+    ;; Directory for sent messages
+    (notmuch-fcc-dirs "thebo/Sent"))
+
+  (use-package sendmail
+    :ensure nil
+    :custom
+    (mail-specify-envelope-from t)
+    (mail-user-agent 'message-user-agent)
+    (smtpmail-smtp-server "smtp.migadu.com")
+    (smtpmail-smtp-service 465)
+    (smtpmail-stream-type 'ssl)
+    (send-mail-function 'smtpmail-send-it)))
+
+(use-package org-mime
+  :after (org notmuch)
+  :custom (org-mime-library 'mml org-mime-export-ascii 'utf-8))
 
 
-(use-package ediff
-  :straight nil
-  :config
-  (setq ediff-merge-split-window-function 'split-window-horizontally
-        ediff-split-window-function 'split-window-horizontally
-        ediff-window-setup-function 'ediff-setup-windows-plain))
-
-(use-package diff-hl
-  :straight t
-  :config
-  (setq diff-hl-draw-borders nil)
-  (global-diff-hl-mode 1))
-
-;; (use-package vterm
-;;   :straight t
-;;   :bind
-;;   ("C-c o t" . vterm-other-window)
-;;   ("C-c o T" . vterm)
-;;   :config
-;;   (setq vterm-kill-buffer-on-exit t
-;; 	vterm-always-compile-module t
-;; 	vterm-max-scrollback 5000
-;; 	vterm-timer-delay nil
-;; 	vterm-shell "/bin/zsh"))
+;;; Shell
 
 (use-package eat
-  :straight t
   :commands (eat)
   :hook
   (eshell-mode . eat-eshell-mode)
@@ -836,180 +1144,68 @@
       (switch-to-buffer (other-buffer buf))
       (switch-to-buffer-other-window buf))))
 
+;;;; Tramp
 
-(use-package olivetti
-  :straight t
-  :commands olivetti-mode
-  :config
-
-  (setq olivetti-body-width 180))
-
-(use-package logos
-  :straight t
-  :bind
-  ([remap narrow-to-region] . logos-narrow-dwim)
-  ([remap forward-page]     . logos-forward-page-dwim)
-  ([remap backward-page]   . logos-backward-page-dwim)
-  ("C-c F"                      . logos-focus-mode)
+(use-package tramp
+  :ensure nil
   :custom
-  (logos-outlines-are-pages t)
-  (logos-hide-mode-line t)
-  (logos-scroll-lock nil)
-  (logos-variable-pitch nil)
-  (logos-indicate-buffer-boundaries nil)
-  (logos-buffer-read-only nil)
-  (logos-olivetti t))
+  (tramp-default-method "ssh")
+  (tramp-terminal-type "tramp")
+  (tramp-verbose 6))
 
-(setq xterm-set-window-title t)
-(setq visible-cursor nil)
-;; Enable the mouse in terminal Emacs
-(add-hook 'tty-setup-hook #'xterm-mouse-mode)
+;;; Magit
 
-(use-package yasnippet
-  :straight t
+(use-package magit
+  :bind ("C-x g" . magit-status)
+  :custom
+  (magit-diff-refine-hunk t)
+  (magit-save-repository-buffers 'dontask)
+  (magit-revision-insert-related-refs nil)
+  (magit-section-visibility-indicator nil)
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+
+;;;; Ediff
+(use-package ediff
+  :ensure nil
+  :custom
+  (ediff-merge-split-window-function 'split-window-horizontally)
+  (ediff-split-window-function 'split-window-horizontally)
+  (ediff-window-setup-function 'ediff-setup-windows-plain))
+
+;;;; Diff-hl
+
+(use-package diff-hl
+  :functions (global-diff-hl-mode diff-hl-margin-mode)
+  :hook (dired-mode . diff-hl-dired-mode)
+  :custom
+  (diff-hl-draw-borders nil)
+  (diff-hl-margin-symbols-alist
+   '((insert  . " ")
+     (delete  . " ")
+     (change  . " ")
+     (unknown . " ")
+     (ignored . " ")))
   :config
-  (setq yas-snippet-dirs
-        (append yas-snippet-dirs
-                '("~/.emacs.d/snippets")))
-  (yas-global-mode 1)
-  )
+  (unless (display-graphic-p)
+    (diff-hl-margin-mode 1))
+  (global-diff-hl-mode 1))
 
-;; Configure Tempel
-(use-package tempel
-  :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
-	 ("M-*" . tempel-insert))
 
-  :init
-
-  ;; Setup completion at point
-  (defun tempel-setup-capf ()
-    ;; Add the Tempel Capf to `completion-at-point-functions'. `tempel-expand'
-    ;; only triggers on exact matches. Alternatively use `tempel-complete' if
-    ;; you want to see all matches, but then Tempel will probably trigger too
-    ;; often when you don't expect it.
-    ;; NOTE: We add `tempel-expand' *before* the main programming mode Capf,
-    ;; such that it will be tried first.
-    (setq-local completion-at-point-functions
-		(cons #'tempel-expand
-		      completion-at-point-functions)))
-
-  (add-hook 'prog-mode-hook 'tempel-setup-capf)
-  (add-hook 'text-mode-hook 'tempel-setup-capf)
-  (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
-
-  ;; Optionally make the Tempel templates available to Abbrev,
-  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
-  ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
-  ;; (tempel-global-abbrev-mode)
-  )
-
-(use-package elfeed
-  :straight t
-  :bind
-  ("C-x w" . elfeed))
-
-(use-package elfeed-org
-  :straight t
-  :after elfeed
+(use-package diff-hl
   :config
-  (elfeed-org)
-  (setq rmh-elfeed-org-files (list "~/org/elfeed.org")))
+  (setq diff-hl-draw-borders nil)
+  (global-diff-hl-mode 1))
 
-
-
-(when *is-a-linux*
-    (use-package message
-      :straight nil
-      :custom
-      (message-directory "~/.mail/thebo")
-      (message-kill-buffer-on-exit t)
-      (message-wide-reply-confirm-recipients t)
-      (message-sendmail-envelope-from 'header))
-
-    (use-package notmuch
-      :straight t
-      :defines (notmuch-show-mode-map)
-      :hook
-      (notmuch-message-mode . turn-off-auto-fill)
-      (notmuch-message-mode . turn-on-visual-line-mode)
-      :bind
-      ("C-c o m" . notmuch)
-      (:map notmuch-show-mode-map ("o" . notmuch-show-interactively-view-part))
-      :custom
-;;      (notmuch-show-logo nil)
-      (notmuch-column-control t)
-      (notmuch-hello-auto-refresh t)
-      (notmuch-show-all-tags-list t)
-      (notmuch-show-empty-saved-searches t)
-      (notmuch-hello-recent-searches-max 20)
-
-      ;; Search functionality
-      (notmuch-search-oldest-first nil)
-      (notmuch-search-result-format
-       '(("date" . "%12s ")
-	 ("count" . "%-7s ")
-	 ("authors" . "%-30s ")
-	 ("subject" . "%-72s ")
-	 ("tags" . "(%s)")))
-      (notmuch-saved-searches
-       '((:name "inbox"    :query "tag:inbox not tag:trash" :key "i")
-	 (:name "flagged"  :query "tag:flagged"             :key "f")
-	 (:name "sent"     :query "tag:sent"                :key "s")
-	 (:name "drafts"   :query "tag:drafts"              :key "d")
-	 (:name "archived" :query "tag:archived"            :key "a")))
-
-      ;; Tags functionality
-      (notmuch-archive-tags '("-inbox" "-unread" "+archived"))
-      (notmuch-message-replied-tags '("+replied"))
-      (notmuch-message-forwarded-tags '("+forwarded"))
-      (notmuch-show-mark-read-tags '("-unread"))
-      (notmuch-draft-tags '("+drafts"))
-      (notmuch-tagging-keys
-       '(("u" ("+unread") "Mark as unread")
-	 ("f" ("+flag" "-unread") "Flag as important")
-	 ("r" notmuch-show-mark-read-tags "Mark as read")
-	 ("s" ("+spam" "-inbox" "-unread") "Mark as spam")
-	 ("a" notmuch-archive-tags "Archive (remove from inbox)")
-	 ("d" ("+trash" "-inbox" "-archived" "-unread"
-	       "-git" "-services" "-stores" "-networks" "-billing")
-	  "Mark for deletion")))
-
-      ;; Reading messages
-      (notmuch-show-relative-dates t)
-      (notmuch-message-headers-visible t)
-
-      ;; Email composition
-      (notmuch-always-prompt-for-sender t)
-      (notmuch-mua-compose-in 'current-window)
-      (notmuch-mua-user-agent-function 'notmuch-mua-user-agent-full)
-      (notmuch-mua-cite-function 'message-cite-original-without-signature)
-
-      ;; Directory for sent messages
-      (notmuch-fcc-dirs "thebo/Sent"))
-
-    (use-package sendmail
-      :straight nil
-      :custom
-      (mail-specify-envelope-from t)
-      (mail-user-agent 'message-user-agent)
-      (smtpmail-smtp-server "smtp.migadu.com")
-      (smtpmail-smtp-service 465)
-      (smtpmail-stream-type 'ssl)
-      (send-mail-function 'smtpmail-send-it))
-    )
-
-  (use-package org-mime
-    :after (org notmuch)
-    :custom (org-mime-library 'mml org-mime-export-ascii 'utf-8))
+(use-package pdf-tools
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :magic ("%PDF" . pdf-view-mode))
 
 (use-package envrc
-  :straight t
   :config
   (envrc-global-mode))
 
 (use-package lsp-mode
-  :straight t
-
   :hook ((c-mode
 	  c++-mode
 	  c-or-c++-mode
@@ -1023,333 +1219,144 @@
 	      ("C-c c d" . lsp-describe-thing-at-point)
 	      ("C-c c s" . consult-lsp-symbols)
 	      ("C-c c t" . lsp-goto-type-definition)
-	      ("M-," . lsp-find-references)
-	      ("M-." . lsp-find-definition)
+	      ("M-,"     . lsp-find-references)
+	      ("M-."     . lsp-find-definition)
 	      ("C-c c f" . lsp-format-buffer)
 	      ("C-c c x" . lsp-execute-code-action)
 	      ("C-c c r" . lsp-rename)
 	      ("C-c c j" . consult-lsp-symbols))
   :commands lsp lsp-deferred
 
+  :custom
+  (lsp-idle-delay 0.5)
+  (lsp-diagnostics-provider t)
+  (lsp-keep-workspace-alive nil)
+  (lsp-headerline-breadcrumb-enable nil)
+  (lsp-modeline-code-actions-enable nil)
+  (lsp-modeline-diagnostics-enable nil)
+  (lsp-modeline-workspace-status-enable nil)
+  (lsp-enable-file-watchers nil)
+  (lsp-file-watch-threshold 5000)
+  (read-process-output-max (* 1024 1024))
+  (lsp-log-io t))
+
   :config
-  (setq lsp-idle-delay 0.5
-	lsp-diagnostics-provider t
-	lsp-keep-workspace-alive nil
-	lsp-headerline-breadcrumb-enable nil
-	lsp-modeline-code-actions-enable nil
-	lsp-modeline-diagnostics-enable nil
-	lsp-modeline-workspace-status-enable nil
-	lsp-enable-file-watchers nil
-	lsp-file-watch-threshold 5000
-	read-process-output-max (* 1024 1024)
-	lsp-log-io t))
-
-
   (add-hook 'lsp-completion-mode-hook
 	    (lambda ()
 	      (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
 
 (use-package lsp-haskell
-  :straight t
   :after (lsp haskell-mode))
 
 (use-package consult-lsp
-  :straight t
-  :after lsp-mode)
+  :after (lsp-mode))
 
-(use-package corfu
-  ;; Optional customizations
-  :straight t
-  :custom
-  (corfu-cycle t)                ; enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ; enable auto completion
-  (corfu-quit-no-match t)        ; automatically quit if there is no match
-  (corfu-echo-documentation nil) ; do not show documentation in the echo area
-   ;; This is recommended since Dabbrev can be used globally (M-/).
-  :init
-  (global-corfu-mode)
-  )
 
-(use-package cape
-  :straight t
-  :after corfu
-  :init
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-keyword)
+;;;; Tree sitter
+
+(use-package treesit-auto
+  :demand
+  :functions (global-treesit-auto-mode)
+  :custom (treesit-auto-install t)
   :config
-  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent))
+  (add-to-list 'auto-mode-alist '("[/\\]\\(?:Containerfile\\|Dockerfile\\)\\(?:\\.[^/\\]*\\)?\\'" . dockerfile-ts-mode))
+  (add-to-list 'auto-mode-alist '("CMakeLists\\'" . cmake-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.go\\'"      . go-ts-mode))
+  (add-to-list 'auto-mode-alist '("/go\\.mod\\'"  . go-mod-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.ts\\'"      . typescript-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'"     . tsx-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.rs\\'"      . rust-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.ya?ml\\'"   . yaml-ts-mode))
+  (global-treesit-auto-mode))
 
-;; Use the overpowered expand of the hippies
-(use-package hippie-exp
-  :straight nil
-  :bind ("M-/" . hippie-expand)
+;;;; Compilation
+
+(use-package compile
+  :functions (ansi-color-apply-on-region)
+  :hook (compilation-filter . colorize-compilation-buffer)
+  :bind
+  (:map prog-mode-map
+        ("C-c c c" . compile)
+        ("C-c c C" . recompile))
+  :custom (compilation-scroll-output t)
   :config
-  (setq hippie-expand-try-functions-list
-        '(try-expand-dabbrev-visible
-          try-expand-dabbrev
-          try-expand-dabbrev-all-buffers
-          try-expand-dabbrev-from-kill
-          try-complete-file-name-partially
-          try-complete-file-name
-          try-expand-all-abbrevs
-          try-expand-list
-          try-expand-line)))
+  (require 'ansi-color)
+  (defun colorize-compilation-buffer ()
+    "Colorize compilation buffer."
+    (let ((inhibit-read-only t))
+      (ansi-color-apply-on-region (point-min) (point-max)))))
 
+;;;; Syntax checker
+
+;; Have some mercy on me
 (use-package flymake
-  :straight nil
-  :hook (prog-mode . flymake-mode)
-  :bind (("M-n" . flymake-goto-next-error)
-	 ("M-p"  . flymake-goto-prev-error))
-  :config
-  (setq flymake-suppress-zero-counters t)
-  (setq flymake-mode-line-counter-format
-	'(" " flymake-mode-line-error-counter
-	  flymake-mode-line-warning-counter
-	  flymake-mode-line-note-counter "")))
+  :ensure nil
+  :hook (prog-mode)
+  :bind
+  ("C-c t f" . flymake-mode)
+  (:map flymake-mode-map
+        ("M-n" . flymake-goto-next-error)
+        ("M-p" . flymake-goto-prev-error))
+  :custom
+  (flymake-suppress-zero-counters t)
+  (flymake-mode-line-counter-format
+   '(" " flymake-mode-line-error-counter
+     flymake-mode-line-warning-counter
+     flymake-mode-line-note-counter "")))
 
 (use-package flymake-collection
-  :straight t
-  :hook (after-init . flymake-collection-hook-setup))
+  :functions (flymake-collection-hook-setup)
+  :init (flymake-collection-hook-setup)
+  :custom (flymake-collection-hook-ignore-modes
+           '(eglot--managed-mode bash-ts-mode)))
 
-(use-package flymake-grammarly
-    :straight t)
-(add-hook 'text-mode-hook 'flymake-grammarly-load)
-(add-hook 'latex-mode-hook 'flymake-grammarly-load)
-(add-hook 'org-mode-hook 'flymake-grammarly-load)
-(add-hook 'markdown-mode-hook 'flymake-grammarly-load)
-(add-hook 'magit-message 'flymake-grammarly-load)
+;;;; Apheleia
 
-(use-package reformatter
-  :straight t
-  :defer t)
+(use-package apheleia
+  :defines (formatter-cmd formatter-mode)
+  :functions (apheleia-global-mode apheleia-formatters apheleia-mode-alist)
+  :bind ("C-c t a" . apheleia-mode)
+  :init
+  (require 'apheleia-formatters)
+  ;; Set custom formatting commands
+  (dolist (formatter-cmd '((purs-tidy . ("purs-tidy" "format"))
+                           (fourmolu  . ("fourmolu" "--indentation" "2" "--stdin-input-file"
+                                         (or (buffer-file-name) (buffer-name))))))
+    (add-to-list #'apheleia-formatters formatter-cmd))
 
-(use-package agda2-mode
-  :straight t
-  :mode (("\\.agda\\'" . agda2-mode)
-	 ("\\.lagda.md\\'" . agda2-mode)))
+  ;; Set custom formatters for modes
+  (dolist (formatter-mode '((typescript-mode . prettier-format-buffer)
+			    (emacs-lisp-mode . lisp-indent)
+                            (purescript-mode . purs-tidy)
+                            (haskell-mode    . fourmolu)))
+    (add-to-list #'apheleia-mode-alist formatter-mode))
+  (apheleia-global-mode))
 
-(use-package agda-input
-  :straight (:package "agda-input" :type git :host github :repo "agda/agda" :files ("src/data/emacs-mode/agda-input.el")))
+;;;; Direnv
 
-(use-package haskell-mode
-  :straight t
-  :mode (("\\.hs\\'"    . haskell-mode)
-         ("\\.cabal\\'" . haskell-cabal-mode))
+(use-package envrc
+  :functions (envrc-global-mode)
+  :init (envrc-global-mode))
 
-  :hook ((haskell-mode . interactive-haskell-mode)
-         (haskell-mode . haskell-indentation-mode)
-         (haskell-mode . fourmolu-format-on-save-mode))
 
-  :bind (:map haskell-mode-map
-              ("C-c c o" . hoogle)
-              ("C-c c f" . fourmolu-format-buffer))
-  :custom
-  (haskell-interactive-popup-errors nil)
-  (haskell-process-log t)
-  (haskell-process-type 'stack-ghci)
-  (haskell-process-load-or-reload-prompt t)
-  (haskell-process-auto-import-loaded-modules t)
-  (haskell-process-suggest-hoogle-imports t)
-  (haskell-process-suggest-remove-import-lines t))
 
-(reformatter-define fourmolu-format
-  :program "fourmolu"
-  :args (list "--stdin-input-file" (buffer-file-name))
-  :lighter " fourmolu")
+
+;;; Programming Langs
+
+;;;; Lua
 
 (use-package lua-mode
-  :straight t
   :mode "\\.lua\\'")
 
-(use-package toml-mode
-  :straight t
-  :mode "\\.toml\\'")
+;;;; Yaml
 
 (use-package yaml-mode
-  :straight t
-  :mode "\\.yaml\\'")
-(setq js-indent-level 2)
+  :mode "\\.ya?ml\\'")
 
-(use-package dhall-mode
-  :defer t
-  :config
-  (set-repl-handler! 'dhall-mode #'dhall-repl-show)
-  (setq dhall-format-at-save t)
-  )
-
-(use-package lua-mode
-  :straight t
-  :mode "\\.lua\\'")
-
-(use-package markdown-mode
-  :straight t
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'"       . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :commands (markdown-mode gfm-mode)
-  :config
-  (setq markdown-fontify-code-blocks-natively t))
-
-(use-package org
-  :straight t
-  :commands org-capture org-agenda
-  :init
-  (add-hook 'org-mode-hook
-	    (lambda ()
-	      (variable-pitch-mode 1)
-	      (org-modern-mode)
-	      (visual-line-mode 1)))
-  :config
-  (setq org-directory "~/org/"
-	org-adapt-indentation nil
-	org-edit-src-persistent-message nil
-	org-fold-catch-invisible-edits 'show-and-error
-	org-insert-heading-respect-content t
-	org-fontify-quote-and-verse-blocks t
-	org-tags-column 0
-	org-hide-emphasis-markers t
-	org-hide-macro-markers t
-	org-hide-leading-stars nil
-	org-ellipsis "…"
-	org-capture-bookmark nil
-	org-mouse-1-follows-link t
-	org-pretty-entities t
-	org-pretty-entities-include-sub-superscripts nil
-	org-indirect-buffer-display 'current-window
-	org-eldoc-breadcrumb-separator " → "
-	org-enforce-todo-dependencies t
-	org-startup-folded t
-	org-use-sub-superscripts '{}
-	org-src-fontify-natively t
-	org-src-tab-acts-natively t
-	org-fontify-done-headline t
-	org-fontify-quote-and-verse-blocks t
-	org-fontify-whole-heading-line t
-	org-capture-bookmark nil
-	org-priority-faces
-	'((?A . error)
-	  (?B . warning)
-	  (?C . success))
-
-	org-entities-user
-	'(("flat"  "\\flat" nil "" "" "266D" "♭")
-	  ("sharp" "\\sharp" nil "" "" "266F" "♯"))
-
-	org-imenu-depth 6
-	org-structure-template-alist
-	'(("s" . "src")
-	  ("e" . "src emacs-lisp")
-	  ("h" . "src haskell")
-	  ("E" . "example")
-	  ("q" . "quote")
-	  ("c" . "comment")))      )
-
-(use-package org-modern
-  :straight t
-  :after org
-  :config
-  (set-face-attribute 'org-document-title nil :font "Iosevka Aile" :weight 'bold :height 1.2)
-  (dolist (face '((org-level-1 . 1.15)
-		  (org-level-2 . 1.10)
-		  (org-level-3 . 1.05)
-		  (org-level-4 . 1.0)
-		  (org-level-5 . 1.1)
-		  (org-level-6 . 1.1)
-		  (org-level-7 . 1.1)
-		  (org-level-8 . 1.1)))
-  (set-face-attribute (car face) nil :font "Iosevka Aile" :weight 'medium :height (cdr face))
-  (set-face-attribute 'org-document-title nil :font "Iosevka Aile" :weight 'bold :height 1.2)
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)))
-
-(use-package denote
-  :straight t
-  :bind
-  (("C-c n n" . denote)
-   ("C-c n i" . denote-link)
-   ("C-c n b" . denote-link-backlinks)
-   ("C-c n l" . denote-link-find-file)
-   ("C-c n r" . denote-rename-file)
-   ("C-c n j" . bore/journal)
-   ("C-c n f" . consult-notes))
-  :config
-
-  (setq denote-directory (expand-file-name "~/org/notes/")
-	denote-known-keywords '("linux" "journal" "emacs" "embedded" "hobby")
-	denote-infer-keywords t
-	denote-sort-keywords t
-	denote-prompt '(title keywords)
-	denote-front-matter-date-format 'org-timestamp
-	denote-templates '((todo . "* Tasks:\n\n"))))
-
-(defun bore/journal ()
-  "Create an entry tagged 'journal' with the date as its title"
-  (interactive)
-  (denote
-   (format-time-string "%A %e %B %Y")
-   '("journal")))
-
-(use-package consult-notes
-  :straight (:type git :host github :repo "mclear-tools/consult-notes")
-  :commands (consult-notes
-	     consult-notes-search-in-all-notes
-	     consult-notes-org-roam-find-node
-	     consult-notes-org-roam-find-node-relation)
-  :config
-  (setq consult-notes-file-dir-sources
-	`(("Notes" ?n "~/org/notes")
-	  ("Roam"  ?r "~/org/roam")))
-  (when (locate-library "denote")
-    (consult-notes-denote-mode)))
-
-(use-package org-agenda
-  :straight nil
-  :bind
-  (("C-c a" . org-agenda)
-   ("C-c x" . org-capture))
-  :init
-  (add-hook 'org-agenda-finalize-hook (lambda () (org-modern-agenda)))
-  :config
-  (setq-default org-agenda-files (list org-directory)
-                org-agenda-compact-blocks nil
-                org-agenda-window-setup 'current-window
-                org-agenda-skip-unavailable-files t
-                org-agenda-span 10
-                calendar-week-start-day 1
-                org-agenda-start-on-weekday nil
-                org-agenda-start-day "-3d"
-                org-agenda-deadline-faces
-                '((1.001 . error)
-                  (1.0 . org-warning)
-                  (0.5 . org-upcoming-deadline)
-                  (0.0 . org-upcoming-distant-deadline))
-                org-agenda-inhibit-startup t))
-
-(setq org-capture-templates
-      '(("t" "Todo" entry (file+headline "~/org/inbox.org" "True Life Tasks")
-	 "* TODO %? \n%U" :empty-lines 1)
-	("w" "Todo (work)" entry (file+headline "~/org/inbox.org" "Work Tasks")
-	 "* TODO %? \n%U" :empty-lines 1)
-	("e" "Event" entry (file+headline "~/org/agenda.org" "Agenda")
-	 "** %? \n %^T\n%U" :empty-lines 1)))
-
-(use-package org-cliplink
-  :straight t
-  :config
-  (global-set-key (kbd "C-c l") 'org-cliplink))
-
-(when *is-a-mac*
-  (use-package orgmark
-    :straight (orgmark
-	       :host github
-	       :repo "casouri/OrgMark")))
+;;;; Ocaml
 
 (use-package tuareg
-  :straight t
-  :mode
-  ("\\.ml[iylp]?$" . tuareg-mode))
+  :mode ("\\.ml[iylp]?$" . tuareg-mode))
 
 (let ((opam-share (ignore-errors (car (process-lines "opam" "var" "share")))))
   (when (and opam-share (file-directory-p opam-share))
@@ -1362,66 +1369,94 @@
     ;; Use opam switch to lookup ocamlmerlin binary
     (setq merlin-command 'opam)))
 
-(setq js-indent-level 2
-      typescript-indent-level 2
-      json-reformat:indent-width 2
-      css-indent-offset 2)
+;;;; Terrafrom
 
-(use-package terraform-mode
-  :straight t)
+(use-package terraform-mode)
+
+;;;; Rust
 
 (use-package rustic
-  :straight t
   :bind (:map rustic-mode-map
               ("C-c c a" . lsp-rust-analyzer-status)
               ("C-c c b" . rustic-cargo-build))
-  :config
-  (setq lsp-eldoc-hook nil)
-  (setq rust-format-on-save t))
+  :custom
+  (lsp-eldoc-hook nil)
+  (rust-format-on-save t))
 
-(use-package js2-mode
-  :straight t
-  :mode "\\.jsx?\\'"
-  ;; Set up proper indentation in JavaScript and JSON files
-  :hook (js2-mode . prettier-format-on-save-mode)
-  :init (setq-default js-indent-level 2)
-  :bind (:map js2-mode-map
-              ("C-c C-f"  . prettier-format-buffer))
-  :config
-  ;; Use js2-mode for Node scripts
-  (add-to-list 'magic-mode-alist '("#!/usr/bin/env node" . js2-mode))
+;;;; JS
 
-  ;; Don't use built-in syntax checking
-  (setq js2-mode-show-parse-errors nil
-        js2-mode-show-strict-warnings nil)
+(use-package js-mode
+  :ensure nil
+  :custom
+  (js--prettify-symbols-alist nil)
+  (js-indent-level 2)
+  (typescript-indent-level 2)
+  (js-switch-indent-offset 2))
 
-  (setq js--prettify-symbols-alist nil  ; I will handle ligatures by myself
-        js2-highlight-level 3))         ; More highlighting
+;;;; HTML
 
-(reformatter-define prettier-format
-  :program "prettier"
-  :args (list "--stdin-filepath" (buffer-file-name))
-  :lighter " prettier")
+(use-package web-mode
+  :defines (web-mode-map)
+  :mode
+  ("\\.html?\\'" . web-mode)
+  ("\\.hbs\\'"   . web-mode)
+  :bind
+  (:map web-mode-map ("C-c C-a" . nil)) ; reserved for `embark-act'
+  :custom
+  (web-mode-markup-indent-offset 2)
+  (web-mode-css-indent-offset 2)
+  (web-mode-code-indent-offset 2)
+  (web-mode-enable-auto-pairing nil)
+  (web-mode-enable-auto-closing t)
+  (web-mode-enable-current-element-highlight t)
+  (web-mode-enable-current-column-highlight t))
 
-(use-package typescript-mode
-  :straight t
-  :mode "\\.ts\\'"
-  :hook (typescript-mode . prettier-format-on-save-mode)
-  :bind (:map typescript-mode-map
-              ("C-c C-f"  . prettier-format-buffer))
-  :config (setq typescript-indent-level 2))
+;;;; CSS
+
+(use-package css-mode
+  :ensure nil
+  :custom (css-indent-offset 2))
+
+;;;; PureScript
 
 (use-package purescript-mode
-  :straight t
-  :mode "\\.purs\\'"
-  :hook ((purescript-mode . turn-on-purescript-indentation)
-         (purescript-mode . purs-tidy-format-on-save-mode))
-  :bind (:map purescript-mode-map
-              ("C-c c f"  . purs-tidy-format-buffer)))
+  :mode ("\\.purs\\'")
+  :hook (purescript-mode . turn-on-purescript-indentation))
 
+;;;; Haskell
+
+(use-package haskell-mode
+  :mode
+  ("\\.hs\\'"    . haskell-mode)
+  ("\\.cabal\\'" . haskell-cabal-mode)
+  :hook
+  (haskell-mode . interactive-haskell-mode)
+  (haskell-mode . haskell-indentation-mode)
+  :custom
+  (haskell-interactive-popup-errors nil)
+  (haskell-process-log t)
+  (haskell-process-load-or-reload-prompt t)
+  (haskell-process-auto-import-loaded-modules t)
+  (haskell-process-suggest-hoogle-imports t)
+  (haskell-process-suggest-remove-import-lines t))
+
+;;;; TS
+
+(use-package typescript-mode
+  :mode "\\.ts\\'"
+  :hook (typescript-mode . prettier-format-on-save-mode)
+  :custom
+  (typescript-indent-level 2))
+
+;;;; PS
+
+(use-package purescript-mode
+  :mode ("\\.purs\\'")
+  :hook (purescript-mode . turn-on-purescript-indentation))
+
+;;;; Scheme/Lisp
 (use-package slime
-  :straight t
   :config
   (setq inferior-lisp-program "sbcl"))
 
-;;; init.el ends here
+;;; init.el ends

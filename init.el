@@ -138,8 +138,8 @@
 (use-package project
   :ensure nil
   :custom
-  (project-vc-extra-root-markers '("hie.yaml", "package.json", "spago.dhall"))
-  (project-vc-ignores '("node_modules", "output", "dist", "tmp")))
+  (project-vc-extra-root-markers '("hie.yaml" "package.json" "spago.dhall"))
+  (project-vc-ignores '("node_modules" "output" "dist" "tmp")))
 
 ;;; History
 (setq undo-limit 80000000
@@ -1412,10 +1412,10 @@
               ("C-c c a" . lsp-rust-analyzer-status)
               ("C-c c b" . rustic-cargo-build))
   :custom
-  (lsp-eldoc-hook nil)
+  ;;  (lsp-eldoc-hook nil)
   (lsp-rust-server 'rust-analyzer)
-  ;;(rust-format-on-save t)
-  )
+  (rustic-lsp-client 'eglot)
+  (rust-format-on-save t))
 
 ;;;; JS
 

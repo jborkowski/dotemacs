@@ -136,7 +136,10 @@
 
 ;;; Project
 (use-package project
-  :ensure nil)
+  :ensure nil
+  :custom
+  (project-vc-extra-root-markers '("hie.yaml", "package.json", "spago.dhall"))
+  (project-vc-ignores '("node_modules", "output", "dist", "tmp")))
 
 ;;; History
 (setq undo-limit 80000000
@@ -1207,51 +1210,76 @@
   :config
   (envrc-global-mode))
 
-(use-package lsp-mode
-  :hook ((c-mode
-	        c++-mode
-	        c-or-c++-mode
-	        js-mode
-	        rust-mode
-	        typescript-mode
-	        purescript-mode
-	        haskell-mode
-	        elixir-mode) . lsp-deferred)
-  :bind (:map lsp-mode-map
-	            ("C-c c d" . lsp-describe-thing-at-point)
-	            ("C-c c s" . consult-lsp-symbols)
-	            ("C-c c t" . lsp-goto-type-definition)
-	            ("M-,"     . lsp-find-references)
-	            ("M-."     . lsp-find-definition)
-	            ("C-c c f" . lsp-format-buffer)
-	            ("C-c c x" . lsp-execute-code-action)
-	            ("C-c c r" . lsp-rename)
-	            ("C-c c j" . consult-lsp-symbols))
-  :commands lsp lsp-deferred
+;; (use-package lsp-mode
+;;   :hook ((c-mode
+;; 	        c++-mode
+;; 	        c-or-c++-mode
+;; 	        js-mode
+;; 	        rust-mode
+;; 	        typescript-mode
+;; 	        purescript-mode
+;; 	        haskell-mode
+;; 	        elixir-mode) . lsp-deferred)
+;;   :bind (:map lsp-mode-map
+;; 	            ("C-c c d" . lsp-describe-thing-at-point)
+;; 	            ("C-c c s" . consult-lsp-symbols)
+;; 	            ("C-c c t" . lsp-goto-type-definition)
+;; 	            ("M-,"     . lsp-find-references)
+;; 	            ("M-."     . lsp-find-definition)
+;; 	            ("C-c c f" . lsp-format-buffer)
+;; 	            ("C-c c x" . lsp-execute-code-action)
+;; 	            ("C-c c r" . lsp-rename)
+;; 	            ("C-c c j" . consult-lsp-symbols))
+;;   :commands lsp lsp-deferred
 
+;;   :custom
+;;   (lsp-idle-delay 0.5)
+;;   (lsp-diagnostics-provider t)
+;;   (lsp-keep-workspace-alive nil)
+;;   (lsp-headerline-breadcrumb-enable nil)
+;;   (lsp-modeline-code-actions-enable nil)
+;;   (lsp-modeline-diagnostics-enable nil)
+;;   (lsp-modeline-workspace-status-enable nil)
+;;   (lsp-enable-file-watchers nil)
+;;   (lsp-file-watch-threshold 5000)
+;;   (read-process-output-max (* 1024 1024))
+;;   (lsp-log-io t))
+
+;; :config
+;; (add-hook 'lsp-completion-mode-hook
+;; 	        (lambda ()
+;; 	          (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
+
+;; (use-package lsp-haskell
+;;   :after (lsp haskell-mode))
+
+(use-package eglot
+  :ensure nil
+  :bind
+  (:map prog-mode-map
+        ("C-c c l" . eglot)
+        ("C-c c q" . eglot-shutdown))
+  (:map eglot-mode-map
+        ("C-c c x" . consult-flymake)
+        ("C-c c a" . eglot-code-actions)
+        ("C-c c r" . eglot-rename)
+        ("C-c c f" . eglot-format)
+        ("C-c c d" . eldoc))
   :custom
-  (lsp-idle-delay 0.5)
-  (lsp-diagnostics-provider t)
-  (lsp-keep-workspace-alive nil)
-  (lsp-headerline-breadcrumb-enable nil)
-  (lsp-modeline-code-actions-enable nil)
-  (lsp-modeline-diagnostics-enable nil)
-  (lsp-modeline-workspace-status-enable nil)
-  (lsp-enable-file-watchers nil)
-  (lsp-file-watch-threshold 5000)
   (read-process-output-max (* 1024 1024))
-  (lsp-log-io t))
+  (eglot-events-buffer-size 0)
+  (eglot-sync-connect 1)
+  (eglot-autoshutdown t)
+  (eglot-extend-to-xref t)
+  (eglot-confirm-server-initiated-edits nil)
+  (eglot-ignored-server-capabilities
+   '(:codeLensProvider
+     :documentHighlightProvider
+     :documentFormattingProvider
+     :documentRangeFormattingProvider)))
 
-:config
-(add-hook 'lsp-completion-mode-hook
-	        (lambda ()
-	          (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
-
-(use-package lsp-haskell
-  :after (lsp haskell-mode))
-
-(use-package consult-lsp
-  :after (lsp-mode))
+;; (use-package consult-lsp
+;;   :after (lsp-mode))
 
 
 ;;;; Tree sitter
@@ -1377,13 +1405,17 @@
 
 ;;;; Rust
 
+(use-package rust-mode)
+
 (use-package rustic
   :bind (:map rustic-mode-map
               ("C-c c a" . lsp-rust-analyzer-status)
               ("C-c c b" . rustic-cargo-build))
   :custom
   (lsp-eldoc-hook nil)
-  (rust-format-on-save t))
+  (lsp-rust-server 'rust-analyzer)
+  ;;(rust-format-on-save t)
+  )
 
 ;;;; JS
 

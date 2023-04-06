@@ -1209,85 +1209,89 @@
   :config
   (envrc-global-mode))
 
-;; (use-package lsp-mode
-;;   :hook ((c-mode
-;; 	        c++-mode
-;; 	        c-or-c++-mode
-;; 	        js-mode
-;; 	        rust-mode
-;; 	        typescript-mode
-;; 	        purescript-mode
-;; 	        haskell-mode
-;; 	        elixir-mode) . lsp-deferred)
-;;   :bind (:map lsp-mode-map
-;; 	            ("C-c c d" . lsp-describe-thing-at-point)
-;; 	            ("C-c c s" . consult-lsp-symbols)
-;; 	            ("C-c c t" . lsp-goto-type-definition)
-;; 	            ("M-,"     . lsp-find-references)
-;; 	            ("M-."     . lsp-find-definition)
-;; 	            ("C-c c f" . lsp-format-buffer)
-;; 	            ("C-c c x" . lsp-execute-code-action)
-;; 	            ("C-c c r" . lsp-rename)
-;; 	            ("C-c c j" . consult-lsp-symbols))
-;;   :commands lsp lsp-deferred
-
-;;   :custom
-;;   (lsp-idle-delay 0.5)
-;;   (lsp-diagnostics-provider t)
-;;   (lsp-keep-workspace-alive nil)
-;;   (lsp-headerline-breadcrumb-enable nil)
-;;   (lsp-modeline-code-actions-enable nil)
-;;   (lsp-modeline-diagnostics-enable nil)
-;;   (lsp-modeline-workspace-status-enable nil)
-;;   (lsp-enable-file-watchers nil)
-;;   (lsp-file-watch-threshold 5000)
-;;   (read-process-output-max (* 1024 1024))
-;;   (lsp-log-io t))
-
-;; :config
-;; (add-hook 'lsp-completion-mode-hook
-;; 	        (lambda ()
-;; 	          (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
-
-;; (use-package lsp-haskell
-;;   :after (lsp haskell-mode))
-
-(use-package eglot
-  :ensure nil
-  :hook ((js-ts-mode
-          haskell-mode
-          purescript-mode
-          typescript-ts-mode) . eglot-ensure)
+(use-package lsp-mode
+  :defines (lsp-mode-map)
+  :hook ((c-mode
+	        c++-mode
+	        c-or-c++-mode
+	        js-mode
+	        rust-mode
+	        typescript-mode
+	        purescript-mode
+	        haskell-mode) . lsp-deferred)
   :bind
   (:map prog-mode-map
-        ("C-c c l" . eglot)
-        ("C-c c q" . eglot-shutdown))
-  (:map eglot-mode-map
-        ("C-c c x" . consult-flymake)
-        ("C-c c a" . eglot-code-actions)
-        ("C-c c r" . eglot-rename)
-        ("C-c c f" . eglot-format)
-        ("C-c c d" . eldoc))
-  :custom
-  (read-process-output-max (* 1024 1024))
-  (eglot-events-buffer-size 0)
-  (eglot-sync-connect 1)
-  (eglot-autoshutdown t)
-  (eglot-extend-to-xref t)
-  (eglot-confirm-server-initiated-edits nil)
-  (eglot-ignored-server-capabilities
-   '(:codeLensProvider
-     :documentHighlightProvider
-     :documentFormattingProvider
-     :documentRangeFormattingProvider))
-  :config
-  ;; Add configuration for `dsl-lsp'
-  (add-to-list 'eglot-server-programs
-               '(yaml-ts-mode . ("dsl" "lsp")))
+        ("C-c c l" . lsp)
+        ("C-c c q" . lsp-shutdown-workspace))
+  (:map lsp-mode-map
+	      ("C-c c d" . lsp-describe-thing-at-point)
+	      ("C-c c s" . consult-lsp-symbols)
+	      ("C-c c t" . lsp-goto-type-definition)
+	      ("M-,"     . lsp-find-references)
+	      ("M-."     . lsp-find-definition)
+	      ("C-c c f" . lsp-format-buffer)
+	      ("C-c c x" . lsp-execute-code-action)
+	      ("C-c c r" . lsp-rename)
+	      ("C-c c j" . consult-lsp-symbols))
+  :commands lsp lsp-deferred
 
-  ;; Use purs installed with npm
-  (setq-default eglot-workspace-configuration
-                '((:purescript . (:addSpagoSources t :addNpmPath t)))))
+  :custom
+  (lsp-idle-delay 0.6)
+  (lsp-use-plists t)
+  (lsp-diagnostics-provider t)
+  (lsp-auto-guess-root t)
+  (lsp-keep-workspace-alive nil)
+  (lsp-warn-no-matched-clients nil)
+  (lsp-lens-enable nil)
+  (lsp-enable-links nil)
+  (lsp-enable-snippet nil)
+  (lsp-enable-on-type-formatting nil)
+  (lsp-enable-symbol-highlighting nil)
+  (lsp-purescript-add-npm-path t)
+  (read-process-output-max (* 1024 1024))
+
+  :config
+  (add-hook 'lsp-completion-mode-hook
+ 	          (lambda ()
+ 	            (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
+
+(use-package lsp-haskell
+  :after (lsp haskell-mode))
+
+;; (use-package eglot
+;;   :ensure nil
+;;   :hook ((js-ts-mode
+;;           haskell-mode
+;;           purescript-mode
+;;           typescript-ts-mode) . eglot-ensure)
+;;   :bind
+;;   (:map prog-mode-map
+;;         ("C-c c l" . eglot)
+;;         ("C-c c q" . eglot-shutdown))
+;;   (:map eglot-mode-map
+;;         ("C-c c x" . consult-flymake)
+;;         ("C-c c a" . eglot-code-actions)
+;;         ("C-c c r" . eglot-rename)
+;;         ("C-c c f" . eglot-format)
+;;         ("C-c c d" . eldoc))
+;;   :custom
+;;   (read-process-output-max (* 1024 1024))
+;;   (eglot-events-buffer-size 0)
+;;   (eglot-sync-connect 1)
+;;   (eglot-autoshutdown t)
+;;   (eglot-extend-to-xref t)
+;;   (eglot-confirm-server-initiated-edits nil)
+;;   (eglot-ignored-server-capabilities
+;;    '(:codeLensProvider
+;;      ;;     :documentHighlightProvider
+;;      :documentFormattingProvider
+;;      :documentRangeFormattingProvider))
+;;   :config
+;;   (add-to-list 'eglot-server-programs
+;;                '(yaml-ts-mode . ("dsl" "lsp")))
+
+;;   (setq-default eglot-workspace-configuration
+;;                 '((:purescript . (:addSpagoSources t :addNpmPath t)))))
 
 
 ;;;; Tree sitter

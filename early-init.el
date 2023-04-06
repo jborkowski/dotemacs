@@ -11,7 +11,7 @@
               package-native-compile t)
 
 (setopt gc-cons-threshold most-positive-fixnum
-	gc-cons-percentage 0.6)
+	      gc-cons-percentage 1)
 
 (defun bore/gc-after-focus-change ()
   "Run GC when frame loses focus."
@@ -25,7 +25,7 @@
    1 nil
    (lambda ()
      (setopt gc-cons-threshold (* 20 1024 1024)
-	     gc-cons-percentage 0.1)
+	           gc-cons-percentage 0.1)
      (when (boundp 'after-focus-change-function)
        (add-function :after after-focus-change-function #'bore/gc-after-focus-change)))))
 
@@ -42,11 +42,11 @@
 (setq-default load-prefer-newer noninteractive)
 
 (setopt package-enable-at-startup nil
-	native-comp-async-report-warnings-errors nil
-	server-client-instructions nil
-	frame-inhibit-implied-resize t
-	fancy-startup-text nil
-	fancy-about-text nil)
+	      native-comp-async-report-warnings-errors nil
+	      server-client-instructions nil
+	      frame-inhibit-implied-resize t
+	      fancy-startup-text nil
+	      fancy-about-text nil)
 
 (push '(menu-bar-lines . 0) default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)

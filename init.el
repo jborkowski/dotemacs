@@ -1124,6 +1124,9 @@
 
 
 ;;; Shell
+(use-package shell
+  :ensure nil
+  :custom (shell-file-name "zsh"))
 
 (use-package eat
   :commands (eat)
@@ -1131,21 +1134,17 @@
   (eshell-mode . eat-eshell-mode)
   (eshell-mode . eat-eshell-visual-command-mode)
   :bind
-  ("C-c o T" . eat-shell)
+  ("C-c o T" . eat)
   ("C-c o t" . eat-shell-other-window)
   :custom
   (eat-kill-buffer-on-exit t)
   (eat-enable-shell-prompt-annotation nil)
   :config
-  (defun eat-shell (&optional arg)
-    "Open shell in eat."
-    (interactive "P")
-    (eat shell-file-name arg))
-
+  
   (defun eat-shell-other-window (&optional arg)
-    "Open a `eat-shell' in a new window."
+    "Open a `eat' in a new window."
     (interactive "P")
-    (let ((buf (eat-shell arg)))
+    (let ((buf (eat arg)))
       (switch-to-buffer (other-buffer buf))
       (switch-to-buffer-other-window buf))))
 
@@ -1255,6 +1254,10 @@
 
 (use-package eglot
   :ensure nil
+  :hook ((js-ts-mode
+          haskell-mode
+          purescript-mode
+          typescript-ts-mode) . eglot-ensure)
   :bind
   (:map prog-mode-map
         ("C-c c l" . eglot)
@@ -1276,10 +1279,15 @@
    '(:codeLensProvider
      :documentHighlightProvider
      :documentFormattingProvider
-     :documentRangeFormattingProvider)))
+     :documentRangeFormattingProvider))
+  :config
+  ;; Add configuration for `dsl-lsp'
+  (add-to-list 'eglot-server-programs
+               '(yaml-ts-mode . ("dsl" "lsp")))
 
-;; (use-package consult-lsp
-;;   :after (lsp-mode))
+  ;; Use purs installed with npm
+  (setq-default eglot-workspace-configuration
+                '((:purescript . (:addSpagoSources t :addNpmPath t)))))
 
 
 ;;;; Tree sitter
@@ -1300,10 +1308,12 @@
   (global-treesit-auto-mode))
 
 ;;;; Compilation
-
 (use-package compile
   :functions (ansi-color-apply-on-region)
-  :hook (compilation-filter . colorize-compilation-buffer)
+  :hook
+  (haskell-mode       . haskell-compiler)
+  (purescript-mode    . purescript-compiler)
+  (compilation-filter . colorize-compilation-buffer)
   :bind
   (:map prog-mode-map
         ("C-c c c" . compile)
@@ -1314,11 +1324,16 @@
   (defun colorize-compilation-buffer ()
     "Colorize compilation buffer."
     (let ((inhibit-read-only t))
-      (ansi-color-apply-on-region (point-min) (point-max)))))
+      (ansi-color-apply-on-region (point-min) (point-max))))
+
+  (defun haskell-compiler ()
+    (setq-local compile-command "stack build --fast --copy-bins"))
+
+  (defun purescript-compiler ()
+    (setq-local compile-command "npm run pbuild")))
 
 ;;;; Syntax checker
 
-;; Have some mercy on me
 (use-package flymake
   :ensure nil
   :hook (prog-mode)

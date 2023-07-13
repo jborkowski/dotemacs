@@ -11,7 +11,7 @@
               package-native-compile t)
 
 (setopt gc-cons-threshold most-positive-fixnum
-	      gc-cons-percentage 1)
+	      gc-cons-percentage 1.0)
 
 (defun bore/gc-after-focus-change ()
   "Run GC when frame loses focus."

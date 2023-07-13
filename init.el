@@ -15,7 +15,7 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(require 'vc-use-package)
+;; (require 'vc-use-package)
 
 (setopt package-native-compile t)
 

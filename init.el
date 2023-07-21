@@ -143,7 +143,15 @@
 ;;; Project
 (use-package project
   :ensure nil
+  :bind (:map project-prefix-map ("g" . consult-ripgrep))
   :custom
+  (project-switch-commands
+   '((project-find-file "Find file" ?f)
+     (project-dired "Find directory" ?d)
+     (consult-ripgrep "Find regexp" ?g)
+     (project-switch-to-buffer "Find buffer" ?b)
+     (magit-project-status "Magit" ?m)
+     (project-eshell "Eshell" ?e)))
   (project-vc-extra-root-markers '("hie.yaml" "package.json" "spago.dhall"))
   (project-vc-ignores '("node_modules" "output" "dist" "tmp")))
 
@@ -1265,7 +1273,7 @@
   (lsp-file-watch-ignored
    '("node_modules" ".git" ".hg" ".nvm" "_darcs" ".stack-work" "target" "build" ".spago" ".bundle"))
   (lsp-file-watch-ignored-directories
-+   '("node_modules" ".git" ".hg" ".nvm" "_darcs" ".stack-work" "target" "build" ".spago" ".bundle" "[/\\\\]\\.stack-work\\'"))
+   +   '("node_modules" ".git" ".hg" ".nvm" "_darcs" ".stack-work" "target" "build" ".spago" ".bundle" "[/\\\\]\\.stack-work\\'"))
   (add-hook 'lsp-completion-mode-hook
  	          (lambda ()
  	            (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))

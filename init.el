@@ -269,8 +269,8 @@
     (load-theme 'modus-vivendi-deuteranopia)
   (load-theme 'modus-operandi-deuteranopia))
 
-(use-package nyan-mode
-  :init (nyan-mode))
+;;(use-package nyan-mode
+;;  :init (nyan-mode))
 
 ;;;; Fonts
 (defun bore/with-font-faces-mac ()
@@ -522,7 +522,7 @@
   ;; Tweak minibuffer behaviour
   (resize-mini-windows t)
   (enable-recursive-minibuffers t)
-  (minibuffer-depth-indicate-mode t)
+  ;; (minibuffer-depth-indicate-mode t)
   (minibuffer-electric-default-mode t)
   (minibuffer-eldef-shorten-default t)
 
@@ -976,7 +976,11 @@
 (use-package xclip
   :unless (display-graphic-p)
   :hook (tty-setup)
-  :custom (xclip-method 'wl-copy))
+  :custom
+  (when *is-a-linux*
+    xclip-method 'wl-copy)
+  (when *is-a-mac*
+    xclip-method 'pbcopy))
 
 (add-hook 'tty-setup-hook #'xterm-mouse-mode)
 
@@ -1248,15 +1252,20 @@
   (lsp-auto-guess-root t)
   (lsp-keep-workspace-alive nil)
   (lsp-warn-no-matched-clients nil)
-  (lsp-lens-enable nil)
+  (lsp-lens-enable t)
+  (lsp-completion-mode-hook :none)
   (lsp-enable-links nil)
   (lsp-enable-snippet nil)
   (lsp-enable-on-type-formatting nil)
-  (lsp-enable-symbol-highlighting nil)
+  (lsp-enable-symbol-highlighting t)
   (lsp-purescript-add-npm-path t)
-  (read-process-output-max (* 1024 1024))
+  (read-process-output-max (* 2048 1024))
 
   :config
+  (lsp-file-watch-ignored
+   '("node_modules" ".git" ".hg" ".nvm" "_darcs" ".stack-work" "target" "build" ".spago" ".bundle"))
+  (lsp-file-watch-ignored-directories
++   '("node_modules" ".git" ".hg" ".nvm" "_darcs" ".stack-work" "target" "build" ".spago" ".bundle" "[/\\\\]\\.stack-work\\'"))
   (add-hook 'lsp-completion-mode-hook
  	          (lambda ()
  	            (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
@@ -1681,5 +1690,5 @@
 ;;   )
 
 ;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
-(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
+;; (require 'opam-user-setup "~/.emacs.d/opam-user-setup.el") 
 ;; ## end of OPAM user-setup addition for emacs / base ## keep this line

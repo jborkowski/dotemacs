@@ -1414,7 +1414,9 @@
 ;;;; Lua
 
 (use-package lua-mode
-  :mode "\\.lua\\'")
+  :mode "\\.lua\\'"
+  :custom
+  (lua-indent-level 2))
 
 ;;;; Yaml
 

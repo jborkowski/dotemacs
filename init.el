@@ -1268,12 +1268,12 @@
   (lsp-enable-symbol-highlighting t)
   (lsp-purescript-add-npm-path t)
   (read-process-output-max (* 2048 1024))
-
-  :config
   (lsp-file-watch-ignored
    '("node_modules" ".git" ".hg" ".nvm" "_darcs" ".stack-work" "target" "build" ".spago" ".bundle"))
   (lsp-file-watch-ignored-directories
-   +   '("node_modules" ".git" ".hg" ".nvm" "_darcs" ".stack-work" "target" "build" ".spago" ".bundle" "[/\\\\]\\.stack-work\\'"))
+   '("node_modules" ".git" ".hg" ".nvm" "_darcs" ".stack-work" "target" "build" ".spago" ".bundle" "[/\\\\]\\.stack-work\\'"))
+  
+  :config
   (add-hook 'lsp-completion-mode-hook
  	          (lambda ()
  	            (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
@@ -1381,26 +1381,19 @@
            '(eglot--managed-mode bash-ts-mode)))
 
 ;;;; Apheleia
-
 (use-package apheleia
   :defines (formatter-cmd formatter-mode)
   :functions (apheleia-global-mode apheleia-formatters apheleia-mode-alist)
   :bind ("C-c t a" . apheleia-mode)
-  :init
-  (require 'apheleia-formatters)
-  ;; Set custom formatting commands
-  (dolist (formatter-cmd '((purs-tidy . ("purs-tidy" "format"))
-                           (fourmolu  . ("fourmolu" "--indentation" "2" "--stdin-input-file"
+  :init (apheleia-global-mode)
+  :config
+  (dolist (formatter-cmd '((fourmolu  . ("fourmolu" "--indentation" "2" "--stdin-input-file"
                                          (or (buffer-file-name) (buffer-name))))))
     (add-to-list #'apheleia-formatters formatter-cmd))
 
-  ;; Set custom formatters for modes
-  (dolist (formatter-mode '((typescript-mode . prettier-format-buffer)
-			                      (emacs-lisp-mode . lisp-indent)
-                            (purescript-mode . purs-tidy)
+  (dolist (formatter-mode '((emacs-lisp-mode . lisp-indent)
                             (haskell-mode    . fourmolu)))
-    (add-to-list #'apheleia-mode-alist formatter-mode))
-  (apheleia-global-mode))
+    (add-to-list #'apheleia-mode-alist formatter-mode)))
 
 ;;;; Direnv
 

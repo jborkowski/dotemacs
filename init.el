@@ -1026,18 +1026,11 @@
 (use-package eww
   :ensure nil
   :bind ("C-c o b" . eww)
-  :config
-  (eww-restore-desktop t)
-  (eww-desktop-remove-duplicates t)
-  (eww-header-line-format nil)
+  :custom
+  
   (eww-search-prefix "https://html.duckduckgo.com/html/?q=")
   (eww-download-directory (expand-file-name "~/Downloads"))
-  (eww-suggest-uris
-   '(eww-links-at-point
-     thing-at-point-url-at-point))
   (eww-history-limit 150)
-  (eww-use-external-browser-for-content-type)
-  ("\\`\\(video/\\|audio\\)")
   (eww-browse-url-new-window-is-tab nil)
   (eww-form-checkbox-selected-symbol "[X]")
   (eww-form-checkbox-symbol "[ ]")
@@ -1475,7 +1468,7 @@
   :custom
   ;;  (lsp-eldoc-hook nil)
   (lsp-rust-server 'rust-analyzer)
-  (rustic-lsp-client 'lsp-mode)
+  (rustic-lsp-client 'eglot)
   (rust-format-on-save t))
 
 ;;;; JS

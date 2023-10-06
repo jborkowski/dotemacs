@@ -1151,8 +1151,7 @@
   (eshell-mode . eat-eshell-mode)
   (eshell-mode . eat-eshell-visual-command-mode)
   :bind
-  ("C-c o T" . eat)
-  ("C-c o t" . eat-shell-other-window)
+  ("C-c o T" . eat-shell-other-window)
   :custom
   (eat-kill-buffer-on-exit t)
   (eat-enable-shell-prompt-annotation nil)
@@ -1162,6 +1161,30 @@
     "Open a `eat' in a new window."
     (interactive "P")
     (let ((buf (eat arg)))
+      (switch-to-buffer (other-buffer buf))
+      (switch-to-buffer-other-window buf))))
+
+;;; Eshell
+(use-package eshell
+  :ensure nil
+  :bind
+  ("C-c o t" . eshell-other-window)
+  :custom
+  (eshell-history-size 10000)
+  (eshell-hist-ignoredups t)
+  (eshell-banner-message "")
+  (eshell-kill-processes-on-exit t)
+  (eshell-scroll-to-bottom-on-input t)
+  (eshell-highlight-prompt t)
+  (eshell-where-to-jump 'begin)
+  (eshell-review-quick-commands nil)
+  (eshell-smart-space-goes-to-end t)
+  (eshell-destroy-buffer-when-process-dies t)
+  :config
+  (defun eshell-other-window ()
+    "Open a `eshell' in a new window."
+    (interactive)
+    (let ((buf (eshell)))
       (switch-to-buffer (other-buffer buf))
       (switch-to-buffer-other-window buf))))
 

@@ -1181,6 +1181,10 @@
   (eshell-smart-space-goes-to-end t)
   (eshell-destroy-buffer-when-process-dies t)
   :config
+  (require 'em-hist)
+  (require 'em-smart)
+  (setenv "PAGER" "cat")
+
   (defun eshell-other-window ()
     "Open a `eshell' in a new window."
     (interactive)

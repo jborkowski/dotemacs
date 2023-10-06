@@ -15,8 +15,6 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-;; (require 'vc-use-package)
-
 (setopt package-native-compile t)
 
 (use-package use-package
@@ -291,9 +289,9 @@
 (defun bore/with-font-faces-linux ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
-    (set-face-attribute 'default nil :font (font-spec :family "JetBrainsMonoNL" :size 14 :weight 'regular))
-    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "JetBrainsMonoNL" :size 14 :weight 'regular))
-    (set-face-attribute 'variable-pitch nil :font (font-spec :family "Iosevka Aile" :size 14 :weight 'regular))))
+    (set-face-attribute 'default nil :font (font-spec :family "JetBrainsMonoNL" :size 15 :weight 'regular))
+    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "JetBrainsMonoNL" :size 15 :weight 'regular))
+    (set-face-attribute 'variable-pitch nil :font (font-spec :family "Iosevka Aile" :size 15 :weight 'regular))))
 
 (when *is-a-mac*
   (add-hook 'after-init-hook 'bore/with-font-faces-mac)
@@ -1252,7 +1250,7 @@
           haskell-mode
           purescript-mode
           typescript-ts-mode
-          ) . eglot-ensure)
+          rust-ts-mode) . eglot-ensure)
   :bind
   (:map prog-mode-map
         ("C-c c l" . eglot)
@@ -1270,6 +1268,12 @@
   (eglot-autoshutdown t)
   (eglot-extend-to-xref t)
   (eglot-confirm-server-initiated-edits nil)
+  ;; (eglot-ignored-server-capabilities
+  ;;  '(:codeLensProvider
+  ;;    :documentHighlightProvider
+  ;;    :documentFormattingProvider 
+  ;;    :documentRangeFormattingProvider))
+  
   :config
   (add-to-list 'eglot-server-programs
                '(yaml-ts-mode . ("dsl" "lsp")))
@@ -1279,19 +1283,6 @@
 
 
 ;;;; Tree sitter
-
-(use-package tree-sitter
-  :hook (((rustic-mode
-           css-mode) . tree-sitter-mode)
-         ((rustic-mode
-           css-mode) . tree-sitter-hl-mode))
-  :config
-  (add-to-list 'tree-sitter-major-mode-language-alist
-               '(rustic-mode . rust)))
-
-(use-package tree-sitter-langs
-  :after tree-sitter)
-
 (use-package treesit-auto
   :demand
   :functions (global-treesit-auto-mode)
@@ -1301,6 +1292,8 @@
   (add-to-list 'auto-mode-alist '("CMakeLists\\'" . cmake-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.ts\\'"      . typescript-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.tsx\\'"     . tsx-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.rs\\'"      . rust-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.lalrpop\\'" . rust-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.ya?ml\\'"   . yaml-ts-mode))
   (global-treesit-auto-mode))
 
@@ -1311,7 +1304,7 @@
   (haskell-mode       . haskell-compiler)
   (purescript-mode    . purescript-compiler)
   (compilation-filter . colorize-compilation-buffer)
-  (rustic-mode        . rustic-cargo-build)
+  (rust-ts-mode       . rust-compiler)
   :bind
   (:map prog-mode-map
         ("C-c c c" . compile)
@@ -1328,7 +1321,10 @@
     (setq-local compile-command "stack build --fast --copy-bins"))
 
   (defun purescript-compiler ()
-    (setq-local compile-command "npm run pbuild")))
+    (setq-local compile-command "npm run pbuild"))
+  
+  (defun rust-compiler ()
+    (setq-local compile-command "cargo build")))
 
 ;;;; Syntax checker
 
@@ -1374,7 +1370,6 @@
   :functions (envrc-global-mode)
   :init (envrc-global-mode))
 
-
 ;;; Programming Langs
 
 ;;;; Lua
@@ -1411,29 +1406,24 @@
 
 ;;;; Rust
 
-(use-package rustic
+(use-package rust-mode
   :mode
-  ("\\.rs\\'"      . rustic-mode)
-  ("\\.lalrpop\\'" . rustic-mode)
-  :defines (rustic-mode-map)
-  :bind  (:map rustic-mode-map
-               ("M-j" . lsp-ui-imenu)
-               ("M-?" . lsp-find-references)
-               ("C-c c l" . flycheck-list-errors)
-               ("C-c c x" . lsp-execute-code-action)
-               ("C-c c b" . rustic-cargo-build)
-               ("C-c c r" . lsp-rename)
-               ("C-c c c" . rustic-compile)
-               ("C-c c s" . lsp-rust-analyzer-status)
-               ("C-c c q" . lsp-workspace-restart)
-               ("C-c c Q" . lsp-workspace-shutdown)
-               ("C-c c A" . rustic-cargo-add-missing-dependencies)
-               )
-  :custom
-  (add-hook 'eglot--managed-mode-hook (lambda () (flymake-mode -1)))
-  (rustic-format-on-save t)
-  (lsp-rust-server 'rust-analyzer)
-  (rustic-lsp-client 'eglot))
+  ("\\.rs\\'"      . rust-mode)
+  ("\\.lalrpop\\'" . rust-mode)
+  :defines (rust-mode-map)
+  :bind
+  (:map rust-mode-map
+        ("M-j" . lsp-ui-imenu)
+        ("M-?" . lsp-find-references)
+        ("C-c c l" . flycheck-list-errors)
+        ("C-c c x" . lsp-execute-code-action)
+        ("C-c c b" . rustic-cargo-build)
+        ("C-c c r" . lsp-rename)
+
+        ("C-c c s" . lsp-rust-analyzer-status)
+        ("C-c c A" . rustic-cargo-add-missing-dependencies))
+  
+  )
 
 ;;;; JS
 

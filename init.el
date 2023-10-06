@@ -1246,98 +1246,51 @@
   :config
   (envrc-global-mode))
 
-(use-package lsp-mode
-  :defines (lsp-mode-map)
-  :hook ((c-mode
-	        c++-mode
-	        c-or-c++-mode
-	        js-mode
-	        rust-mode
-          rustic
-	        typescript-mode
-	        purescript-mode
-	        haskell-mode) . lsp-deferred)
+(use-package eglot
+  :ensure nil
+  :hook ((js-ts-mode
+          haskell-mode
+          purescript-mode
+          typescript-ts-mode
+          ) . eglot-ensure)
   :bind
   (:map prog-mode-map
-        ("C-c c l" . lsp)
-        ("C-c c q" . lsp-shutdown-workspace))
-  (:map lsp-mode-map
-	      ("C-c c d" . lsp-describe-thing-at-point)
-	      ("C-c c s" . consult-lsp-symbols)
-	      ("C-c c t" . lsp-goto-type-definition)
-	      ("M-,"     . lsp-find-references)
-	      ("M-."     . lsp-find-definition)
-	      ("C-c c f" . lsp-format-buffer)
-	      ("C-c c x" . lsp-execute-code-action)
-	      ("C-c c r" . lsp-rename)
-	      ("C-c c j" . consult-lsp-symbols))
-  :commands lsp lsp-deferred
-
+        ("C-c c l" . eglot)
+        ("C-c c q" . eglot-shutdown))
+  (:map eglot-mode-map
+        ("C-c c x" . consult-flymake)
+        ("C-c c a" . eglot-code-actions)
+        ("C-c c r" . eglot-rename)
+        ("C-c c f" . eglot-format)
+        ("C-c c d" . eldoc))
   :custom
-  (lsp-idle-delay 0.6)
-  (lsp-use-plists t)
-  (lsp-diagnostics-provider t)
-  (lsp-auto-guess-root t)
-  (lsp-keep-workspace-alive nil)
-  (lsp-warn-no-matched-clients nil)
-  (lsp-lens-enable t)
-  (lsp-completion-mode-hook :none)
-  (lsp-enable-links nil)
-  (lsp-enable-snippet nil)
-  (lsp-enable-on-type-formatting nil)
-  (lsp-enable-symbol-highlighting t)
-  (lsp-purescript-add-npm-path t)
-  (read-process-output-max (* 2048 1024))
-  (lsp-file-watch-ignored
-   '("node_modules" ".git" ".hg" ".nvm" "_darcs" ".stack-work" "target" "build" ".spago" ".bundle"))
-  (lsp-file-watch-ignored-directories
-   '("node_modules" ".git" ".hg" ".nvm" "_darcs" ".stack-work" "target" "build" ".spago" ".bundle" "[/\\\\]\\.stack-work\\'"))
-  
+  (read-process-output-max (* 1024 1024))
+  (eglot-events-buffer-size 0)
+  (eglot-sync-connect 1)
+  (eglot-autoshutdown t)
+  (eglot-extend-to-xref t)
+  (eglot-confirm-server-initiated-edits nil)
   :config
-  (add-hook 'lsp-completion-mode-hook
- 	          (lambda ()
- 	            (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
+  (add-to-list 'eglot-server-programs
+               '(yaml-ts-mode . ("dsl" "lsp")))
 
-(use-package lsp-haskell
-  :after (lsp haskell-mode))
-
-;; (use-package eglot
-;;   :ensure nil
-;;   :hook ((js-ts-mode
-;;           haskell-mode
-;;           purescript-mode
-;;           typescript-ts-mode) . eglot-ensure)
-;;   :bind
-;;   (:map prog-mode-map
-;;         ("C-c c l" . eglot)
-;;         ("C-c c q" . eglot-shutdown))
-;;   (:map eglot-mode-map
-;;         ("C-c c x" . consult-flymake)
-;;         ("C-c c a" . eglot-code-actions)
-;;         ("C-c c r" . eglot-rename)
-;;         ("C-c c f" . eglot-format)
-;;         ("C-c c d" . eldoc))
-;;   :custom
-;;   (read-process-output-max (* 1024 1024))
-;;   (eglot-events-buffer-size 0)
-;;   (eglot-sync-connect 1)
-;;   (eglot-autoshutdown t)
-;;   (eglot-extend-to-xref t)
-;;   (eglot-confirm-server-initiated-edits nil)
-;;   (eglot-ignored-server-capabilities
-;;    '(:codeLensProvider
-;;      ;;     :documentHighlightProvider
-;;      :documentFormattingProvider
-;;      :documentRangeFormattingProvider))
-;;   :config
-;;   (add-to-list 'eglot-server-programs
-;;                '(yaml-ts-mode . ("dsl" "lsp")))
-
-;;   (setq-default eglot-workspace-configuration
-;;                 '((:purescript . (:addSpagoSources t :addNpmPath t)))))
+  (setq-default eglot-workspace-configuration
+                '((:purescript . (:addSpagoSources t :addNpmPath t)))))
 
 
 ;;;; Tree sitter
+
+(use-package tree-sitter
+  :hook (((rustic-mode
+           css-mode) . tree-sitter-mode)
+         ((rustic-mode
+           css-mode) . tree-sitter-hl-mode))
+  :config
+  (add-to-list 'tree-sitter-major-mode-language-alist
+               '(rustic-mode . rust)))
+
+(use-package tree-sitter-langs
+  :after tree-sitter)
 
 (use-package treesit-auto
   :demand
@@ -1348,7 +1301,6 @@
   (add-to-list 'auto-mode-alist '("CMakeLists\\'" . cmake-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.ts\\'"      . typescript-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.tsx\\'"     . tsx-ts-mode))
-  (add-to-list 'auto-mode-alist '("\\.rs\\'"      . rust-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.ya?ml\\'"   . yaml-ts-mode))
   (global-treesit-auto-mode))
 
@@ -1359,6 +1311,7 @@
   (haskell-mode       . haskell-compiler)
   (purescript-mode    . purescript-compiler)
   (compilation-filter . colorize-compilation-buffer)
+  (rustic-mode        . rustic-cargo-build)
   :bind
   (:map prog-mode-map
         ("C-c c c" . compile)
@@ -1458,18 +1411,29 @@
 
 ;;;; Rust
 
-(use-package rust-mode)
-
 (use-package rustic
+  :mode
+  ("\\.rs\\'"      . rustic-mode)
+  ("\\.lalrpop\\'" . rustic-mode)
   :defines (rustic-mode-map)
-  :bind (:map rustic-mode-map
-              ("C-c c a" . lsp-rust-analyzer-status)
-              ("C-c c b" . rustic-cargo-build))
+  :bind  (:map rustic-mode-map
+               ("M-j" . lsp-ui-imenu)
+               ("M-?" . lsp-find-references)
+               ("C-c c l" . flycheck-list-errors)
+               ("C-c c x" . lsp-execute-code-action)
+               ("C-c c b" . rustic-cargo-build)
+               ("C-c c r" . lsp-rename)
+               ("C-c c c" . rustic-compile)
+               ("C-c c s" . lsp-rust-analyzer-status)
+               ("C-c c q" . lsp-workspace-restart)
+               ("C-c c Q" . lsp-workspace-shutdown)
+               ("C-c c A" . rustic-cargo-add-missing-dependencies)
+               )
   :custom
-  ;;  (lsp-eldoc-hook nil)
+  (add-hook 'eglot--managed-mode-hook (lambda () (flymake-mode -1)))
+  (rustic-format-on-save t)
   (lsp-rust-server 'rust-analyzer)
-  (rustic-lsp-client 'eglot)
-  (rust-format-on-save t))
+  (rustic-lsp-client 'eglot))
 
 ;;;; JS
 

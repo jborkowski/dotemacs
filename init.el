@@ -734,15 +734,11 @@
   (logos-buffer-read-only nil)
   (logos-olivetti t))
 
-;;;; Ispell
-
-(use-package ispell
-  :ensure nil
-  :config
-  (setq ispell-program-name "hunspell"
-        ispell-dictionary "en_US,pl_PL,es_ES")
-  (ispell-set-spellchecker-params)
-  (ispell-hunspell-add-multi-dic ispell-dictionary))
+(use-package jinx
+  :hook (emacs-startup . global-jinx-mode)
+  :bind ("M-$" . jinx-correct)
+  :custom
+  (jinx-languages "en_US pl_PL es_ES de"))
 
 ;;;; Flyspell
 (use-package flyspell
@@ -885,6 +881,7 @@
 (use-package denote
   :bind
   ("C-c n n" . denote)
+  ("C-c n N" . denote-type)
   ("C-c n i" . denote-link)
   ("C-c n b" . denote-link-backlinks)
   ("C-c n l" . denote-link-find-file)
@@ -902,6 +899,7 @@
   (denote-prompt-for-date-return-id '(title keywords))
   (denote-front-matter-date-format 'org-timestamp)
   (denote-templates '((todo . "* Tasks:\n\n")))
+  (denote-file-type 'markdown-yaml) ; Org is the default, set others here
   :config
   (defun bore/journal ()
     "Create an entry tagged 'journal' with the date as its title"
@@ -1518,154 +1516,3 @@
  ;; If there is more than one, they won't work right.
  )
 
-
-;;; Matrix
-
-;; (use-package ement
-;;   :ensure nil
-;;   :vc (:fetcher "github" :repo "alphapapa/ement.el")
-;;   :config
-
-;;   (cl-defun ement-connect (&key user-id password uri-prefix session sso local-port)
-;;     "Connect to Matrix with USER-ID and PASSWORD, specify SSO and optionally LOCAL-PORT,
-;;  or using SESSION.
-;; Interactively, with prefix, ignore a saved session and log in
-;; again; otherwise, use a saved session if `ement-save-sessions' is
-;; enabled and a saved session is available, or prompt to log in if
-;; not enabled or available.
-
-;; If USERID or PASSWORD are not specified, the user will be
-;; prompted for them.
-
-;; If URI-PREFIX is specified, it should be the prefix of the
-;; server's API URI, including protocol, hostname, and optionally
-;; the port, e.g.
-
-;;   \"https://matrix-client.matrix.org\"
-;;   \"http://localhost:8080\""  
-;;     (interactive)
-;;     (cl-labels ((new-session ()
-;;                   (unless (string-match
-;;                            (rx bos "@" (group (1+ (not (any ":")))) ; Username
-;;                                ":" (group (optional (1+ (not (any blank)))))) ; Server name
-;;                            user-id)
-;;                     (user-error "Invalid user ID format: use @USERNAME:SERVER"))
-;;                   (let* ((username (match-string 1 user-id))
-;;                          (server-name (match-string 2 user-id))
-;;                          (uri-prefix (or uri-prefix (ement--hostname-uri server-name)))
-;;                          (user (make-ement-user :id user-id
-;;                                                 :username username))
-;;                          (server (make-ement-server :name server-name
-;;                                                     :uri-prefix uri-prefix))
-;;                          (transaction-id (ement--initial-transaction-id)))
-;;                     (make-ement-session :user user
-;;                                         :server server
-;;                                         :transaction-id transaction-id
-;;                                         :events (make-hash-table
-;;                                                  :test #'equal))))
-;;                 (password-login ()
-;;                   (pcase-let* (((cl-struct ement-session user device-id
-;;                                            initial-device-display-name)
-;;                                 session)
-;;                                ((cl-struct ement-user id) user)
-;;                                (data
-;;                                 (ement-alist "type" "m.login.password"
-;;                                              "identifier"
-;;                                              (ement-alist "type" "m.id.user"
-;;                                                           "user" id)
-;;                                              "password" (or password (read-passwd "Password: "))
-;;                                              "device_id" device-id
-;;                                              "initial_device_display_name"
-;;                                              initial-device-display-name)))
-;;                     (ement-api session "login"
-;;                       :method 'post
-;;                       :data (json-encode data)
-;;                       :then (apply-partially #'ement--login-callback session))))
-;;                 (sso-execute (proc msg)
-;;                   (let* ((token (save-match-data
-;;                                   (string-match "GET /\\?loginToken=\\(.*\\)\s.*" msg)
-;;                                   (match-string 1 msg)))
-;;                          (login-data (ement-alist "type" "m.login.token"
-;;                                                   "token" token)
-;;                                      ))
-;;                     (pcase-let* (((cl-struct ement-session user device-id
-;;                                              initial-device-display-name)
-;;                                   session)
-;;                                  ((cl-struct ement-user id) user)
-;;                                  (data
-;;                                   (ement-alist "type" "m.login.token"
-;;                                                "identifier" (ement-alist "type" "m.id.user" "user" id)
-;;                                                "token" token
-;;                                                "device_id" device-id
-;;                                                "initial_device_display_name"
-;;                                                initial-device-display-name)))
-;;                       (ement-api session "login"
-;;                         :method 'post
-;;                         :data (json-encode data)
-;;                         :then (apply-partially #'ement--login-callback session))))
-;;                   (delete-process "ement-sso"))
-;;                 (sso-login ()
-;;                   (make-network-process :name "ement-sso"
-;;                                         :family 'ipv4
-;;                                         :host "localhost"
-;;                                         :service (or local-port 4567)
-;;                                         :filter #'sso-execute
-;;                                         :server t)
-;;                   (browse-url
-;;                    (concat (ement-server-uri-prefix (ement-session-server session))
-;;                            "/_matrix/client/r0/login/sso/redirect?redirectUrl=http://localhost:"
-;;                            (number-to-string (or local-port 4567)))))              
-;;                 (flows-callback (data)
-;;                   (let ((flows (mapcar (lambda (data) (alist-get 'type data)) (alist-get 'flows data))))
-;;                     (cond
-;;                      ((and (boundp 'password) (boundp' sso) sso)
-;;                       (error "A password was supplied to ement-connect while also specifying SSO."))
-;;                      ;; If we supplied a password use password login
-;;                      ((boundp 'password)
-;;                       (if (member "m.login.password" flows)
-;;                           (password-login))
-;;                       (error "Matrix server doesn't support m.login.password login flow.  Supported flows: %s" flows))
-;;                      ((and (boundp 'sso) sso (member "m.login.sso" flows)) (sso-login))
-;;                      ((and (member "m.login.password" flows)
-;;                            (member "m.login.sso" flows))
-;;                       (pcase (completing-read "Select Login Method: " '("Password" "SSO"))
-;;                         ("Password" (password-login))
-;;                         ("SSO" (sso-login))))
-;;                      ((member "m.login.password" flows) (password-login))
-;;                      ((member "m.login.sso" flows) (sso-login))
-;;                      (t (error "Unable to login. No login flows matched.")))))              
-;;                 (user-login ()
-;;                   (unless user-id (setf user-id (read-string "User ID: ")))
-;;                   (unless session (setf session (new-session)))
-;;                   (ement-api session "login" :then #'flows-callback)))
-
-;;       ;; Use known session.
-;;       (unless ement-sessions
-;;         ;; Read sessions from disk.
-;;         (condition-case err
-;;             (setf ement-sessions (ement--read-sessions))
-;;           (error (display-warning
-;;                   'ement
-;;                   (format "Unable to read session data from disk (%s).  Prompting to log in again."
-;;                           (error-message-string err))))))
-
-;;       (if current-prefix-arg
-;;           ;; Force new session.
-;;           (user-login)
-;;         (cl-case (length ement-sessions)
-;;           (0 (user-login))
-;;           (1 (setf session (cdar ement-sessions)))
-;;           (otherwise (setf session (ement-complete-session)))))
-;;       (if session
-;;           ;; Start syncing given session.
-;;           (let ((user-id (ement-user-id (ement-session-user session))))
-;;             ;; HACK: If session is already in ement-sessions, this replaces it.
-;;             ;; I think that's okay...
-;;             (setf (alist-get user-id ement-sessions nil nil #'equal) session)
-;;             (ement--sync session :ement-initial-sync-timeout)))))
-
-;;   )
-
-;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
-;; (require 'opam-user-setup "~/.emacs.d/opam-user-setup.el") 
-;; ## end of OPAM user-setup addition for emacs / base ## keep this line

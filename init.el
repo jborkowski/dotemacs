@@ -291,11 +291,11 @@
 (defun bore/with-font-faces-linux ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
-    (set-face-attribute 'default nil :font (font-spec :family "JetBrainsMonoNL" :size 15 :weight 'regular))
-    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "JetBrainsMonoNL" :size 15 :weight 'regular))
-    (set-face-attribute 'variable-pitch nil :font (font-spec :family "Iosevka Aile" :size 15 :weight 'regular))))
+    (set-face-attribute 'default nil :font (font-spec :family "CommitMono" :size 14 :weight 'regular))
+    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "CommitMono" :size 14 :weight 'regular))
+    (set-face-attribute 'variable-pitch nil :font (font-spec :family "Inter" :size 15 :weight 'regular))))
 
-(when *is-a-mac*
+(when *is-a-mac* 
   (add-hook 'after-init-hook 'bore/with-font-faces-mac)
   (add-hook 'server-after-make-frame-hook 'bore/with-font-faces-mac))
 
@@ -563,6 +563,7 @@
   (:map vertico-map
         ("M-j" . vertico-quick-exit))
   :custom
+  (vertico-mouse-mode t)
   (vertico-scroll-margin 0)
   (vertico-resize t)
   (vertico-cycle t)
@@ -677,6 +678,13 @@
   (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
   (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
 
+
+(use-package strokes-mode
+  :ensure nil
+  :bind ("S-<down-mouse-2>" . strokes-do-stroke)
+  :commands (strokes-do-stroke strokes-global-set-stroke)
+  :custom
+  (strokes-mode t))
 
 ;;;; Pcmpl-args - Shell completions
 
@@ -1072,7 +1080,7 @@
     ("C-c o m" . notmuch)
     (:map notmuch-show-mode-map ("o" . notmuch-show-interactively-view-part))
     :custom
-    ;;      (notmuch-show-logo nil)
+    (notmuch-show-logo nil)
     (notmuch-column-control t)
     (notmuch-hello-auto-refresh t)
     (notmuch-show-all-tags-list t)
@@ -1256,7 +1264,10 @@
           haskell-mode
           purescript-mode
           typescript-ts-mode
-          rust-ts-mode) . eglot-ensure)
+          rust-ts-mode
+          c-ts-mode
+          c++-ts-mode) . eglot-ensure)
+
   :bind
   (:map prog-mode-map
         ("C-c c l" . eglot)
@@ -1274,6 +1285,7 @@
   (eglot-autoshutdown t)
   (eglot-extend-to-xref t)
   (eglot-confirm-server-initiated-edits nil)
+  
   ;; (eglot-ignored-server-capabilities
   ;;  '(:codeLensProvider
   ;;    :documentHighlightProvider
@@ -1282,7 +1294,8 @@
   
   :config
   (add-to-list 'eglot-server-programs
-               '(yaml-ts-mode . ("dsl" "lsp")))
+               '(yaml-ts-mode . ("dsl" "lsp"))
+               '((c++-mode c-mode) "clangd"))
 
   (setq-default eglot-workspace-configuration
                 '((:purescript . (:addSpagoSources t :addNpmPath t)))))
@@ -1508,7 +1521,16 @@
   :config
   (setq inferior-lisp-program "sbcl"))
 
-;;; init.el ends
+
+(load "mwheel")
+(mouse-wheel-mode 1)
+(setq mouse-wheel-progressive-speed nil)
+(setq redisplay-dont-pause t)
+(setq mouse-wheel-scroll-amount
+      '(1 ((shift) . 1)
+          ((control) . nil)))
+
+;;; Init.el ends
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

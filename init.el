@@ -48,6 +48,8 @@
 (defconst *is-a-mac* (eq system-type 'darwin))
 (defconst *is-a-linux* (eq system-type 'gnu/linux))
 
+(add-to-list 'default-frame-alist '(undecorated-round . t))
+
 ;; Ensure that environment variables are the same as the user’s shell
 (when *is-a-mac*
   (use-package exec-path-from-shell
@@ -738,7 +740,13 @@
   :hook (emacs-startup . global-jinx-mode)
   :bind ("M-$" . jinx-correct)
   :custom
-  (jinx-languages "en_US pl_PL es_ES de"))
+  (jinx-languages "en_US pl_PL es_ES de")
+  (jinx-exclude-regexps
+   '((t "[A-Z]+\\>"
+        "\\<[[:upper:]][[:lower:]]+\\>"
+        "\\w*?[0-9\.'\"-]\\w*"
+        "[a-z]+://\\S-+"
+        "<?[-+_.~a-zA-Z][-+_.~:a-zA-Z0-9]*@[-.a-zA-Z0-9]+>?"))))
 
 ;;;; Flyspell
 (use-package flyspell

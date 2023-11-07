@@ -24,6 +24,8 @@
   (use-package-always-defer t)
   (use-package-enable-imenu-support t))
 
+(unless (package-installed-p 'vc-use-package)
+  (package-vc-install "https://github.com/slotThe/vc-use-package"))
 ;;;; Defaults
 
 (setopt inhibit-splash-screen t
@@ -1521,6 +1523,13 @@
   :config
   (setq inferior-lisp-program "sbcl"))
 
+;;;; Hare
+(use-package hare-mode
+  :vc (:fetcher sourcehut :repo bbuccianti/hare-mode))
+
+;;;; Zig
+(use-package zig-mode
+  :mode ("\\.zig\\'"))
 
 (load "mwheel")
 (mouse-wheel-mode 1)

@@ -276,8 +276,8 @@
      (shell-command-to-string "defaults read -g AppleInterfaceStyle"))))
 
 (if (string-match-p "dark" (bore/os-theme))
-    (load-theme 'modus-vivendi-deuteranopia)
-  (load-theme 'modus-operandi-deuteranopia))
+    (load-theme 'modus-vivendi-tinted)
+  (load-theme 'modus-operandi-tinted))
 
 ;;(use-package nyan-mode
 ;;  :init (nyan-mode))

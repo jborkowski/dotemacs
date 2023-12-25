@@ -50,7 +50,7 @@
 (defconst *is-a-mac* (eq system-type 'darwin))
 (defconst *is-a-linux* (eq system-type 'gnu/linux))
 
-(add-to-list 'default-frame-alist '(undecorated-round . t))
+;; (add-to-list 'default-frame-alist '(undecorated-round . t))
 
 ;; Ensure that environment variables are the same as the user’s shell
 (when *is-a-mac*
@@ -258,7 +258,7 @@
   ("C-c t t" . modus-themes-toggle)
   :custom
   (modus-themes-to-toggle
-   '(modus-operandi-deuteranopia modus-vivendi-deuteranopia))
+   '(modus-operandi-tinted modus-vivendi-tinted))
   (modus-themes-common-palette-overrides
 	 '((prose-done green-intense)
 	   (prose-todo red-intense)))
@@ -279,8 +279,8 @@
     (load-theme 'modus-vivendi-tinted)
   (load-theme 'modus-operandi-tinted))
 
-;;(use-package nyan-mode
-;;  :init (nyan-mode))
+(use-package nyan-mode
+  :init nyan-mode)
 
 ;;;; Fonts
 (defun bore/with-font-faces-mac ()

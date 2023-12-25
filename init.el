@@ -279,7 +279,7 @@
   (load-theme 'modus-operandi-tinted))
 
 (use-package nyan-mode
-  :init nyan-mode)
+  :init (nyan-mode))
 
 ;;;; Fonts
 (defun bore/with-font-faces-mac ()

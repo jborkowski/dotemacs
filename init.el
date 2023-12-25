@@ -24,8 +24,7 @@
   (use-package-always-defer t)
   (use-package-enable-imenu-support t))
 
-(unless (package-installed-p 'vc-use-package)
-  (package-vc-install "https://github.com/slotThe/vc-use-package"))
+
 ;;;; Defaults
 
 (setopt inhibit-splash-screen t
@@ -1525,7 +1524,7 @@
 
 ;;;; Hare
 (use-package hare-mode
-  :vc (:fetcher sourcehut :repo bbuccianti/hare-mode))
+  :vc (:url "https://git.sr.ht/~laumann/hare-mode"))
 
 ;;;; Zig
 (use-package zig-mode
@@ -1545,9 +1544,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(initial-frame-alist '((fullscreen . maximized)))
- '(package-vc-selected-packages
-   '((vc-use-package :vc-backend Git :url "https://github.com/slotThe/vc-use-package"))))
+ '(initial-frame-alist '((fullscreen . maximized))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

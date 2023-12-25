@@ -1503,7 +1503,6 @@
   (haskell-process-suggest-remove-import-lines t))
 
 ;;;; TS
-
 (use-package typescript-mode
   :mode "\\.ts\\'"
   :hook (typescript-mode . prettier-format-on-save-mode)
@@ -1511,7 +1510,6 @@
   (typescript-indent-level 2))
 
 ;;;; PS
-
 (use-package purescript-mode
   :mode ("\\.purs\\'")
   :hook (purescript-mode . turn-on-purescript-indentation))
@@ -1522,33 +1520,24 @@
   :config
   (setq inferior-lisp-program "sbcl"))
 
-;;;; Hare
-(use-package hare-mode
-  :vc (:url "https://git.sr.ht/~laumann/hare-mode"))
 
-;;;; Zig
+;;;; Hare (only for linux)
+(when *is-a-linux* 
+  (use-package hare-mode
+    :vc (:url "https://git.sr.ht/~laumann/hare-mode")))
+
 (use-package zig-mode
   :mode ("\\.zig\\'"))
 
 (load "mwheel")
 (mouse-wheel-mode 1)
 (setq mouse-wheel-progressive-speed nil)
-(setq redisplay-dont-pause t)
 (setq mouse-wheel-scroll-amount
       '(1 ((shift) . 1)
           ((control) . nil)))
 
-;;; Init.el ends
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(initial-frame-alist '((fullscreen . maximized))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+;; Local Variables:
+;; byte-compile-warnings: (not unresolved free-vars)
+;; End:
 
+;;; init.el ends here

@@ -14,7 +14,7 @@
 (package-initialize)
 (unless package-archive-contents
   (package-refresh-contents))
-
+(setq inhibit-default-init t)
 (setopt package-native-compile t)
 
 (use-package use-package
@@ -250,7 +250,7 @@
 
 ;;;; Theme
 (setopt custom-safe-themes t)
-
+(add-to-list 'default-frame-alist '(undecorated . t))
 (use-package modus-themes
   :pin melpa
   :bind
@@ -292,9 +292,9 @@
 (defun bore/with-font-faces-linux ()
   "Setup all Emacs font faces."
   (when (display-graphic-p)
-    (set-face-attribute 'default nil :font (font-spec :family "CommitMono" :size 14 :weight 'regular))
-    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "CommitMono" :size 14 :weight 'regular))
-    (set-face-attribute 'variable-pitch nil :font (font-spec :family "Inter" :size 15 :weight 'regular))))
+    (set-face-attribute 'default nil :font (font-spec :family "JetBrainsMono" :size 14 :weight 'regular))
+    (set-face-attribute 'fixed-pitch nil :font (font-spec :family "JetBrainsMono" :size 14 :weight 'regular))
+    (set-face-attribute 'variable-pitch nil :font (font-spec :family "JetBrainsMono" :size 15 :weight 'regular))))
 
 (when *is-a-mac* 
   (add-hook 'after-init-hook 'bore/with-font-faces-mac)

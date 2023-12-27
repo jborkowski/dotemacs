@@ -1522,9 +1522,9 @@
 
 
 ;;;; Hare (only for linux)
-(when *is-a-linux* 
-  (use-package hare-mode
-    :vc (:fetcher sourcehut :repo laumann/hare-mode)))
+;; (when *is-a-linux* 
+;;   (use-package hare-mode
+;;     :vc (:fetcher sourcehut :repo laumann/hare-mode)))
 
 (use-package zig-mode
   :mode ("\\.zig\\'"))

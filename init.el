@@ -769,15 +769,11 @@
   (setq flyspell-issue-welcome-flag nil
         flyspell-issue-message-flag nil))
 
-
-
 ;;;; Clipetty
 
 (use-package clipetty
   :unless (display-graphic-p)
   :hook (tty-setup . global-clipetty-mode))
-
-
 
 ;;;; Org
 
@@ -926,7 +922,7 @@
      '("journal"))))
 
 (use-package consult-notes
-  ;;  :straight (:type git :host github :repo "mclear-tools/consult-notes")
+  ;;  :vc (:type git :host github :repo "mclear-tools/consult-notes")
   :commands (consult-notes
 	           consult-notes-search-in-all-notes
 	           consult-notes-org-roam-find-node
@@ -1009,6 +1005,10 @@
 
 (setopt vc-handled-backends '(Git)
         vc-follow-symlinks t)
+
+(use-package vundo
+  :bind ("C-x u" . vundo)
+  :custom (vundo-glyph-alist vundo-unicode-symbols))
 
 (use-package hl-todo
   :hook (prog-mode))
